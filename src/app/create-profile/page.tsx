@@ -45,7 +45,7 @@ export default function CreateProfilePage() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="institution">Current / Last Institution</Label>
+                <Label htmlFor="institution">Current or Last Educational Institution</Label>
                 <Input id="institution" placeholder="e.g., University of Dhaka" />
               </div>
             </div>
