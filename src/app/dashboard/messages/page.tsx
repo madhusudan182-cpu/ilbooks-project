@@ -152,20 +152,20 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "w-full flex items-center p-2 border-b transition-colors hover:bg-muted/50",
-                  selectedConversation?.user.id === conv.user.id && "bg-muted",
+                  "w-full flex items-center gap-2 p-2 border-b transition-colors",
+                  selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                 <button
-                    className="flex-1 flex items-center gap-3 overflow-hidden text-left"
+                <div 
+                    className="flex-1 min-w-0 flex items-center gap-3 cursor-pointer"
                     onClick={() => setSelectedConversation(conv)}
-                  >
+                >
                     <Avatar className="h-11 w-11 border flex-shrink-0">
                       { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
                       <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 min-w-0">
                         <p className="font-semibold font-headline truncate">{conv.user.name}</p>
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
@@ -176,8 +176,8 @@ export default function MessagesPage() {
                             )}
                         </div>
                     </div>
-                </button>
-                <div className="flex flex-col items-end gap-1 ml-2 flex-shrink-0">
+                </div>
+                <div className="flex-shrink-0 flex flex-col items-end gap-1 text-right">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
                     {!isIlbooks ? (
                         <DropdownMenu>
