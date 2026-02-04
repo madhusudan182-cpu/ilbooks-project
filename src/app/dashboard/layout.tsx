@@ -44,6 +44,47 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+          {/* Mobile Nav */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <SheetHeader className="sr-only">
+                  <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="grid gap-6 text-lg font-medium">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 text-lg font-semibold mb-4"
+                >
+                  <Book className="h-6 w-6 text-primary" />
+                  <span className="font-headline">ILBooks</span>
+                </Link>
+                {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground",
+                     pathname === item.href && "bg-muted text-foreground"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.title}
+                </Link>
+              ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
           <Link href="/dashboard" className="flex items-center gap-2 font-headline font-semibold text-primary mr-6">
             <Book className="w-6 h-6" />
             <h1 className="text-lg">ILBooks</h1>
@@ -100,46 +141,6 @@ export default function DashboardLayout({
                     Log Out
                 </Link>
             </Button>
-             {/* Mobile Nav */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 md:hidden"
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <SheetHeader className="sr-only">
-                    <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <nav className="grid gap-6 text-lg font-medium">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-2 text-lg font-semibold mb-4"
-                  >
-                    <Book className="h-6 w-6 text-primary" />
-                    <span className="font-headline">ILBooks</span>
-                  </Link>
-                  {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground",
-                       pathname === item.href && "bg-muted text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.title}
-                  </Link>
-                ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
           </div>
       </header>
       <main className="flex-grow">
