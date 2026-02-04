@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,10 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { mockUsers, mockPosts } from "@/lib/data";
-import { MapPin, UserPlus, MessageCircle, Heart, Share2 } from "lucide-react";
+import { MapPin, UserPlus, MessageCircle, Heart, Share2, ArrowLeft } from "lucide-react";
 
 export default function UserProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const userId = params.id as string;
 
   const user = mockUsers.find(u => u.id === userId);
@@ -27,6 +28,10 @@ export default function UserProfilePage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
+       <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
       <Card>
         <CardContent className="p-6 flex flex-col md:flex-row items-start gap-6">
           <Avatar className="w-24 h-24 border-4 border-card">
