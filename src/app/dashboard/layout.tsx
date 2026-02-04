@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Book, LogOut, Home, Sword, BookMarked, Crown, MessageCircle, Users, Menu, Star, BookOpen, PenSquare } from 'lucide-react';
+import { Book, LogOut, Home, Trophy, BookMarked, Crown, MessageCircle, Users, Menu, Star, BookOpen, PenSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -26,7 +26,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', title: 'Home', icon: Home },
-  { href: '/dashboard/competition', title: 'Competition', icon: Sword },
+  { href: '/dashboard/competition', title: 'Competition', icon: Trophy },
   { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
   { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
   { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
@@ -59,7 +59,7 @@ export default function DashboardLayout({
             </SheetTrigger>
             <SheetContent side="left" className="p-0">
               <SheetHeader className="border-b p-4">
-                <SheetTitle className="flex items-center gap-3">
+                <SheetTitle>
                    <Link
                       href="/dashboard"
                       onClick={() => setIsSheetOpen(false)}
