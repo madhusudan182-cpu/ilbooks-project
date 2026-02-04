@@ -48,24 +48,6 @@ const socialNav: NavItem[] = [
   { href: '/dashboard/social', title: 'Friends', icon: Users },
 ];
 
-const MobileBottomNav = () => {
-  const isMobile = useIsMobile();
-  if (!isMobile) return null;
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t md:hidden z-20">
-      <div className="flex justify-around items-center h-full">
-        {mainNav.map((item) => (
-          <Link key={item.title} href={item.href} className="flex flex-col items-center justify-center text-muted-foreground hover:text-primary">
-            <item.icon className="h-6 w-6" />
-            <span className="text-xs">{item.title}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export default function DashboardLayout({
   children,
 }: {
@@ -137,7 +119,7 @@ export default function DashboardLayout({
           </div>
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="max-w-screen-2xl mx-auto pb-16 md:pb-0">
+      <SidebarInset className="max-w-screen-2xl mx-auto">
          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:hidden">
             <SidebarTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Toggle Sidebar">
@@ -154,7 +136,6 @@ export default function DashboardLayout({
         </header>
         {children}
       </SidebarInset>
-      <MobileBottomNav />
     </SidebarProvider>
   );
 }
