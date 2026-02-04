@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -35,9 +34,6 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
   { href: '/dashboard/notice-board', title: 'Notice Board', icon: Bell }
 ];
-
-const mainNavItems: NavItem[] = allNavItems.slice(0, 6);
-
 
 export default function DashboardLayout({
   children,
@@ -94,25 +90,41 @@ export default function DashboardLayout({
             </SheetContent>
           </Sheet>
           
-          <Link href="/dashboard" className="flex items-center gap-2 text-primary">
-            <Book className="w-6 h-6" />
-            <span className="font-headline font-semibold hidden md:block">ILBooks</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2 text-primary">
+              <Book className="w-6 h-6" />
+              <span className="font-headline font-semibold hidden md:block">ILBooks</span>
+            </Link>
 
-          <nav className="hidden flex-row items-center gap-5 text-sm md:flex lg:gap-6 ml-6">
-            {mainNavItems.map((item) => (
-                <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                    'transition-colors hover:text-foreground',
-                    pathname === item.href ? 'text-foreground font-semibold' : 'text-muted-foreground'
-                )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 hidden md:inline-flex"
                 >
-                {item.title}
-                </Link>
-            ))}
-          </nav>
+                  <Grid3x3 className="h-5 w-5" />
+                  <span className="sr-only">Toggle Main Menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {allNavItems.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                          "flex items-center gap-3",
+                          pathname === item.href && "text-primary"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           
 
           <div className="ml-auto flex items-center gap-2">
