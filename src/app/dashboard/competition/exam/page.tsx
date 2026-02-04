@@ -132,7 +132,7 @@ export default function ExamPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="py-6">
+          <div className="py-4">
             <p className="text-base md:text-lg font-medium text-center">{currentQuestion.questionText}</p>
           </div>
           <RadioGroup 
@@ -153,7 +153,7 @@ export default function ExamPage() {
             ))}
           </RadioGroup>
 
-          <div className="flex justify-end mt-8 gap-2">
+          <div className="flex justify-end mt-6 gap-2">
             <Button variant="outline" onClick={handleNext}>
               Skip
             </Button>
