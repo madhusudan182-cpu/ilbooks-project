@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, MoreHorizontal, Reply, Copy, ThumbsUp, Trash2 } from "lucide-react";
+import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, MoreHorizontal, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
@@ -36,17 +36,22 @@ const allConversations = [
     } as User,
     messages: [
       { id: 1, text: "Hello! How can I assist you today?", sender: 'ilbooks-admin', timestamp: '10:00 AM' },
-      { id: 2, text: "I have a question about the competition rules.", sender: currentUser.id, timestamp: '10:01 AM' },
+      { id: 2, text: "I have a question about the competition rules.", sender: currentUser.id, timestamp: '10:01 AM', status: 'seen' as const },
+      { id: 3, text: "Sure, what is your question?", sender: 'ilbooks-admin', timestamp: '10:02 AM' },
+      { id: 4, text: "What is the passing mark for Level 0.0?", sender: currentUser.id, timestamp: '10:03 AM', status: 'delivered' as const },
+      { id: 5, text: "You need to score at least 60% in each subject.", sender: 'ilbooks-admin', timestamp: '10:04 AM' },
+      { id: 6, text: "Got it, thanks!", sender: currentUser.id, timestamp: '10:05 AM', status: 'sent' as const },
+      { id: 7, text: "Also, can I retake the exam if I fail?", sender: currentUser.id, timestamp: '10:06 AM', status: 'pending' as const },
     ],
-    lastMessage: "I have a question about the competition rules.",
-    timestamp: "10:01 AM",
+    lastMessage: "Also, can I retake the exam if I fail?",
+    timestamp: "10:06 AM",
     unread: 0,
   },
   ...mockUsers.filter(u => u.id !== currentUser.id).map((user, index) => ({
     user,
     messages: [
       { id: 1, text: "Hey, how are you?", sender: user.id, timestamp: '9:30 AM'},
-      { id: 2, text: "Doing great, thanks! Just finished a new book.", sender: currentUser.id, timestamp: '9:32 AM'}
+      { id: 2, text: "Doing great, thanks! Just finished a new book.", sender: currentUser.id, timestamp: '9:32 AM', status: 'delivered' as const}
     ],
     lastMessage: "Doing great, thanks! Just finished a new book.",
     timestamp: "9:32 AM",
@@ -81,6 +86,7 @@ export default function MessagesPage() {
           text: newMessage,
           sender: currentUser.id,
           timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          status: 'sent' as const,
       };
 
       // This is a mock update. In a real app, you'd send this to a backend.
@@ -150,10 +156,10 @@ export default function MessagesPage() {
           {allConversations.sort((a,b) => (a.user.isAdmin ? -1 : b.user.isAdmin ? 1 : 0)).map(conv => {
             const isIlbooks = conv.user.name === "ILBooks";
             return (
-              <div
+              <button
                 key={conv.user.id}
                 className={cn(
-                  "flex items-start gap-3 p-2 border-b cursor-pointer",
+                  "flex items-start gap-3 p-3 border-b cursor-pointer w-full text-left",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
@@ -215,7 +221,7 @@ export default function MessagesPage() {
                       )}
                     </div>
                 </div>
-              </div>
+              </button>
             )
           })}
         </ScrollArea>
@@ -280,7 +286,18 @@ export default function MessagesPage() {
 
                          <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
                              <p className="break-words">{msg.text}</p>
-                             <p className={cn("text-xs mt-1.5 opacity-75", msg.sender === currentUser.id ? "text-right" : "text-left")}>{msg.timestamp}</p>
+                            {msg.sender === currentUser.id ? (
+                                <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs opacity-80">
+                                    {msg.status === 'pending' && <span className="italic">Pending</span>}
+                                    <span>{msg.timestamp}</span>
+                                    {msg.status === 'pending' && <Clock className="h-4 w-4" />}
+                                    {msg.status === 'sent' && <Check className="h-4 w-4" />}
+                                    {msg.status === 'delivered' && <CheckCheck className="h-4 w-4" />}
+                                    {msg.status === 'seen' && <CheckCheck className="h-4 w-4 text-lime-300" />}
+                                </div>
+                            ) : (
+                                <p className="text-xs mt-1.5 opacity-75 text-left">{msg.timestamp}</p>
+                            )}
                          </div>
                          
                          <DropdownMenu>
