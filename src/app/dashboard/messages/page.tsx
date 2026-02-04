@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, MoreHorizontal, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock, Mic } from "lucide-react";
+import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, MoreHorizontal, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock, Mic, Smile } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
@@ -422,12 +422,18 @@ export default function MessagesPage() {
                         <Mic className="w-5 h-5" />
                         <span className="sr-only">Record voice message</span>
                     </Button>
-                    <Input 
-                        placeholder="Type a message..." 
-                        className="flex-1" 
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                    />
+                    <div className="relative flex-1">
+                      <Input 
+                          placeholder="Type a message..." 
+                          className="pr-10" 
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                      />
+                      <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                          <Smile className="w-5 h-5 text-muted-foreground" />
+                          <span className="sr-only">Add emoji</span>
+                      </Button>
+                    </div>
                     <Button type="submit" size="icon" aria-label="Send Message" disabled={!newMessage.trim()} className="shrink-0">
                         <Send className="w-4 h-4"/>
                     </Button>
