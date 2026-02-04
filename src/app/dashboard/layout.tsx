@@ -251,6 +251,12 @@ export default function DashboardLayout({
                   </TooltipTrigger>
                   <TooltipContent><p>Social Circle</p></TooltipContent>
                 </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/notice-board" className="hover:text-primary transition-colors"><Bell className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Notifications</p></TooltipContent>
+                </Tooltip>
               </div>
             </TooltipProvider>
 
