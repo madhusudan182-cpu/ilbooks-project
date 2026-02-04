@@ -17,7 +17,6 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type NavItem = {
@@ -36,6 +35,17 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
   { href: '/dashboard/notice-board', title: 'Notice Board', icon: Bell }
 ];
+
+const iconNavItems: NavItem[] = [
+    { href: '/dashboard', title: 'Home', icon: Home },
+    { href: '/dashboard/competition', title: 'Competition', icon: Trophy },
+    { href: '/dashboard/book-shop', title: 'Book Shop', icon: Library },
+    { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
+    { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
+    { href: '/dashboard/social', title: 'Social Circle', icon: Users },
+    { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell }
+];
+
 
 export default function DashboardLayout({
   children,
@@ -192,57 +202,43 @@ export default function DashboardLayout({
         {isClient && <div className="hidden md:flex h-12 items-center justify-center gap-x-4 text-sm text-muted-foreground border-t bg-background/70">
             <TooltipProvider>
               <div className="flex items-center gap-x-4">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard" className="hover:text-primary transition-colors"><Home className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Home</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/competition" className="hover:text-primary transition-colors"><Trophy className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Competition</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/book-shop" className="hover:text-primary transition-colors"><Library className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Book Shop</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/patron" className="hover:text-primary transition-colors"><Crown className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Become a Patron</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/messages" className="hover:text-primary transition-colors"><MessageCircle className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Chat</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/social" className="hover:text-primary transition-colors"><Users className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Social Circle</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="/dashboard/notice-board" className="hover:text-primary transition-colors"><Bell className="w-5 h-5" /></Link>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Notifications</p></TooltipContent>
-                </Tooltip>
+                {iconNavItems.map(item => (
+                    <Tooltip key={item.href}>
+                      <TooltipTrigger asChild>
+                        <Link href={item.href} className="hover:text-primary transition-colors"><item.icon className="w-5 h-5" /></Link>
+                      </TooltipTrigger>
+                      <TooltipContent><p>{item.title}</p></TooltipContent>
+                    </Tooltip>
+                ))}
               </div>
             </TooltipProvider>
         </div>}
 
       </header>
 
-      <main className="flex-grow bg-muted/30">
+      <main className="flex-grow bg-muted/30 pb-16 md:pb-0">
         {children}
       </main>
+
+       {isClient && (
+        <div className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+            <div className="grid h-full max-w-lg grid-cols-7 mx-auto">
+                {iconNavItems.map(item => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                            "inline-flex flex-col items-center justify-center px-5 hover:bg-muted group h-full",
+                            pathname === item.href ? "text-primary" : "text-muted-foreground"
+                        )}
+                    >
+                        <item.icon className="w-6 h-6" />
+                        <span className="sr-only">{item.title}</span>
+                    </Link>
+                ))}
+            </div>
+        </div>
+      )}
     </div>
   );
 }
