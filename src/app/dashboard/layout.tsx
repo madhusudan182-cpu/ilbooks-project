@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Book, LogOut, Home, Trophy, BookMarked, Crown, MessageCircle, Users, Menu, Star, PenSquare, Gift, Bell } from 'lucide-react';
+import { Book, LogOut, Home, Trophy, BookMarked, Crown, MessageCircle, Users, Grid3x3, Star, PenSquare, Gift, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -55,7 +55,7 @@ export default function DashboardLayout({
                 size="icon"
                 className="shrink-0 md:hidden"
               >
-                <Menu className="h-5 w-5" />
+                <Grid3x3 className="h-5 w-5" />
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
