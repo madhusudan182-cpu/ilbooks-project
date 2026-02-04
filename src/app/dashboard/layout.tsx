@@ -1,10 +1,9 @@
-
 "use client";
 
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Book, LogOut, Home, Sword, BookMarked, Crown, MessageCircle, Users, Menu } from 'lucide-react';
+import { Book, LogOut, Home, Sword, BookMarked, Crown, MessageCircle, Users, Menu, Star, BookOpen, PenSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -59,18 +58,19 @@ export default function DashboardLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0">
-              <SheetHeader>
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SheetHeader className="border-b p-4">
+                <SheetTitle className="flex items-center gap-3">
+                   <Link
+                      href="/dashboard"
+                      onClick={() => setIsSheetOpen(false)}
+                      className="flex items-center gap-3 text-primary transition-all"
+                    >
+                      <Book className="h-6 w-6" />
+                      <span className="font-headline text-xl">ILBooks</span>
+                    </Link>
+                </SheetTitle>
               </SheetHeader>
               <nav className="grid gap-2 p-4 text-lg font-medium">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsSheetOpen(false)}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-primary transition-all"
-                >
-                  <Book className="h-6 w-6" />
-                  <span className="font-headline text-xl">ILBooks</span>
-                </Link>
                 {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -145,6 +145,22 @@ export default function DashboardLayout({
               </Link>
             ))}
         </nav>
+        
+        <div className="hidden md:flex h-12 items-center justify-center gap-x-8 text-sm text-muted-foreground border-t bg-background/70">
+            <Link href="/dashboard/competition#leaderboard" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Star className="w-4 h-4" />
+                <span>Leaderboard</span>
+            </Link>
+             <Link href="/dashboard/book-shop#new-arrivals" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <BookOpen className="w-4 h-4" />
+                <span>New Arrivals</span>
+            </Link>
+             <Link href="/dashboard#post" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <PenSquare className="w-4 h-4" />
+                <span>Write a Post</span>
+            </Link>
+        </div>
+
       </header>
 
       <main className="flex-grow bg-muted/30">

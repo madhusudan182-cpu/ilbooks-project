@@ -14,7 +14,7 @@ export default function HomePage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
       
-      <Card>
+      <Card id="post">
         <CardContent className="p-4">
           <div className="flex items-start gap-4">
             <Avatar>
