@@ -46,10 +46,6 @@ export default function CreateProfilePage() {
               </div>
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="passing-year">Passing Year (if applicable)</Label>
-                <Input id="passing-year" placeholder="e.g., 2022" />
-            </div>
-            <div className="grid gap-2">
               <Label htmlFor="hobbies">Hobbies</Label>
               <Textarea id="hobbies" placeholder="List your hobbies, separated by commas (e.g., Reading, Writing, Gardening)" />
               <p className="text-sm text-muted-foreground">
