@@ -16,7 +16,7 @@ export default function MessagesPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            You can use this tab once you have passed Level 1.3.
+            You can use this tab once you have passed Level 0.3.
           </p>
           <p className="mt-4 font-semibold">
             Keep reading and competing to unlock chat!
