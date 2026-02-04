@@ -25,7 +25,7 @@ export default function HomePage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
       <Card id="post">
-        <CardContent className={cn("p-3 pb-0", !isPosting && "pb-3")}>
+        <CardContent className={cn("p-2 pb-0", !isPosting && "p-2")}>
           <div className="flex items-start gap-3">
             <Avatar>
               <AvatarImage src="https://picsum.photos/seed/av1/100/100" alt="User" />
@@ -36,7 +36,7 @@ export default function HomePage() {
                 <Textarea
                   className={cn(
                     "text-base transition-all duration-200 ease-in-out",
-                     isPosting ? "min-h-[80px]" : "h-10"
+                     isPosting ? "min-h-[60px]" : "h-10"
                   )}
                   placeholder="What's on your mind, bookworm?"
                   onFocus={() => setIsPosting(true)}
