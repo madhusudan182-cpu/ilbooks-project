@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, Book, Award, Percent, DollarSign, Edit } from "lucide-react";
+import { ArrowRight, Book, Award, Percent, DollarSign, Edit, ListChecks } from "lucide-react";
 import { PaymentGateway } from '@/components/payment-gateway';
 import { allSyllabi } from '@/lib/syllabus';
 import { mockUsers } from '@/lib/data';
+import { levelZeroQuestions } from '@/lib/questions';
+import { cn } from '@/lib/utils';
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
@@ -141,6 +143,34 @@ export default function CompetitionPage() {
                         </Card>
                     )}
                 </div>
+
+                {isAdmin && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3"><ListChecks className="text-accent"/> All Questions (Admin View)</CardTitle>
+                            <CardDescription>All questions for Level 0.0 are visible to admins for review.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
+                                {levelZeroQuestions.map((q, index) => (
+                                    <AccordionItem value={`item-${index}`} key={q.id}>
+                                        <AccordionTrigger className="text-left">({index + 1}) {q.questionText}</AccordionTrigger>
+                                        <AccordionContent>
+                                            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm">
+                                                {q.answers.map((ans, ansIndex) => (
+                                                    <li key={ansIndex} className={cn(ans.isCorrect && "font-bold text-green-600")}>
+                                                        {ans.text}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <p className="mt-2 pt-2 border-t text-sm text-muted-foreground"><span className="font-semibold">Explanation:</span> {q.explanation}</p>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
+                        </CardContent>
+                    </Card>
+                )}
                 
                 <div className="text-center mt-8">
                      <Button size="lg" className="font-headline" onClick={() => setShowPayment(true)}>
