@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 
@@ -44,8 +44,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-       <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <header className="flex h-16 items-center gap-4 px-4 md:px-6">
+       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+        <div className="flex h-16 items-center gap-4 px-4 md:px-6">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
@@ -127,7 +127,7 @@ export default function DashboardLayout({
                 </Link>
             </Button>
           </div>
-        </header>
+        </div>
 
         <nav className="hidden h-14 items-center justify-center gap-8 bg-background/80 px-6 text-sm font-medium md:flex">
             {navItems.map((item) => (
@@ -144,7 +144,7 @@ export default function DashboardLayout({
               </Link>
             ))}
         </nav>
-      </div>
+      </header>
 
       <main className="flex-grow bg-muted/30">
         {children}
