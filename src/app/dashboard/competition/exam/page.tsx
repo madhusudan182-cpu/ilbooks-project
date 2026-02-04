@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { allQuestions } from '@/lib/questions';
-import type { Answer } from '@/lib/types';
+import { allSyllabi } from '@/lib/syllabus';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle, XCircle, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,61 +58,139 @@ export default function ExamPage() {
     setSelectedOption(answer);
   };
   
-  const calculateScore = () => {
-      let correctAnswers = 0;
-      questions.forEach((q, index) => {
-          const correctAnswer = q.answers.find(a => a.isCorrect)?.text;
-          if (userAnswers[index] === correctAnswer) {
-              correctAnswers++;
-          }
+  const calculateResults = () => {
+      const currentLevel = '0.0';
+      const syllabus = allSyllabi.find(s => s.level === currentLevel);
+      if (!syllabus) return null;
+
+      const subjectResults = Object.keys(syllabus.subjects).map(subjectName => {
+          const subjectQuestions = questions.filter(q => q.subject === subjectName);
+          // @ts-ignore
+          const totalMarks = syllabus.subjects[subjectName].marks;
+          
+          let obtainedMarks = 0;
+          subjectQuestions.forEach(q => {
+              const questionIndex = questions.findIndex(originalQ => originalQ.id === q.id);
+              const correctAnswer = q.answers.find(a => a.isCorrect)?.text;
+              if (userAnswers[questionIndex] === correctAnswer) {
+                  obtainedMarks++;
+              }
+          });
+          
+          // There is a mismatch between marks in syllabus and questions, so we calculate based on number of questions
+          const questionBasedTotalMarks = subjectQuestions.length;
+          const percentage = questionBasedTotalMarks > 0 ? (obtainedMarks / questionBasedTotalMarks) * 100 : 0;
+          const status = percentage >= 60 ? 'Passed' : 'Failed';
+
+          return {
+              subject: subjectName,
+              totalMarks: questionBasedTotalMarks,
+              obtainedMarks,
+              percentage,
+              status
+          };
       });
+
+      const totalObtainedMarks = subjectResults.reduce((sum, r) => sum + r.obtainedMarks, 0);
+      const totalMarks = subjectResults.reduce((sum, r) => sum + r.totalMarks, 0);
+      const totalPercentage = totalMarks > 0 ? (totalObtainedMarks / totalMarks) * 100 : 0;
+      
+      const overallStatus = subjectResults.some(r => r.status === 'Failed') ? 'Failed' : 'Passed';
+
       return {
-        score: correctAnswers,
-        total: questions.length,
-        percentage: (correctAnswers / questions.length) * 100
+          subjects: subjectResults,
+          total: {
+              totalMarks,
+              obtainedMarks: totalObtainedMarks,
+              percentage: totalPercentage,
+              status: overallStatus,
+          }
       };
-  }
+  };
 
   if (showResults) {
-    const { score, total, percentage } = calculateScore();
-    const passed = percentage >= 60;
+    const results = calculateResults();
     
+    if (!results) {
+        // Handle case where syllabus is not found
+        return (
+            <main className="flex items-center justify-center min-h-screen bg-background p-4">
+                <Card className="w-full max-w-2xl text-center">
+                    <CardHeader>
+                        <CardTitle>Error</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>Could not load exam results. Syllabus not found.</p>
+                        <Button asChild className="mt-4"><Link href="/dashboard/competition">Back to Competition</Link></Button>
+                    </CardContent>
+                </Card>
+            </main>
+        );
+    }
+
+    const { subjects, total } = results;
+    const isOverallPassed = total.status === 'Passed';
+
     return (
         <main className="flex items-center justify-center min-h-screen bg-background p-4">
-            <Card className="w-full max-w-2xl text-center">
+            <Card className="w-full max-w-4xl text-center">
                 <CardHeader>
-                    <CardTitle className="text-3xl font-headline flex items-center justify-center gap-3">
-                        <Award className={`w-10 h-10 ${passed ? 'text-green-500' : 'text-destructive'}`} />
-                        Exam Results
+                    <CardTitle className="text-2xl font-headline flex items-center justify-center gap-3">
+                        Your Exam Result of Level: 0.0
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <p className="text-lg">You scored:</p>
-                        <p className="text-5xl font-bold text-primary">{score} / {total}</p>
-                        <p className={`text-2xl font-semibold ${passed ? 'text-green-500' : 'text-destructive'}`}>
-                            {percentage.toFixed(2)}% - {passed ? "Passed!" : "Failed"}
-                        </p>
+                    <div className="border rounded-lg overflow-hidden">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-yellow-300 hover:bg-yellow-300">
+                                    <TableHead className="font-bold text-black">Subject</TableHead>
+                                    <TableHead className="font-bold text-black text-center">Total Marks</TableHead>
+                                    <TableHead className="font-bold text-black text-center">Obtained Mark</TableHead>
+                                    <TableHead className="font-bold text-black text-center">Percentage</TableHead>
+                                    <TableHead className="font-bold text-black text-center">Status</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {subjects.map((subjectResult) => (
+                                    <TableRow key={subjectResult.subject}>
+                                        <TableCell className="font-medium text-left">{subjectResult.subject}:</TableCell>
+                                        <TableCell className="text-center">{subjectResult.totalMarks}</TableCell>
+                                        <TableCell className="text-center">{subjectResult.obtainedMarks}</TableCell>
+                                        <TableCell className="text-center">{subjectResult.percentage.toFixed(0)}%</TableCell>
+                                        <TableCell 
+                                            className={cn(
+                                                "text-center font-bold",
+                                                subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600'
+                                            )}
+                                        >
+                                            {subjectResult.status}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                <TableRow className="font-bold bg-muted hover:bg-muted">
+                                    <TableCell className="text-left">Total:</TableCell>
+                                    <TableCell className="text-center">{total.totalMarks} Marks</TableCell>
+                                    <TableCell className="text-center">{total.obtainedMarks}</TableCell>
+                                    <TableCell className="text-center">{total.percentage.toFixed(0)}%</TableCell>
+                                    <TableCell 
+                                        className={cn(
+                                            "text-center font-bold",
+                                            isOverallPassed ? 'text-green-600' : 'text-red-600'
+                                        )}
+                                    >
+                                        {total.status}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
 
-                    <div className="text-left space-y-4 max-h-60 overflow-y-auto p-4 border rounded-md">
-                        <h3 className="font-semibold text-lg">Review Your Answers:</h3>
-                        {questions.map((q, index) => {
-                            const correctAnswer = q.answers.find(a => a.isCorrect)!.text;
-                            const userAnswer = userAnswers[index];
-                            const isCorrect = userAnswer === correctAnswer;
-                            return (
-                                <div key={q.id} className="p-2 border-b">
-                                    <p className="font-medium">{index + 1}. {q.questionText}</p>
-                                    <p className={`flex items-center gap-2 text-sm ${isCorrect ? 'text-green-600' : 'text-destructive'}`}>
-                                        {isCorrect ? <CheckCircle size={16}/> : <XCircle size={16}/>}
-                                        Your answer: {userAnswer || "Not answered"}
-                                    </p>
-                                    {!isCorrect && <p className="text-sm text-muted-foreground">Correct answer: {correctAnswer}</p>}
-                                </div>
-                            );
-                        })}
-                    </div>
+                    {!isOverallPassed && total.percentage >= 60 && (
+                        <p className="text-red-600 font-medium text-sm">
+                            Though the total marks is more than 60% but the individual sector couldn't fulfill the requirement of passing percentage.
+                        </p>
+                    )}
                     
                     <div className="flex gap-4 justify-center">
                         <Button asChild><Link href="/dashboard/competition">Back to Competition</Link></Button>
@@ -135,9 +215,9 @@ export default function ExamPage() {
             <span className="text-sm font-mono font-bold w-12 text-right">{timeLeft}s</span>
           </div>
         </CardHeader>
-        <CardContent className="pt-2">
-          <div className="py-1">
-            <p className="text-sm md:text-base font-medium text-center">{currentQuestion.questionText}</p>
+        <CardContent>
+          <div className="py-2">
+            <p className="text-sm font-medium text-center">{currentQuestion.questionText}</p>
           </div>
           <RadioGroup 
             value={userAnswers[currentQuestionIndex] || ''}
@@ -175,3 +255,5 @@ export default function ExamPage() {
     </main>
   );
 }
+
+    
