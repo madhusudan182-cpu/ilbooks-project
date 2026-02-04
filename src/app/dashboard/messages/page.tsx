@@ -152,39 +152,37 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "w-full flex items-start transition-colors hover:bg-muted/50",
+                  "w-full flex items-center p-2 border-b transition-colors hover:bg-muted/50",
                   selectedConversation?.user.id === conv.user.id && "bg-muted",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <button
-                  className="w-full text-left p-4 flex-1 flex gap-4 items-start"
-                  onClick={() => setSelectedConversation(conv)}
-                >
-                  <Avatar className="h-12 w-12 border">
-                    { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
-                    <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="flex justify-between items-center">
-                      <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                      <p className="text-xs text-muted-foreground">{conv.timestamp}</p>
+                 <button
+                    className="flex-1 flex items-center gap-3 overflow-hidden text-left"
+                    onClick={() => setSelectedConversation(conv)}
+                  >
+                    <Avatar className="h-11 w-11 border flex-shrink-0">
+                      { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
+                      <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 overflow-hidden">
+                        <p className="font-semibold font-headline truncate">{conv.user.name}</p>
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
+                            {conv.unread > 0 && (
+                            <span className="ml-2 flex-shrink-0 flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
+                                {conv.unread}
+                            </span>
+                            )}
+                        </div>
                     </div>
-                    <div className="flex justify-between items-start mt-1">
-                       <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
-                       {conv.unread > 0 && (
-                          <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
-                              {conv.unread}
-                          </span>
-                       )}
-                    </div>
-                  </div>
                 </button>
-                 {!isIlbooks && (
-                    <div className="p-4 pl-0">
+                <div className="flex flex-col items-end gap-1 ml-2 flex-shrink-0">
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
+                    {!isIlbooks ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button variant="ghost" size="icon" className="h-6 w-6">
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -204,8 +202,10 @@ export default function MessagesPage() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </div>
-                )}
+                    ) : (
+                        <div className="h-6 w-6" /> // Placeholder to keep alignment
+                    )}
+                </div>
               </div>
             )
           })}
