@@ -66,49 +66,49 @@ export default function UserProfilePage() {
 
       <div>
         <h2 className="text-2xl font-bold font-headline mb-4">Posts by {user.name}</h2>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {posts.length > 0 ? posts.map((post) => (
             <Card key={post.id} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center gap-4 p-4">
+              <CardHeader className="flex flex-row items-center gap-3 p-3">
                  <Link href={`/dashboard/user/${post.author.id}`}>
-                    <Avatar>
+                    <Avatar className="h-9 w-9">
                         <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
                         <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                 </Link>
-                <div className="grid gap-1">
+                <div className="grid gap-0.5">
                   <div className="flex items-center gap-2">
-                     <Link href={`/dashboard/user/${post.author.id}`} className="font-semibold font-headline hover:underline">
+                     <Link href={`/dashboard/user/${post.author.id}`} className="font-headline hover:underline text-sm">
                         {post.author.name}
                     </Link>
-                    <Badge variant="secondary">Level: {post.author.level}</Badge>
+                    <Badge variant="secondary" className="text-xs">Level: {post.author.level}</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {post.createdAt}
                   </p>
                 </div>
               </CardHeader>
-              <CardContent className="px-4 pb-2">
-                <p className="whitespace-pre-wrap">{post.content}</p>
+              <CardContent className="px-3 pt-0 pb-2">
+                <p className="whitespace-pre-wrap text-sm">{post.content}</p>
                  {post.imageUrl && (
-                  <div className="mt-4 relative aspect-video rounded-lg overflow-hidden border">
+                  <div className="mt-3 relative aspect-video rounded-md overflow-hidden border">
                       <Image src={post.imageUrl} alt="Post image" fill className="object-cover" data-ai-hint="library books" />
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-between p-2 md:p-4">
-                <div className="flex gap-1 md:gap-2">
+              <CardFooter className="flex justify-between p-1 pt-0">
+                <div className="flex">
                   <Button variant="ghost" size="sm">
-                    <Heart className="mr-2 h-4 w-4" />
-                    {post.likes}
+                    <Heart className="w-4 h-4 mr-1" />
+                    <span className="text-xs">{post.likes}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    {post.comments}
+                    <MessageCircle className="w-4 h-4 mr-1" />
+                    <span className="text-xs">{post.comments}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <Share2 className="mr-2 h-4 w-4" />
-                    {post.shares}
+                    <Share2 className="w-4 h-4 mr-1" />
+                    <span className="text-xs">{post.shares}</span>
                   </Button>
                 </div>
               </CardFooter>
