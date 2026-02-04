@@ -103,40 +103,44 @@ export default function DashboardLayout({
                 </SidebarMenuItem>
               ))}
             </SidebarGroup>
-            <SidebarGroup>
-              <SidebarGroupLabel>Social</SidebarGroupLabel>
-              {socialNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={{ children: item.title }}
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-               <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={{ children: "Find People" }}
-                  >
-                    <Link href="/dashboard/social">
-                      <Search />
-                      <span>Find People</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarGroup>
           </SidebarMenu>
+          <div className="mt-auto">
+            <SidebarMenu>
+                <SidebarGroup>
+                <SidebarGroupLabel>Social</SidebarGroupLabel>
+                {socialNav.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                        asChild
+                        tooltip={{ children: item.title }}
+                    >
+                        <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        asChild
+                        tooltip={{ children: "Find People" }}
+                    >
+                        <Link href="/dashboard/social">
+                        <Search />
+                        <span>Find People</span>
+                        </Link>
+                    </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarGroup>
+            </SidebarMenu>
+          </div>
         </SidebarContent>
       </Sidebar>
       <SidebarInset className="max-w-screen-2xl mx-auto pb-16 md:pb-0">
          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:hidden">
             <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="Toggle Sidebar">
                     <Book className="w-6 h-6 text-primary" />
                 </Button>
             </SidebarTrigger>
