@@ -215,7 +215,7 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm pt-4">
+      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
           <div className="mx-auto flex h-14 items-center justify-center gap-1 p-2">
             {!isClient && (
                 <>
@@ -238,9 +238,9 @@ export default function DashboardLayout({
                                 size="icon"
                                 className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                                 >
-                                <Bell className="h-6 w-6" />
+                                <Bell className="h-8 w-8" />
                                 {notificationCount > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 text-xs font-bold text-destructive">
+                                    <span className="absolute top-1 right-1 text-xs font-bold text-red-500">
                                     {notificationCount}
                                     </span>
                                 )}
@@ -293,7 +293,7 @@ export default function DashboardLayout({
           </div>
         </nav>
 
-      <main className="flex-grow bg-muted/30 pt-4">
+      <main className="flex-grow bg-muted/30">
         {children}
       </main>
 
