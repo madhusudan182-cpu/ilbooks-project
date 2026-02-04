@@ -31,6 +31,14 @@ import {
 import type { NavItem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -119,13 +127,47 @@ export default function DashboardLayout({
         </SidebarContent>
       </Sidebar>
       <SidebarInset className="max-w-screen-2xl mx-auto">
-         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:hidden">
-            <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Toggle Sidebar">
-                    <Book className="w-6 h-6 text-primary" />
+         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+            <div className="flex items-center gap-2 md:hidden">
+              <SidebarTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Toggle Sidebar">
+                      <Book className="w-6 h-6 text-primary" />
+                  </Button>
+              </SidebarTrigger>
+              <h1 className="text-lg font-semibold font-headline">ILBooks</h1>
+            </div>
+
+            <div className="flex-1" />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://picsum.photos/seed/av1/100/100" alt="User avatar" />
+                    <AvatarFallback>YOU</AvatarFallback>
+                  </Avatar>
                 </Button>
-            </SidebarTrigger>
-            <h1 className="text-lg font-semibold font-headline">ILBooks</h1>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Alia Rahman</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      alia.r@example.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/login">Log out</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </header>
         {children}
       </SidebarInset>
