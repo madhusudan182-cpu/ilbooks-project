@@ -91,7 +91,7 @@ export const levelZeroQuestions: Question[] = [
       { text: 'আত্মিক মৃত্যু', isCorrect: true },
       { text: 'সামাজিক পতন', isCorrect: false },
     ],
-    explanation: 'এখানে 'মৃত্যু' বলতে আত্মার বিনাশ বা মনুষ্যত্বের অবসান, অর্থাৎ আত্মিক মৃত্যুকে বোঝানো হয়েছে।',
+    explanation: "এখানে 'মৃত্যু' বলতে আত্মার বিনাশ বা মনুষ্যত্বের অবসান, অর্থাৎ আত্মিক মৃত্যুকে বোঝানো হয়েছে।",
   },
   {
     id: 'q8-ben-shikkha-0.0',
