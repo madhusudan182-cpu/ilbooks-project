@@ -1,6 +1,6 @@
 import type { Question } from './types';
 
-export const levelZeroQuestions: Question[] = [
+export const allQuestions: Question[] = [
   // --- শিক্ষা ও মনুষত্ব্য - কাজী মোতাহের হোসেন চৌধুরী ---
   {
     id: 'q1-ben-shikkha-0.0',

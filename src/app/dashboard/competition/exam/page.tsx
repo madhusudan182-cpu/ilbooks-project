@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { levelZeroQuestions } from '@/lib/questions';
+import { allQuestions } from '@/lib/questions';
 import type { Answer } from '@/lib/types';
 import { CheckCircle, XCircle, Award } from 'lucide-react';
 
@@ -15,11 +15,11 @@ const TOTAL_TIME_PER_QUESTION = 10; // seconds
 
 export default function ExamPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(string | null)[]>(Array(levelZeroQuestions.length).fill(null));
+  const questions = allQuestions.filter(q => q.level === '0.0');
+  const [userAnswers, setUserAnswers] = useState<(string | null)[]>(Array(questions.length).fill(null));
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_PER_QUESTION);
   const [showResults, setShowResults] = useState(false);
 
-  const questions = levelZeroQuestions;
   const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {

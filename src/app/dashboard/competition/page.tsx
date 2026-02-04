@@ -11,8 +11,9 @@ import { ArrowRight, Book, Award, Percent, DollarSign, Edit, ListChecks } from "
 import { PaymentGateway } from '@/components/payment-gateway';
 import { allSyllabi } from '@/lib/syllabus';
 import { mockUsers } from '@/lib/data';
-import { levelZeroQuestions } from '@/lib/questions';
+import { allQuestions } from '@/lib/questions';
 import { cn } from '@/lib/utils';
+import type { Question } from '@/lib/types';
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
@@ -34,6 +35,14 @@ export default function CompetitionPage() {
             allLevels.push(`${i}.${j}`);
         }
     }
+
+    const questionsByLevel = allQuestions.reduce((acc, q) => {
+        if (!acc[q.level]) {
+            acc[q.level] = [];
+        }
+        acc[q.level].push(q);
+        return acc;
+    }, {} as Record<string, Question[]>);
 
 
     const handlePaymentSuccess = () => {
@@ -148,25 +157,44 @@ export default function CompetitionPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-3"><ListChecks className="text-accent"/> All Questions (Admin View)</CardTitle>
-                            <CardDescription>All questions for Level 0.0 are visible to admins for review.</CardDescription>
+                            <CardDescription>All available questions are visible to admins for review, grouped by level.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
-                                {levelZeroQuestions.map((q, index) => (
-                                    <AccordionItem value={`item-${index}`} key={q.id}>
-                                        <AccordionTrigger className="text-left">({index + 1}) {q.questionText}</AccordionTrigger>
-                                        <AccordionContent>
-                                            <ul className="list-disc pl-5 mt-2 space-y-2 text-sm">
-                                                {q.answers.map((ans, ansIndex) => (
-                                                    <li key={ansIndex} className={cn(ans.isCorrect && "font-bold text-green-600")}>
-                                                        {ans.text}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                            <p className="mt-2 pt-2 border-t text-sm text-muted-foreground"><span className="font-semibold">Explanation:</span> {q.explanation}</p>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                ))}
+                                {allLevels.map((level) => {
+                                    const questionsForLevel = questionsByLevel[level] || [];
+                                    return (
+                                        <AccordionItem value={`level-q-${level}`} key={`level-q-${level}`}>
+                                            <AccordionTrigger className="text-left font-semibold">
+                                                Questions for Level {level}
+                                                <span className="text-sm font-normal text-muted-foreground ml-2">({questionsForLevel.length} questions)</span>
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                {questionsForLevel.length > 0 ? (
+                                                    <Accordion type="multiple" className="w-full">
+                                                        {questionsForLevel.map((q, index) => (
+                                                            <AccordionItem value={`item-${level}-${index}`} key={q.id}>
+                                                                <AccordionTrigger className="text-left text-sm font-normal">({index + 1}) {q.questionText}</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    <ul className="list-disc pl-5 mt-2 space-y-2 text-sm">
+                                                                        {q.answers.map((ans, ansIndex) => (
+                                                                            <li key={ansIndex} className={cn(ans.isCorrect && "font-bold text-green-600")}>
+                                                                                {ans.text}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                    <p className="mt-2 pt-2 border-t text-sm text-muted-foreground"><span className="font-semibold">Explanation:</span> {q.explanation}</p>
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        ))}
+                                                    </Accordion>
+                                                ) : (
+                                                    <p className="text-muted-foreground text-sm py-4 px-4">No questions defined for this level.</p>
+                                                )}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    )
+                                })}
                             </Accordion>
                         </CardContent>
                     </Card>
