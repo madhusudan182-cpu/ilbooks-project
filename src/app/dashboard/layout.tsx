@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -24,7 +25,7 @@ type NavItem = {
   icon: LucideIcon;
 };
 
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   { href: '/dashboard', title: 'Home', icon: Home },
   { href: '/dashboard/competition', title: 'Competition', icon: Trophy },
   { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
@@ -34,6 +35,8 @@ const navItems: NavItem[] = [
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
   { href: '/dashboard/notice-board', title: 'Notice Board', icon: Bell }
 ];
+
+const mainNavItems: NavItem[] = allNavItems.slice(0, 6);
 
 
 export default function DashboardLayout({
@@ -73,7 +76,7 @@ export default function DashboardLayout({
                 </SheetTitle>
               </SheetHeader>
               <nav className="grid gap-2 p-4 text-lg font-medium">
-                {navItems.map((item) => (
+                {allNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -95,33 +98,21 @@ export default function DashboardLayout({
             <Book className="w-6 h-6" />
             <span className="font-headline font-semibold hidden md:block">ILBooks</span>
           </Link>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-                <Grid3x3 className="h-5 w-5" />
-                 <span className="sr-only">Open Menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuLabel>Navigation</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {navItems.map((item) => (
-                <DropdownMenuItem key={item.href} asChild>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex w-full items-center gap-2",
-                      pathname === item.href && "text-primary font-semibold"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+
+          <nav className="hidden flex-row items-center gap-5 text-sm md:flex lg:gap-6 ml-6">
+            {mainNavItems.map((item) => (
+                <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                    'transition-colors hover:text-foreground',
+                    pathname === item.href ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                )}
+                >
+                {item.title}
+                </Link>
+            ))}
+          </nav>
           
 
           <div className="ml-auto flex items-center gap-2">
