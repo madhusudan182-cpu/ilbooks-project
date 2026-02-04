@@ -138,9 +138,9 @@ export default function MessagesPage() {
         "w-full md:w-80 lg:w-96 border-r flex-col",
         selectedConversation ? "hidden md:flex" : "flex"
         )}>
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex items-center gap-4">
           <h1 className="text-2xl font-bold font-headline">Chat</h1>
-          <div className="relative mt-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input placeholder="Search chats..." className="pl-9" />
           </div>
@@ -152,7 +152,8 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2 border-b transition-colors cursor-pointer",
+                  "flex items-start gap-3 p-2 border-b cursor-pointer",
+                  "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
@@ -165,12 +166,12 @@ export default function MessagesPage() {
 
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground break-words">
                         {conv.lastMessage}
                     </p>
                 </div>
                
-                <div className="flex-shrink-0 flex flex-col items-end gap-1 text-right">
+                <div className="flex-shrink-0 flex flex-col items-end gap-1 text-right ml-2">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
                     <div className="h-6 flex items-center">
                       {conv.unread > 0 ? (
