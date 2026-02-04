@@ -63,10 +63,10 @@ export default function DashboardLayout({
                    <Link
                       href="/dashboard"
                       onClick={() => setIsSheetOpen(false)}
-                      className="flex items-center gap-3 text-primary transition-all"
+                      className="flex flex-col items-start text-primary transition-all"
                     >
                       <Book className="h-6 w-6" />
-                      <span className="font-headline text-xl">ILBooks</span>
+                      <span className="font-headline text-xl mt-2">ILBooks</span>
                     </Link>
                 </SheetTitle>
               </SheetHeader>
@@ -89,9 +89,9 @@ export default function DashboardLayout({
             </SheetContent>
           </Sheet>
 
-          <Link href="/dashboard" className="flex items-center gap-2 font-headline font-semibold text-primary mr-auto">
+          <Link href="/dashboard" className="flex flex-col items-start justify-center text-primary mr-auto">
             <Book className="w-6 h-6" />
-            <h1 className="text-lg hidden md:block">ILBooks</h1>
+            <span className="font-headline font-semibold hidden md:block">ILBooks</span>
           </Link>
           
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export default function DashboardLayout({
             </Button>
           </div>
         </div>
-
+        
         <nav className="hidden h-14 items-center justify-center gap-8 bg-background/80 px-6 text-sm font-medium md:flex">
             {navItems.map((item) => (
               <Link
