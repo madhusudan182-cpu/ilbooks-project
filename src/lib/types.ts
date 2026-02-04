@@ -10,6 +10,7 @@ export type User = {
   hobbies: string[];
   isFollowing: boolean;
   isMutual: boolean;
+  isAdmin?: boolean;
 };
 
 export type Post = {
@@ -50,4 +51,16 @@ export type Question = {
   questionText: string;
   answers: Answer[];
   explanation: string;
+};
+
+export type SyllabusTopic = {
+  marks: number;
+  topics: string[];
+};
+
+export type Syllabus = {
+  level: string;
+  subjects: {
+    [subjectName: string]: SyllabusTopic;
+  };
 };

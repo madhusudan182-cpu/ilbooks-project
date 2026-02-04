@@ -11,6 +11,7 @@ export const mockUsers: User[] = [
     hobbies: ['Classic Literature', 'Poetry', 'History'],
     isFollowing: true,
     isMutual: true,
+    isAdmin: true,
   },
   {
     id: 'user-2',

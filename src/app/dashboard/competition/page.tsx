@@ -6,13 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Book, Award, Percent, DollarSign, List, Edit } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ArrowRight, Book, Award, Percent, DollarSign, Edit } from "lucide-react";
 import { PaymentGateway } from '@/components/payment-gateway';
+import { allSyllabi } from '@/lib/syllabus';
+import { mockUsers } from '@/lib/data';
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
     const router = useRouter();
     const examFee = 20;
+
+    // In a real app, you'd get the current user from an auth context.
+    // We simulate by picking a user. mockUsers[0] is an admin.
+    // To see the client view, you can change this to mockUsers[1].
+    const currentUser = mockUsers[0]; 
+    const isAdmin = currentUser.isAdmin || false;
+    const userLevel = currentUser.level.toString();
+    const userSyllabus = allSyllabi.find(s => s.level === userLevel);
+
 
     const handlePaymentSuccess = () => {
         console.log("Payment successful, starting exam...");
@@ -32,7 +44,7 @@ export default function CompetitionPage() {
                 <div className="text-center">
                     <h1 className="text-4xl font-bold font-headline">Competition</h1>
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
-                    <Badge className="mt-4 text-base">Your Current Level: 2.1</Badge>
+                    <Badge className="mt-4 text-base">Your Current Level: {userLevel}</Badge>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -64,27 +76,56 @@ export default function CompetitionPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Syllabus for Level 0.0</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="mb-4">
-                                <h4 className="font-semibold">Bengali (30 Marks)</h4>
-                                <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                    <li>(১) শিক্ষা ও মনুষত্ব্য - কাজী মোতাহের হোসেন চৌধুরী</li>
-                                    <li>(২) বই পড়া - প্রমথ চৌধুরী</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold">English (30 Marks)</h4>
-                                <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                    <li>(1) IPA</li>
-                                    <li>(2) A1 Vocabulary Book</li>
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {isAdmin ? (
+                        // ADMIN VIEW
+                        <Card className="lg:col-span-1 md:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> All Syllabi (Admin View)</CardTitle>
+                                <CardDescription>All competition syllabi are visible to admins.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Accordion type="single" collapsible className="w-full">
+                                    {allSyllabi.map((syllabus) => (
+                                        <AccordionItem value={`level-${syllabus.level}`} key={syllabus.level}>
+                                            <AccordionTrigger className="font-semibold">Syllabus for Level {syllabus.level}</AccordionTrigger>
+                                            <AccordionContent>
+                                                {Object.entries(syllabus.subjects).map(([subjectName, details]) => (
+                                                    <div key={subjectName} className="mb-4 last:mb-0">
+                                                        <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
+                                                        <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
+                                                            {details.topics.map((topic, i) => <li key={i}>{topic}</li>)}
+                                                        </ul>
+                                                    </div>
+                                                ))}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                    {allSyllabi.length === 0 && <p className="text-muted-foreground">No syllabi defined.</p>}
+                                </Accordion>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        // CLIENT VIEW
+                        <Card className="lg:col-span-1 md:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Syllabus for Level {userLevel}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {userSyllabus ? (
+                                    Object.entries(userSyllabus.subjects).map(([subjectName, details]) => (
+                                        <div key={subjectName} className="mb-4 last:mb-0">
+                                            <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
+                                            <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
+                                                {details.topics.map((topic, i) => <li key={i}>{topic}</li>)}
+                                            </ul>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-muted-foreground">Syllabus for your current level ({userLevel}) is not available yet.</p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
                 
                 <div className="text-center mt-8">
