@@ -78,7 +78,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <div className="flex h-16 items-center gap-4 px-4 md:px-6">
+        <div className="flex h-12 items-center gap-4 px-4 md:px-6">
           {!isClient && (
             <>
               {/* Static placeholder for SSR to prevent layout shift */}
@@ -215,8 +215,8 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
-          <div className="mx-auto flex h-14 items-center justify-center gap-1 p-2">
+      <nav className="sticky top-12 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
+          <div className="mx-auto flex h-10 items-center justify-center gap-1 p-2">
             {!isClient && (
                 <>
                     {[...Array(iconNavItems.length + 1)].map((_, i) => (
