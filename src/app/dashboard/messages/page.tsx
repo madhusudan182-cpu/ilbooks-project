@@ -132,7 +132,7 @@ export default function MessagesPage() {
 
   // Admin or eligible user view
   return (
-    <div className="h-[calc(100vh-5.5rem)] flex bg-background">
+    <div className="h-full flex bg-background">
       {/* Sidebar with conversations */}
       <aside className={cn(
         "w-full md:w-80 lg:w-96 border-r flex-col",
@@ -214,7 +214,7 @@ export default function MessagesPage() {
 
       {/* Main chat area */}
       <main className={cn(
-        "flex-1 flex-col",
+        "flex-1 flex flex-col",
         selectedConversation ? "flex" : "hidden md:flex"
         )}>
         {selectedConversation ? (
@@ -246,10 +246,10 @@ export default function MessagesPage() {
                     </div>
                 )}
             </div>
-            <ScrollArea className="flex-1 p-4 lg:p-6 bg-slate-50/50">
-                <div className="space-y-6">
+            <ScrollArea className="flex-1 p-2 sm:p-4 lg:p-6 bg-slate-50/50">
+                <div className="space-y-4">
                 {selectedConversation.messages.map(msg => (
-                    <div key={msg.id} className={cn("flex items-end gap-3", msg.sender === currentUser.id && "flex-row-reverse")}>
+                    <div key={msg.id} className={cn("flex items-end gap-2", msg.sender === currentUser.id && "flex-row-reverse")}>
                        <Avatar className="h-8 w-8">
                          <AvatarImage src={msg.sender === currentUser.id ? currentUser.avatarUrl : (selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined)} />
                          <AvatarFallback>
@@ -259,9 +259,9 @@ export default function MessagesPage() {
                             }
                          </AvatarFallback>
                        </Avatar>
-                       <div className={cn("max-w-[80%] md:max-w-[70%] lg:max-w-[60%] p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
+                       <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
                            <p className="break-words">{msg.text}</p>
-                           <p className={cn("text-xs mt-1 opacity-70", msg.sender === currentUser.id ? "text-right" : "text-left")}>{msg.timestamp}</p>
+                           <p className={cn("text-xs mt-1.5 opacity-75", msg.sender === currentUser.id ? "text-right" : "text-left")}>{msg.timestamp}</p>
                        </div>
                     </div>
                 ))}
