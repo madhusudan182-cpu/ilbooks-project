@@ -66,22 +66,18 @@ export default function CompetitionPage() {
 
                     <Card className="lg:col-span-1">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Level Syllabus</CardTitle>
+                            <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Syllabus for Level 0.0</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="mb-4">
                                 <h4 className="font-semibold">Bengali (30 Marks)</h4>
                                 <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                    <li>"Abc" by Xyz</li>
-                                    <li>"Def" by Uvw</li>
+                                    <li>(১) শিক্ষা ও মনুষত্ব্য - কাজী মোতাহের হোসেন চৌধুরী</li>
+                                    <li>(২) বই পড়া - প্রমথ চৌধুরী</li>
                                 </ul>
                             </div>
                             <div>
                                 <h4 className="font-semibold">English (30 Marks)</h4>
-                                <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                    <li>"Ghi" by Rst</li>
-                                    <li>"Jkl" by Mno</li>
-                                </ul>
                             </div>
                         </CardContent>
                     </Card>
