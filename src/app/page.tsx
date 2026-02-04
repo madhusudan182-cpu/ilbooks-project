@@ -20,7 +20,7 @@ export default function Home() {
           <Button asChild size="lg" className="font-headline">
             <Link href="/signup">Get Started</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="font-headline">
+          <Button asChild size="lg" className="font-headline bg-accent text-accent-foreground hover:bg-accent/90">
             <Link href="/login">Sign In</Link>
           </Button>
         </div>
