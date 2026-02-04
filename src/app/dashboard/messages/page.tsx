@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Book, Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video } from "lucide-react";
+import { Book, Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, FileSpreadsheet, FilePresentation } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 
 // In a real app, you'd get the current user from an auth context.
@@ -237,14 +238,54 @@ export default function MessagesPage() {
                 </div>
             </ScrollArea>
             <div className="p-4 border-t bg-background">
-                <form onSubmit={handleSendMessage} className="flex items-center gap-4">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="shrink-0">
+                                <Paperclip className="w-5 h-5"/>
+                                <span className="sr-only">Attach file</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem>
+                                <FileImage className="mr-2 h-4 w-4" />
+                                <span>Image</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <FileAudio className="mr-2 h-4 w-4" />
+                                <span>Audio</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <FileVideoIcon className="mr-2 h-4 w-4" />
+                                <span>Video</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <FileText className="mr-2 h-4 w-4" />
+                                <span>Doc/PDF</span>
+                            </DropdownMenuItem>
+                             <DropdownMenuItem>
+                                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                <span>Excel</span>
+                            </DropdownMenuItem>
+                             <DropdownMenuItem>
+                                <FilePresentation className="mr-2 h-4 w-4" />
+                                <span>Powerpoint</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <Button variant="ghost" size="icon" className="shrink-0">
+                        <Camera className="w-5 h-5" />
+                        <span className="sr-only">Open camera</span>
+                    </Button>
+
                     <Input 
                         placeholder="Type a message..." 
                         className="flex-1" 
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                     />
-                    <Button type="submit" size="icon" aria-label="Send Message">
+                    <Button type="submit" size="icon" aria-label="Send Message" disabled={!newMessage.trim()} className="shrink-0">
                         <Send className="w-4 h-4"/>
                     </Button>
                 </form>
