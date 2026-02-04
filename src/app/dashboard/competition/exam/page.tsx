@@ -153,7 +153,10 @@ export default function ExamPage() {
             ))}
           </RadioGroup>
 
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-end mt-8 gap-2">
+            <Button variant="outline" onClick={handleNext}>
+              Skip
+            </Button>
             <Button onClick={handleNext} disabled={!userAnswers[currentQuestionIndex]}>
               {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Finish Exam'}
             </Button>
