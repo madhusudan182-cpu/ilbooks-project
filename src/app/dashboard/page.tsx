@@ -25,7 +25,7 @@ export default function HomePage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
       <Card id="post">
-        <CardContent className={cn("p-3", !isPosting && "pb-3")}>
+        <CardContent className={cn("p-3 pb-0", !isPosting && "pb-3")}>
           <div className="flex items-start gap-3">
             <Avatar>
               <AvatarImage src="https://picsum.photos/seed/av1/100/100" alt="User" />
@@ -95,7 +95,7 @@ export default function HomePage() {
               <CardContent className="px-4 pb-2">
                 <p className="whitespace-pre-wrap">{post.content}</p>
                 {post.imageUrl && (
-                  <div className="mt-4 relative aspect-video rounded-lg overflow-hidden border">
+                  <div className="mt-4 relative aspect-[32/9] rounded-lg overflow-hidden border">
                     <Image
                       src={post.imageUrl}
                       alt="Post image"
