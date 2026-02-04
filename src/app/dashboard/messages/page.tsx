@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Book, Lock, MessageCircle, Search, Send, ArrowLeft } from "lucide-react";
+import { Book, Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video } from "lucide-react";
 import type { User } from '@/lib/types';
 
 // In a real app, you'd get the current user from an auth context.
@@ -196,12 +196,24 @@ export default function MessagesPage() {
                     { selectedConversation.user.name === 'ILBooks' ? <Book className="h-5 w-5 text-primary m-auto" /> : <AvatarImage src={selectedConversation.user.avatarUrl} alt={selectedConversation.user.name} />}
                     <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="flex-grow">
                     <h2 className="font-semibold text-lg font-headline">{selectedConversation.user.name}</h2>
                     <p className="text-sm text-muted-foreground">
                         {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level}`}
                     </p>
                 </div>
+                {selectedConversation.user.name !== 'ILBooks' && (
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon">
+                            <Phone className="w-5 h-5" />
+                            <span className="sr-only">Audio Call</span>
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                            <Video className="w-5 h-5" />
+                            <span className="sr-only">Video Call</span>
+                        </Button>
+                    </div>
+                )}
             </div>
             <ScrollArea className="flex-1 p-4 lg:p-6 bg-slate-50/50">
                 <div className="space-y-6">
