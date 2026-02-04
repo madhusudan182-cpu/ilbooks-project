@@ -5,8 +5,6 @@ import Link from 'next/link';
 import {
   Book,
   BookMarked,
-  Bot,
-  CircleUser,
   Crown,
   Home,
   MessageCircle,
@@ -38,7 +36,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const mainNav: NavItem[] = [
   { href: '/dashboard', title: 'Dashboard', icon: Home },
-  { href: '/dashboard/profile', title: 'Profile', icon: CircleUser },
   { href: '/dashboard/competition', title: 'Competition', icon: Sword },
   { href: '/dashboard/levels', title: 'Levels', icon: Star },
   { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
@@ -129,12 +126,6 @@ export default function DashboardLayout({
                 </Button>
             </SidebarTrigger>
             <h1 className="text-lg font-semibold font-headline">ILBooks</h1>
-            <Link href="/dashboard/profile" className="ml-auto">
-                <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://picsum.photos/seed/av1/100/100" />
-                    <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-            </Link>
         </header>
         {children}
       </SidebarInset>
