@@ -230,9 +230,9 @@ export default function DashboardLayout({
                               size="icon"
                               className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                             >
-                              <Bell className="h-5 w-5" />
+                              <Bell className="h-6 w-6" />
                               {notificationCount > 0 && (
-                                <span className="absolute top-1 right-1.5 text-destructive text-[10px] font-bold">
+                                <span className="absolute top-1 right-1.5 text-destructive font-bold text-xs">
                                   {notificationCount}
                                 </span>
                               )}
@@ -284,7 +284,7 @@ export default function DashboardLayout({
           </div>
         </nav>
 
-      <main className="flex-grow bg-muted/30 pt-14">
+      <main className="flex-grow bg-muted/30 pt-4">
         {children}
       </main>
 
