@@ -27,9 +27,6 @@ export default function HomePage() {
                   className="h-12 text-base"
                   placeholder="What's on your mind, bookworm?"
                 />
-                <div className="flex justify-end mt-2">
-                  <Button type="submit">Post</Button>
-                </div>
               </form>
             </div>
           </div>
