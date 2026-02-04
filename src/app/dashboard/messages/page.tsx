@@ -138,10 +138,10 @@ export default function MessagesPage() {
         selectedConversation ? "hidden md:flex" : "flex"
         )}>
         <div className="p-4 border-b">
-          <h1 className="text-2xl font-bold font-headline">Messages</h1>
+          <h1 className="text-2xl font-bold font-headline">Chat</h1>
           <div className="relative mt-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input placeholder="Search messages..." className="pl-9" />
+            <Input placeholder="Search chats..." className="pl-9" />
           </div>
         </div>
         <ScrollArea className="flex-1">
