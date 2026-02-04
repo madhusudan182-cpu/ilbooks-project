@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Book, Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Book, Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 
 // In a real app, you'd get the current user from an auth context.
@@ -149,34 +149,64 @@ export default function MessagesPage() {
           {allConversations.sort((a,b) => (a.user.isAdmin ? -1 : b.user.isAdmin ? 1 : 0)).map(conv => {
             const isIlbooks = conv.user.name === "ILBooks";
             return (
-              <button
+              <div
                 key={conv.user.id}
                 className={cn(
-                  "w-full text-left p-4 flex gap-4 items-start transition-colors hover:bg-muted/50",
+                  "w-full flex items-start transition-colors hover:bg-muted/50",
                   selectedConversation?.user.id === conv.user.id && "bg-muted",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
-                onClick={() => setSelectedConversation(conv)}
               >
-                <Avatar className="h-12 w-12 border">
-                  { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
-                  <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 overflow-hidden">
-                  <div className="flex justify-between items-center">
-                    <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                    <p className="text-xs text-muted-foreground">{conv.timestamp}</p>
+                <button
+                  className="w-full text-left p-4 flex-1 flex gap-4 items-start"
+                  onClick={() => setSelectedConversation(conv)}
+                >
+                  <Avatar className="h-12 w-12 border">
+                    { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
+                    <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex justify-between items-center">
+                      <p className="font-semibold font-headline truncate">{conv.user.name}</p>
+                      <p className="text-xs text-muted-foreground">{conv.timestamp}</p>
+                    </div>
+                    <div className="flex justify-between items-start mt-1">
+                       <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
+                       {conv.unread > 0 && (
+                          <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
+                              {conv.unread}
+                          </span>
+                       )}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-start mt-1">
-                     <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
-                     {conv.unread > 0 && (
-                        <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
-                            {conv.unread}
-                        </span>
-                     )}
-                  </div>
-                </div>
-              </button>
+                </button>
+                 {!isIlbooks && (
+                    <div className="p-4 pl-0">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                    <UserX className="mr-2 h-4 w-4" />
+                                    <span>Unfollow</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <UserX className="mr-2 h-4 w-4" />
+                                    <span>Block</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
+                                    <ShieldAlert className="mr-2 h-4 w-4" />
+                                    <span>Report</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                )}
+              </div>
             )
           })}
         </ScrollArea>
