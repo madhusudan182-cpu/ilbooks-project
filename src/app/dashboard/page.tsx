@@ -25,8 +25,8 @@ export default function HomePage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
       <Card id="post">
-        <CardContent className={cn("p-4", !isPosting && "pb-4")}>
-          <div className="flex items-start gap-4">
+        <CardContent className={cn("p-3", !isPosting && "pb-3")}>
+          <div className="flex items-start gap-3">
             <Avatar>
               <AvatarImage src="https://picsum.photos/seed/av1/100/100" alt="User" />
               <AvatarFallback>YOU</AvatarFallback>
@@ -34,7 +34,7 @@ export default function HomePage() {
             <div className="w-full">
               <form>
                 <Textarea
-                  className="text-base min-h-[3rem]"
+                  className="text-base min-h-[2.5rem]"
                   placeholder="What's on your mind, bookworm?"
                   onFocus={() => setIsPosting(true)}
                   value={postContent}
@@ -45,7 +45,7 @@ export default function HomePage() {
           </div>
         </CardContent>
         {isPosting && (
-          <CardFooter className="justify-end gap-2 pt-4 border-t">
+          <CardFooter className="justify-end gap-2 pt-2 border-t">
             <Button variant="ghost" onClick={handleCancel}>
               Cancel
             </Button>
