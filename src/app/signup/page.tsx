@@ -17,7 +17,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign Up</CardTitle>
-          <CardDescription>Join the network of book lovers.</CardDescription>
+          <CardDescription className="text-base font-bold text-pink-500">Join the network of book lovers.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="grid gap-4">
