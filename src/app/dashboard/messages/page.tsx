@@ -156,37 +156,39 @@ export default function MessagesPage() {
           {allConversations.sort((a,b) => (a.user.isAdmin ? -1 : b.user.isAdmin ? 1 : 0)).map(conv => {
             const isIlbooks = conv.user.name === "ILBooks";
             return (
-              <button
+              <div
                 key={conv.user.id}
                 className={cn(
-                  "flex items-start gap-3 p-3 border-b cursor-pointer w-full text-left",
+                  "flex items-start gap-3 p-3 border-b w-full",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
-                 onClick={() => setSelectedConversation(conv)}
               >
-                <Avatar className="h-11 w-11 border flex-shrink-0">
-                  { isIlbooks ? (
-                      <AvatarFallback className="bg-card">
-                          <IlbooksLogo className="h-6 w-6" />
-                      </AvatarFallback>
-                  ) : (
-                    <>
-                      <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />
-                      <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
-                    </>
-                  )}
-                </Avatar>
-
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                    <p className="text-sm text-muted-foreground break-words">
-                        {conv.lastMessage}
-                    </p>
-                </div>
-               
-                <div className="flex-shrink-0 flex flex-col items-end gap-1 text-right ml-2">
+                <button
+                  className="flex flex-1 items-start gap-3 text-left min-w-0"
+                  onClick={() => setSelectedConversation(conv)}
+                >
+                  <Avatar className="h-11 w-11 border flex-shrink-0">
+                    { isIlbooks ? (
+                        <AvatarFallback className="bg-card">
+                            <IlbooksLogo className="h-6 w-6" />
+                        </AvatarFallback>
+                    ) : (
+                      <>
+                        <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />
+                        <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                      </>
+                    )}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                      <p className="font-semibold font-headline truncate">{conv.user.name}</p>
+                      <p className="text-sm text-muted-foreground break-words">
+                          {conv.lastMessage}
+                      </p>
+                  </div>
+                </button>
+                <div className="flex-shrink-0 flex flex-col items-end justify-between h-full text-right ml-2">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
                     <div className="h-6 flex items-center">
                       {conv.unread > 0 ? (
@@ -195,12 +197,12 @@ export default function MessagesPage() {
                           </span>
                       ) : !isIlbooks ? (
                           <DropdownMenu>
-                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="icon" className="h-6 w-6">
                                       <MoreVertical className="h-4 w-4" />
                                   </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuContent align="end">
                                   <DropdownMenuItem>
                                       <UserX className="mr-2 h-4 w-4" />
                                       <span>Unfollow</span>
@@ -221,7 +223,7 @@ export default function MessagesPage() {
                       )}
                     </div>
                 </div>
-              </button>
+              </div>
             )
           })}
         </ScrollArea>
