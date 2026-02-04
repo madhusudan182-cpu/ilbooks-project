@@ -7,7 +7,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
       <div className="flex flex-col items-center justify-center text-center">
         <AnimatedLogo />
-        <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary mt-6">
+        <h1 className="font-headline text-5xl md:text-7xl font-bold text-pink-500 mt-6">
           ILBooks
         </h1>
         <p className="mt-2 text-xl text-red-800 font-headline tracking-wider">
