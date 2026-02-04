@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Book, LogOut, Home, Trophy, BookMarked, Crown, MessageCircle, Users, Menu, Star, BookOpen, PenSquare } from 'lucide-react';
+import { Book, LogOut, Home, Trophy, BookMarked, Crown, MessageCircle, Users, Menu, Star, PenSquare, Gift, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -30,7 +30,9 @@ const navItems: NavItem[] = [
   { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
   { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
   { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
-  { href: '/dashboard/social', title: 'Social Circle', icon: Users }
+  { href: '/dashboard/social', title: 'Social Circle', icon: Users },
+  { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
+  { href: '/dashboard/notice-board', title: 'Notice Board', icon: Bell }
 ];
 
 
@@ -59,7 +61,7 @@ export default function DashboardLayout({
             </SheetTrigger>
             <SheetContent side="left" className="p-0">
               <SheetHeader className="border-b p-4">
-                <SheetTitle>
+                 <SheetTitle>
                    <Link
                       href="/dashboard"
                       onClick={() => setIsSheetOpen(false)}
@@ -130,7 +132,7 @@ export default function DashboardLayout({
           </div>
         </div>
         
-        <nav className="hidden h-14 items-center justify-center gap-8 bg-background/80 px-6 text-sm font-medium md:flex">
+        <nav className="hidden h-14 items-center justify-center gap-8 bg-background/80 px-6 text-sm font-medium md:flex border-t">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -150,10 +152,6 @@ export default function DashboardLayout({
             <Link href="/dashboard/competition#leaderboard" className="flex items-center gap-2 hover:text-primary transition-colors">
                 <Star className="w-4 h-4" />
                 <span>Leaderboard</span>
-            </Link>
-             <Link href="/dashboard/book-shop#new-arrivals" className="flex items-center gap-2 hover:text-primary transition-colors">
-                <BookOpen className="w-4 h-4" />
-                <span>New Arrivals</span>
             </Link>
              <Link href="/dashboard#post" className="flex items-center gap-2 hover:text-primary transition-colors">
                 <PenSquare className="w-4 h-4" />
