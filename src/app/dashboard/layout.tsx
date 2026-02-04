@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -59,6 +59,22 @@ export default function DashboardLayout({
   React.useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const notifications = [
+    {
+      title: "New Follower",
+      description: "Ben Carter started following you.",
+    },
+    {
+      title: "Post Activity",
+      description: "Your post got 10 new likes.",
+    },
+    {
+      title: "New Books!",
+      description: "New arrivals are in the Book Shop.",
+    }
+  ];
+  const notificationCount = notifications.length;
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -200,8 +216,7 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      {isClient && (
-        <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
+      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
           <div className="mx-auto flex h-14 items-center justify-center gap-1 p-2">
             <TooltipProvider>
               {iconNavItems.map((item) => {
@@ -217,10 +232,11 @@ export default function DashboardLayout({
                               className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                             >
                               <Bell className="h-5 w-5" />
-                              <span className="absolute top-2 right-2 flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                              </span>
+                              {notificationCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                                  {notificationCount}
+                                </span>
+                              )}
                               <span className="sr-only">Notifications</span>
                             </Button>
                           </DropdownMenuTrigger>
@@ -232,18 +248,12 @@ export default function DashboardLayout({
                       <DropdownMenuContent align="end" className="w-80">
                         <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex-col items-start gap-1">
-                          <p className="font-medium">New Follower</p>
-                          <p className="text-xs text-muted-foreground">Ben Carter started following you.</p>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="flex-col items-start gap-1">
-                           <p className="font-medium">Post Activity</p>
-                          <p className="text-xs text-muted-foreground">Your post got 10 new likes.</p>
-                        </DropdownMenuItem>
-                         <DropdownMenuItem className="flex-col items-start gap-1">
-                           <p className="font-medium">New Books!</p>
-                           <p className="text-xs text-muted-foreground">New arrivals are in the Book Shop.</p>
-                        </DropdownMenuItem>
+                        {notifications.map((notification, index) => (
+                          <DropdownMenuItem key={index} className="flex-col items-start gap-1">
+                            <p className="font-medium">{notification.title}</p>
+                            <p className="text-xs text-muted-foreground">{notification.description}</p>
+                          </DropdownMenuItem>
+                        ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <Link href="/dashboard/notice-board" className='justify-center'>View all notifications</Link>
@@ -274,7 +284,6 @@ export default function DashboardLayout({
             </TooltipProvider>
           </div>
         </nav>
-      )}
 
       <main className="flex-grow bg-muted/30 pt-[calc(3.5rem+1px)]">
         {children}
