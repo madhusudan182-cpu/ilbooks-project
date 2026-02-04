@@ -11,6 +11,7 @@ import {
   Home,
   MessageCircle,
   Search,
+  Star,
   Sword,
   UserCheck,
   UserPlus,
@@ -39,6 +40,7 @@ const mainNav: NavItem[] = [
   { href: '/dashboard', title: 'Dashboard', icon: Home },
   { href: '/dashboard/profile', title: 'Profile', icon: CircleUser },
   { href: '/dashboard/competition', title: 'Competition', icon: Sword },
+  { href: '/dashboard/levels', title: 'Levels', icon: Star },
   { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
   { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
 ];
