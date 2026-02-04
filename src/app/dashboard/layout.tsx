@@ -17,6 +17,8 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type NavItem = {
   href: string;
@@ -203,12 +205,58 @@ export default function DashboardLayout({
           </div>
         </div>
         
-        <div className="hidden md:flex h-12 items-center justify-center gap-x-8 text-sm text-muted-foreground border-t bg-background/70">
+        <div className="hidden md:flex h-12 items-center justify-center gap-x-4 text-sm text-muted-foreground border-t bg-background/70">
             <Link href="/dashboard/competition#leaderboard" className="flex items-center gap-2 hover:text-primary transition-colors">
                 <Star className="w-4 h-4" />
                 <span>Leaderboard</span>
             </Link>
-             <Link href="/dashboard#post" className="flex items-center gap-2 hover:text-primary transition-colors">
+
+            <Separator orientation="vertical" className="h-6" />
+            
+            <TooltipProvider>
+              <div className="flex items-center gap-x-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard" className="hover:text-primary transition-colors"><Home className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Home</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/competition" className="hover:text-primary transition-colors"><Trophy className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Competition</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/book-shop" className="hover:text-primary transition-colors"><BookMarked className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Book Shop</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/patron" className="hover:text-primary transition-colors"><Crown className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Become a Patron</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/messages" className="hover:text-primary transition-colors"><MessageCircle className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Chat</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/dashboard/social" className="hover:text-primary transition-colors"><Users className="w-5 h-5" /></Link>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Social Circle</p></TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            <Link href="/dashboard#post" className="flex items-center gap-2 hover:text-primary transition-colors">
                 <PenSquare className="w-4 h-4" />
                 <span>Write a Post</span>
             </Link>
