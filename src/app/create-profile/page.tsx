@@ -7,16 +7,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Camera } from "lucide-react"
 import { thanasByDistrict } from "@/lib/location-data";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 const districts = Object.keys(thanasByDistrict);
+
+const hobbiesList = [
+  "Reading", "Writing", "Poetry", "History", "Science Fiction", 
+  "Fantasy", "Philosophy", "Art", "Travel", "Cooking", 
+  "Gardening", "Gaming", "Music", "Movies", "Sports"
+];
 
 export default function CreateProfilePage() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [thanas, setThanas] = useState<string[]>([]);
+  const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
@@ -92,8 +101,36 @@ export default function CreateProfilePage() {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="hobbies">Hobbies</Label>
-              <Textarea id="hobbies" placeholder="List your hobbies, separated by commas (e.g., Reading, Writing, Gardening)" />
+              <Label>Hobbies</Label>
+               <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        {selectedHobbies.length > 0 ? `${selectedHobbies.length} hobbies selected` : "Select your hobbies"}
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                        <ScrollArea className="h-60">
+                            {hobbiesList.map((hobby) => (
+                                <DropdownMenuCheckboxItem
+                                    key={hobby}
+                                    checked={selectedHobbies.includes(hobby)}
+                                    onCheckedChange={(checked) => {
+                                        if (checked) {
+                                            setSelectedHobbies((prev) => [...prev, hobby]);
+                                        } else {
+                                            setSelectedHobbies((prev) => prev.filter((h) => h !== hobby));
+                                        }
+                                    }}
+                                >
+                                {hobby}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </ScrollArea>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+                <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedHobbies.map(hobby => <Badge key={hobby} variant="secondary">{hobby}</Badge>)}
+                </div>
               <p className="text-sm text-muted-foreground">
                 This will help us recommend books you'll love.
               </p>
