@@ -13,6 +13,7 @@ import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // In a real app, you'd get the current user from an auth context.
 // We simulate by picking a user. mockUsers[0] is an admin.
@@ -61,10 +62,52 @@ const allConversations = [
 
 type Conversation = (typeof allConversations)[0];
 
+const MessagesPageSkeleton = () => (
+    <div className="h-full flex bg-background">
+      <aside className="w-full md:w-80 lg:w-96 border-r flex flex-col">
+        <div className="p-4 border-b flex items-center gap-4">
+          <h1 className="text-2xl font-bold font-headline">Chat</h1>
+          <div className="relative flex-1">
+            <Skeleton className="h-9 w-full" />
+          </div>
+        </div>
+        <div className="flex-1 p-3 space-y-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <Skeleton className="h-11 w-11 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-5 w-5 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </aside>
+      <main className="flex-1 hidden md:flex flex-col">
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                  <MessageCircle className="w-16 h-16 mx-auto mb-4"/>
+                  <p>Loading conversations...</p>
+              </div>
+          </div>
+      </main>
+    </div>
+);
+
+
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const chatWithId = searchParams.get('chatWith');
@@ -89,7 +132,6 @@ export default function MessagesPage() {
           status: 'sent' as const,
       };
 
-      // This is a mock update. In a real app, you'd send this to a backend.
       if (selectedConversation) {
         const updatedConversation = {
             ...selectedConversation,
@@ -99,7 +141,6 @@ export default function MessagesPage() {
         };
 
         setSelectedConversation(updatedConversation);
-        // Also update the main list
         const convIndex = allConversations.findIndex(c => c.user.id === selectedConversation.user.id);
         if (convIndex > -1) {
             allConversations[convIndex] = updatedConversation;
@@ -110,6 +151,10 @@ export default function MessagesPage() {
 
   const isAdmin = currentUser.isAdmin || false;
   const userLevel = currentUser.level;
+
+  if (!isClient) {
+    return <MessagesPageSkeleton />;
+  }
   
   if (!isAdmin && userLevel < 0.3) {
     return (
@@ -137,10 +182,8 @@ export default function MessagesPage() {
     );
   }
 
-  // Admin or eligible user view
   return (
     <div className="h-full flex bg-background">
-      {/* Sidebar with conversations */}
       <aside className={cn(
         "w-full md:w-80 lg:w-96 border-r flex-col",
         selectedConversation ? "hidden md:flex" : "flex"
@@ -159,7 +202,7 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "flex items-start gap-3 p-3 border-b w-full",
+                  "flex items-start gap-3 p-3 border-b",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
@@ -219,7 +262,7 @@ export default function MessagesPage() {
                               </DropdownMenuContent>
                           </DropdownMenu>
                       ) : (
-                          <div className="w-6" /> // Placeholder
+                          <div className="w-6" />
                       )}
                     </div>
                 </div>
@@ -229,7 +272,6 @@ export default function MessagesPage() {
         </ScrollArea>
       </aside>
 
-      {/* Main chat area */}
       <main className={cn(
         "flex-1 flex flex-col",
         selectedConversation ? "flex" : "hidden md:flex"
