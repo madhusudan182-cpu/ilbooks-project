@@ -117,7 +117,9 @@ export default function MessagesPage() {
     if (conversation) {
         setSelectedConversation(conversation);
     } else {
-        setSelectedConversation(null);
+        // Find ILBooks admin chat by default if no chat is selected
+        const adminChat = allConversations.find(c => c.user.id === 'ilbooks-admin');
+        setSelectedConversation(adminChat || null);
     }
   }, [searchParams]);
 
@@ -381,7 +383,7 @@ export default function MessagesPage() {
             <div className="p-4 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     {!isInputFocused && (
-                        <>
+                        <div className="flex">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="shrink-0">
@@ -425,7 +427,7 @@ export default function MessagesPage() {
                                 <Mic className="w-5 h-5" />
                                 <span className="sr-only">Record voice message</span>
                             </Button>
-                        </>
+                        </div>
                     )}
                     <div className="relative flex-1">
                       <Input 
