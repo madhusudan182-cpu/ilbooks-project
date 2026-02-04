@@ -1,0 +1,83 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { mockPosts } from "@/lib/data";
+import { MessageCircle, Heart, Share2, Send } from "lucide-react";
+
+export default function HomePage() {
+  return (
+    <div className="p-4 md:p-6 lg:p-8 space-y-8">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            <Avatar>
+              <AvatarImage src="https://picsum.photos/seed/av1/100/100" alt="User" />
+              <AvatarFallback>YOU</AvatarFallback>
+            </Avatar>
+            <div className="w-full">
+              <form>
+                <Input
+                  className="h-12 text-base"
+                  placeholder="What's on your mind, bookworm?"
+                />
+                <div className="flex justify-end mt-2">
+                  <Button type="submit">Post</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-6">
+        {mockPosts.map((post) => (
+          <Card key={post.id} className="overflow-hidden">
+            <CardHeader className="flex flex-row items-center gap-4 p-4">
+              <Avatar>
+                <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
+                <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className="grid gap-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold font-headline">{post.author.name}</p>
+                  <Badge variant="secondary">Level {post.author.level}</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {post.createdAt}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-2">
+              <p className="whitespace-pre-wrap">{post.content}</p>
+               {post.imageUrl && (
+                <div className="mt-4 relative aspect-video rounded-lg overflow-hidden border">
+                    <Image src={post.imageUrl} alt="Post image" fill className="object-cover" data-ai-hint="library books" />
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between p-2 md:p-4">
+              <div className="flex gap-1 md:gap-2">
+                <Button variant="ghost" size="sm">
+                  <Heart className="mr-2 h-4 w-4" />
+                  {post.likes}
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  {post.comments}
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  {post.shares}
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}

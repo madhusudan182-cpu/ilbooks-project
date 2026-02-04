@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Literata', 'serif'],
+        headline: ['Space Grotesk', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -88,10 +88,20 @@ export default {
             height: '0',
           },
         },
+        'candle-flame': {
+          '0%, 100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+          '50%': { transform: 'scale(1.05) rotate(2deg)', opacity: '0.95' },
+        },
+        'fade-in-up': {
+            '0%': { opacity: '0', transform: 'translateY(10px)' },
+            '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'candle-flame': 'candle-flame 2s ease-in-out infinite',
+        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
       },
     },
   },
