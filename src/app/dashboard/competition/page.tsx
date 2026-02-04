@@ -78,6 +78,10 @@ export default function CompetitionPage() {
                             </div>
                             <div>
                                 <h4 className="font-semibold">English (30 Marks)</h4>
+                                <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
+                                    <li>(1) IPA</li>
+                                    <li>(2) A1 Vocabulary Book</li>
+                                </ul>
                             </div>
                         </CardContent>
                     </Card>
