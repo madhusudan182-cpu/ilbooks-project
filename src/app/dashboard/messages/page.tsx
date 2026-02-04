@@ -152,59 +152,58 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "w-full flex items-center gap-2 p-2 border-b transition-colors",
+                  "w-full flex items-start gap-3 p-2 border-b transition-colors cursor-pointer",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
+                 onClick={() => setSelectedConversation(conv)}
               >
-                <div 
-                    className="flex-1 min-w-0 flex items-center gap-3 cursor-pointer"
-                    onClick={() => setSelectedConversation(conv)}
-                >
-                    <Avatar className="h-11 w-11 border flex-shrink-0">
-                      { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
-                      <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
-                            {conv.unread > 0 && (
-                            <span className="ml-2 flex-shrink-0 flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
-                                {conv.unread}
-                            </span>
-                            )}
-                        </div>
-                    </div>
+                <Avatar className="h-11 w-11 border flex-shrink-0">
+                  { isIlbooks ? <Book className="h-6 w-6 text-primary m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
+                  <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1 min-w-0">
+                    <p className="font-semibold font-headline truncate">{conv.user.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                        {conv.lastMessage}
+                    </p>
                 </div>
+               
                 <div className="flex-shrink-0 flex flex-col items-end gap-1 text-right">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
-                    {!isIlbooks ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                    <UserX className="mr-2 h-4 w-4" />
-                                    <span>Unfollow</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <UserX className="mr-2 h-4 w-4" />
-                                    <span>Block</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
-                                    <ShieldAlert className="mr-2 h-4 w-4" />
-                                    <span>Report</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <div className="h-6 w-6" /> // Placeholder to keep alignment
-                    )}
+                    <div className="h-6 flex items-center">
+                      {conv.unread > 0 ? (
+                          <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
+                              {conv.unread}
+                          </span>
+                      ) : !isIlbooks ? (
+                          <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                                      <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                  <DropdownMenuItem>
+                                      <UserX className="mr-2 h-4 w-4" />
+                                      <span>Unfollow</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                      <UserX className="mr-2 h-4 w-4" />
+                                      <span>Block</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
+                                      <ShieldAlert className="mr-2 h-4 w-4" />
+                                      <span>Report</span>
+                                  </DropdownMenuItem>
+                              </DropdownMenuContent>
+                          </DropdownMenu>
+                      ) : (
+                          <div className="w-6" /> // Placeholder
+                      )}
+                    </div>
                 </div>
               </div>
             )
