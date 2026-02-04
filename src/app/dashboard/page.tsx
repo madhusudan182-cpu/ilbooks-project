@@ -46,7 +46,7 @@ export default function HomePage() {
         </CardContent>
         {isPosting && (
           <CardFooter className="justify-end gap-2 pt-2 border-t">
-            <Button variant="ghost" onClick={handleCancel}>
+            <Button className="bg-pink-500 text-white hover:bg-pink-600" onClick={handleCancel}>
               Cancel
             </Button>
             <Button>Post</Button>
