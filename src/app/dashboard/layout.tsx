@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Book, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Book, LogOut, Home, Sword, BookMarked, Crown, MessageCircle, Users, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -13,23 +14,60 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from '@/lib/utils';
+import type { LucideIcon } from 'lucide-react';
+
+type NavItem = {
+  href: string;
+  title: string;
+  icon: LucideIcon;
+};
+
+const navItems: NavItem[] = [
+  { href: '/dashboard', title: 'Home', icon: Home },
+  { href: '/dashboard/competition', title: 'Competition', icon: Sword },
+  { href: '/dashboard/book-shop', title: 'Book Shop', icon: BookMarked },
+  { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
+  { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
+  { href: '/dashboard/social', title: 'Social Circle', icon: Users }
+];
+
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <div className="flex min-h-screen w-full flex-col">
-       <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
-          <Link href="/dashboard" className="flex items-center gap-2 font-headline font-semibold text-primary">
+       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+          <Link href="/dashboard" className="flex items-center gap-2 font-headline font-semibold text-primary mr-6">
             <Book className="w-6 h-6" />
             <h1 className="text-lg">ILBooks</h1>
           </Link>
+          
+          <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2 transition-colors hover:text-foreground",
+                  pathname === item.href ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.title}</span>
+              </Link>
+            ))}
+          </nav>
 
-          <div className="flex-1" />
-
-          <div className="flex items-center gap-4">
+          <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4 justify-end">
+            <div className="flex-1 md:flex-initial" />
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -62,6 +100,43 @@ export default function DashboardLayout({
                     Log Out
                 </Link>
             </Button>
+             {/* Mobile Nav */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 md:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <nav className="grid gap-6 text-lg font-medium">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-2 text-lg font-semibold mb-4"
+                  >
+                    <Book className="h-6 w-6 text-primary" />
+                    <span className="font-headline">ILBooks</span>
+                  </Link>
+                  {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground",
+                       pathname === item.href && "bg-muted text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.title}
+                  </Link>
+                ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
       </header>
       <main className="flex-grow">
