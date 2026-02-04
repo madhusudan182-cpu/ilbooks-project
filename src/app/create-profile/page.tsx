@@ -5,12 +5,26 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Camera } from "lucide-react"
 
 export default function CreateProfilePage() {
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
+        <CardHeader className="items-center text-center">
+          <div className="relative mb-4">
+            <Avatar className="h-24 w-24 border-4 border-muted">
+              <AvatarImage src="" alt="Profile picture" />
+              <AvatarFallback className="text-muted-foreground">
+                <Camera className="h-8 w-8" />
+              </AvatarFallback>
+            </Avatar>
+            <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full">
+              <Camera className="h-4 w-4" />
+              <span className="sr-only">Upload Picture</span>
+            </Button>
+          </div>
           <CardTitle className="text-3xl font-headline">Create Your Profile</CardTitle>
           <CardDescription>Tell us a bit about yourself to get started.</CardDescription>
         </CardHeader>
