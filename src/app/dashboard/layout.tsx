@@ -89,7 +89,7 @@ export default function DashboardLayout({
             <>
               {/* Static placeholder for SSR to prevent layout shift */}
               <div className="flex items-center gap-2">
-                 <Link href="/dashboard" className="flex items-center gap-2 text-primary">
+                 <Link href="/dashboard" className="flex items-center gap-2 text-pink-500">
                     <BookOpen className="w-6 h-6" />
                     <span className="font-headline font-semibold">ILBooks</span>
                  </Link>
@@ -119,7 +119,7 @@ export default function DashboardLayout({
                         <Link
                           href="/dashboard"
                           onClick={() => setIsSheetOpen(false)}
-                          className="flex items-center gap-2 text-primary transition-all"
+                          className="flex items-center gap-2 text-pink-500 transition-all"
                         >
                           <BookOpen className="h-6 w-6" />
                           <span className="font-headline text-xl">ILBooks</span>
@@ -146,7 +146,7 @@ export default function DashboardLayout({
               </Sheet>
               
               <div className="flex items-center gap-2">
-                <Link href="/dashboard" className="flex items-center gap-2 text-primary">
+                <Link href="/dashboard" className="flex items-center gap-2 text-pink-500">
                   <BookOpen className="w-6 h-6" />
                   <span className="font-headline font-semibold">ILBooks</span>
                 </Link>
