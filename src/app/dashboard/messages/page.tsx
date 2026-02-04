@@ -156,12 +156,16 @@ export default function MessagesPage() {
   const userLevel = currentUser.level;
 
   if (!isClient) {
-    return <MessagesPageSkeleton />;
+    return (
+      <div className="h-[calc(100vh-5.5rem)]">
+        <MessagesPageSkeleton />
+      </div>
+    );
   }
   
   if (!isAdmin && userLevel < 0.3) {
     return (
-      <div className="flex items-center justify-center p-4 md:p-6 lg:p-8 h-[calc(100vh-10rem)]">
+      <div className="flex items-center justify-center p-4 md:p-6 lg:p-8 h-[calc(100vh-5.5rem)]">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
               <div className="mx-auto bg-muted text-muted-foreground rounded-full p-3 w-fit mb-4">
@@ -186,7 +190,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="h-full flex bg-background">
+    <div className="flex bg-background h-[calc(100vh-5.5rem)]">
       <aside className={cn(
         "w-full md:w-80 lg:w-96 border-r flex-col",
         selectedConversation ? "hidden md:flex" : "flex"
