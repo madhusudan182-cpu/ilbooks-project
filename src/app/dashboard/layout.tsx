@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Gift, Bell } from 'lucide-react';
+import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Gift, Bell, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -18,11 +18,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { mockUsers } from '@/lib/data';
 
 type NavItem = {
   href: string;
   title: string;
   icon: LucideIcon;
+  adminOnly?: boolean;
 };
 
 const allNavItems: NavItem[] = [
@@ -33,7 +35,8 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
   { href: '/dashboard/social', title: 'Social Circle', icon: Users },
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
-  { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell }
+  { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell },
+  { href: '/dashboard/admin', title: 'Admin', icon: Shield, adminOnly: true },
 ];
 
 const iconNavItems: NavItem[] = [
@@ -54,6 +57,9 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const [isClient, setIsClient] = React.useState(false);
+  
+  const currentUser = mockUsers[0]; // In a real app, this would come from an auth context
+  const isAdmin = currentUser.isAdmin || false;
 
   React.useEffect(() => {
     setIsClient(true);
@@ -121,7 +127,7 @@ export default function DashboardLayout({
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="grid gap-2 p-4 text-lg font-medium">
-                    {allNavItems.map((item) => (
+                    {allNavItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -157,7 +163,7 @@ export default function DashboardLayout({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    {allNavItems.map((item) => (
+                    {allNavItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
                       <DropdownMenuItem key={item.href} asChild>
                         <Link
                           href={item.href}
@@ -215,7 +221,7 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <nav className="sticky top-12 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
+      <nav className="sticky top-12 z-10 w-full border-b bg-background/95 backdrop-blur-sm" suppressHydrationWarning>
           <div className="mx-auto flex h-10 items-center justify-center gap-1 p-2" suppressHydrationWarning>
             {!isClient && (
                 <>
@@ -240,7 +246,7 @@ export default function DashboardLayout({
                                 >
                                 <Bell className="h-8 w-8" />
                                 {notificationCount > 0 && (
-                                    <span className="absolute top-1 right-1 text-xs font-bold text-red-500">
+                                    <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
                                     {notificationCount}
                                     </span>
                                 )}
