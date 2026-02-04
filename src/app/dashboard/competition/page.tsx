@@ -1,6 +1,7 @@
-"use client"; // Needs to be a client component
+"use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,13 +11,12 @@ import { PaymentGateway } from '@/components/payment-gateway';
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
+    const router = useRouter();
     const examFee = 20;
 
     const handlePaymentSuccess = () => {
-        // Here you would typically navigate to the exam page or unlock the exam
-        // For now, we'll just log to the console.
         console.log("Payment successful, starting exam...");
-        // Maybe redirect to an exam page? e.g. router.push('/dashboard/competition/exam')
+        router.push('/dashboard/competition/exam');
     };
 
     return (

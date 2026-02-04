@@ -37,3 +37,17 @@ export type NavItem = {
   icon: LucideIcon;
   label?: string;
 };
+
+export type Answer = {
+  text: string;
+  isCorrect: boolean;
+};
+
+export type Question = {
+  id: string;
+  level: string;
+  subject: 'Bengali' | 'English';
+  questionText: string;
+  answers: Answer[];
+  explanation: string;
+};
