@@ -11,7 +11,7 @@ import { allQuestions } from '@/lib/questions';
 import type { Answer } from '@/lib/types';
 import { CheckCircle, XCircle, Award } from 'lucide-react';
 
-const TOTAL_TIME_PER_QUESTION = 10; // seconds
+const TOTAL_TIME_PER_QUESTION = 20; // seconds
 
 export default function ExamPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
