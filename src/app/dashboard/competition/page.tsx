@@ -94,63 +94,26 @@ export default function CompetitionPage() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {isAdmin ? (
-                        // ADMIN VIEW
-                        <Card className="lg:col-span-1 md:col-span-2">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> All Syllabi (Admin View)</CardTitle>
-                                <CardDescription>All competition syllabi are visible to admins.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                 <Accordion type="single" collapsible className="w-full max-h-96 overflow-y-auto">
-                                    {allLevels.map((level) => {
-                                        const syllabus = allSyllabi.find(s => s.level === level);
-                                        return (
-                                            <AccordionItem value={`level-${level}`} key={level}>
-                                                <AccordionTrigger className="font-semibold">Syllabus for Level {level}</AccordionTrigger>
-                                                <AccordionContent>
-                                                    {syllabus ? (
-                                                        Object.entries(syllabus.subjects).map(([subjectName, details]) => (
-                                                            <div key={subjectName} className="mb-4 last:mb-0">
-                                                                <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
-                                                                <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                                                    {details.topics.map((topic, i) => <li key={i}>{topic}</li>)}
-                                                                </ul>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-muted-foreground">Syllabus not yet defined for this level.</p>
-                                                    )}
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        )
-                                    })}
-                                </Accordion>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        // CLIENT VIEW
-                        <Card className="lg:col-span-1 md:col-span-2">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Syllabus for Level {userLevel}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {userSyllabus ? (
-                                    Object.entries(userSyllabus.subjects).map(([subjectName, details]) => (
-                                        <div key={subjectName} className="mb-4 last:mb-0">
-                                            <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
-                                            <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
-                                                {details.topics.map((topic, i) => <li key={i}>{topic}</li>)}
-                                            </ul>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-muted-foreground">Syllabus for your current level ({userLevel}) is not available yet.</p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
+                    
+                    <Card className="lg:col-span-1 md:col-span-2">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3"><Book className="text-accent"/> Syllabus for Level {userLevel}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {userSyllabus ? (
+                                Object.entries(userSyllabus.subjects).map(([subjectName, details]) => (
+                                    <div key={subjectName} className="mb-4 last:mb-0">
+                                        <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
+                                        <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
+                                            {details.topics.map((topic, i) => <li key={i}>{topic}</li>)}
+                                        </ul>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-muted-foreground">Syllabus for your current level ({userLevel}) is not available yet.</p>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {isAdmin && (
