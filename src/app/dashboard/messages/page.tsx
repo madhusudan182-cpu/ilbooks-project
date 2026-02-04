@@ -161,8 +161,16 @@ export default function MessagesPage() {
                  onClick={() => setSelectedConversation(conv)}
               >
                 <Avatar className="h-11 w-11 border flex-shrink-0">
-                  { isIlbooks ? <IlbooksLogo className="h-6 w-6 m-auto" /> : <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />}
-                  <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                  { isIlbooks ? (
+                      <AvatarFallback className="bg-card">
+                          <IlbooksLogo className="h-6 w-6" />
+                      </AvatarFallback>
+                  ) : (
+                    <>
+                      <AvatarImage src={conv.user.avatarUrl} alt={conv.user.name} />
+                      <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
+                    </>
+                  )}
                 </Avatar>
 
                 <div className="flex-1 min-w-0">
@@ -225,8 +233,16 @@ export default function MessagesPage() {
                   <ArrowLeft className="h-5 w-5"/>
                 </Button>
                 <Avatar className="h-10 w-10 border">
-                    { selectedConversation.user.name === 'ILBooks' ? <IlbooksLogo className="h-5 w-5 m-auto" /> : <AvatarImage src={selectedConversation.user.avatarUrl} alt={selectedConversation.user.name} />}
-                    <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
+                    {selectedConversation.user.name === 'ILBooks' ? (
+                        <AvatarFallback className="bg-card">
+                            <IlbooksLogo className="h-5 w-5" />
+                        </AvatarFallback>
+                    ) : (
+                        <>
+                            <AvatarImage src={selectedConversation.user.avatarUrl} alt={selectedConversation.user.name} />
+                            <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
+                        </>
+                    )}
                 </Avatar>
                 <div className="flex-grow">
                     <h2 className="font-semibold text-lg font-headline">{selectedConversation.user.name}</h2>
