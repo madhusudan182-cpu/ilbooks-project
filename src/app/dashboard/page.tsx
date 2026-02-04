@@ -35,7 +35,7 @@ export default function HomePage() {
               <form>
                 <Textarea
                   className={cn(
-                    "text-base transition-all duration-200 ease-in-out",
+                    "text-base transition-all duration-200 ease-in-out py-1",
                      isPosting ? "min-h-[40px]" : "h-9"
                   )}
                   placeholder="What's on your mind, bookworm?"
@@ -95,7 +95,7 @@ export default function HomePage() {
               <CardContent className="px-3 pt-0 pb-2">
                 <p className="whitespace-pre-wrap text-sm">{post.content}</p>
                 {post.imageUrl && (
-                  <div className="mt-3 relative aspect-video rounded-md overflow-hidden border">
+                  <div className="mt-3 relative aspect-[2/1] rounded-md overflow-hidden border">
                     <Image
                       src={post.imageUrl}
                       alt="Post image"
