@@ -90,12 +90,41 @@ export default function DashboardLayout({
               </nav>
             </SheetContent>
           </Sheet>
-          <Link href="/dashboard" className="flex items-center gap-2 text-primary mr-auto">
+          
+          <Link href="/dashboard" className="flex items-center gap-2 text-primary">
             <Book className="w-6 h-6" />
             <span className="font-headline font-semibold hidden md:block">ILBooks</span>
           </Link>
           
-          <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="hidden md:inline-flex">
+                <Grid3x3 className="h-5 w-5" />
+                 <span className="sr-only">Open Menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {navItems.map((item) => (
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex w-full items-center gap-2",
+                      pathname === item.href && "text-primary font-semibold"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+
+          <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -170,22 +199,6 @@ export default function DashboardLayout({
             </Button>
           </div>
         </div>
-        
-        <nav className="hidden h-14 items-center justify-center gap-8 bg-background/80 px-6 text-sm font-medium md:flex border-t">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-2 transition-colors hover:text-primary",
-                  pathname === item.href ? "text-primary font-semibold" : "text-muted-foreground"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.title}</span>
-              </Link>
-            ))}
-        </nav>
         
         <div className="hidden md:flex h-12 items-center justify-center gap-x-8 text-sm text-muted-foreground border-t bg-background/70">
             <Link href="/dashboard/competition#leaderboard" className="flex items-center gap-2 hover:text-primary transition-colors">
