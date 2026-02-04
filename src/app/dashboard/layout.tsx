@@ -215,72 +215,81 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
+      <nav className="sticky top-16 z-10 w-full border-b bg-background/95 backdrop-blur-sm pt-4">
           <div className="mx-auto flex h-14 items-center justify-center gap-1 p-2">
-            <TooltipProvider>
-              {[...iconNavItems, { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell }].map((item) => {
-                if (item.title === 'Notifications') {
-                  return (
-                    <DropdownMenu key="notifications-dropdown">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                            >
-                              <Bell className="h-6 w-6" />
-                              {notificationCount > 0 && (
-                                <span className="absolute top-1 right-1.5 text-destructive font-bold text-xs">
-                                  {notificationCount}
-                                </span>
-                              )}
-                              <span className="sr-only">Notifications</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>Notifications</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <DropdownMenuContent align="end" className="w-80">
-                        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {notifications.map((notification, index) => (
-                          <DropdownMenuItem key={index} className="flex-col items-start gap-1">
-                            <p className="font-medium">{notification.title}</p>
-                            <p className="text-xs text-muted-foreground">{notification.description}</p>
-                          </DropdownMenuItem>
-                        ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link href="/dashboard/notice-board" className='justify-center'>View all notifications</Link>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )
-                }
-                return (
-                <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                        pathname === item.href && "bg-accent text-accent-foreground"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span className="sr-only">{item.title}</span>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p>{item.title}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )})}
-            </TooltipProvider>
+            {!isClient && (
+                <>
+                    {[...Array(iconNavItems.length + 1)].map((_, i) => (
+                        <div key={i} className="h-10 w-10 rounded-lg bg-muted" />
+                    ))}
+                </>
+            )}
+            {isClient && (
+                <TooltipProvider>
+                {[...iconNavItems, { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell }].map((item) => {
+                    if (item.title === 'Notifications') {
+                    return (
+                        <DropdownMenu key="notifications-dropdown">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                variant="ghost"
+                                size="icon"
+                                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                >
+                                <Bell className="h-6 w-6" />
+                                {notificationCount > 0 && (
+                                    <span className="absolute top-1.5 right-1.5 text-xs font-bold text-destructive">
+                                    {notificationCount}
+                                    </span>
+                                )}
+                                <span className="sr-only">Notifications</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                            <p>Notifications</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="end" className="w-80">
+                            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {notifications.map((notification, index) => (
+                            <DropdownMenuItem key={index} className="flex-col items-start gap-1">
+                                <p className="font-medium">{notification.title}</p>
+                                <p className="text-xs text-muted-foreground">{notification.description}</p>
+                            </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                            <Link href="/dashboard/notice-board" className='justify-center'>View all notifications</Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    )
+                    }
+                    return (
+                    <Tooltip key={item.href}>
+                    <TooltipTrigger asChild>
+                        <Link
+                        href={item.href}
+                        className={cn(
+                            "flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                            pathname === item.href && "bg-accent text-accent-foreground"
+                        )}
+                        >
+                        <item.icon className="h-5 w-5" />
+                        <span className="sr-only">{item.title}</span>
+                        </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                        <p>{item.title}</p>
+                    </TooltipContent>
+                    </Tooltip>
+                )})}
+                </TooltipProvider>
+            )}
           </div>
         </nav>
 
