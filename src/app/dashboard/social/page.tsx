@@ -7,38 +7,53 @@ import type { User } from "@/lib/types";
 import { MessageCircle, UserCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 
-const UserCard = ({ user }: { user: User }) => (
-  <Card>
-    <CardContent className="p-4 flex items-center gap-4">
-      <Avatar className="h-12 w-12">
-        <AvatarImage src={user.avatarUrl} alt={user.name} />
-        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-      </Avatar>
-      <div className="flex-grow">
-        <p className="font-semibold font-headline">{user.name}</p>
-        <p className="text-sm text-muted-foreground">Level {user.level}</p>
-      </div>
-      <div className="flex items-center gap-2">
-        {user.isMutual ? (
-          <>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/dashboard/messages?chatWith=${user.id}`}>
-                <MessageCircle className="h-5 w-5"/>
-              </Link>
-            </Button>
-            <Button variant="secondary">Unfollow</Button>
-          </>
-        ) : user.isFollowing ? (
-          <Button variant="secondary">Unfollow</Button>
-        ) : (
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4"/> Follow
-          </Button>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
+const currentUser = mockUsers[0];
+
+const UserCard = ({ user }: { user: User }) => {
+  const isCurrentUser = user.id === currentUser.id;
+  const profileUrl = isCurrentUser ? '/dashboard/profile' : `/dashboard/user/${user.id}`;
+  
+  return (
+    <Card>
+      <CardContent className="p-4 flex items-center gap-4">
+        <Link href={profileUrl}>
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
+            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Link>
+        <div className="flex-grow">
+          <Link href={profileUrl} className="hover:underline">
+            <p className="font-semibold font-headline">{user.name}</p>
+          </Link>
+          <p className="text-sm text-muted-foreground">Level {user.level}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isCurrentUser && (
+            <>
+              {user.isMutual ? (
+                <>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href={`/dashboard/messages?chatWith=${user.id}`}>
+                      <MessageCircle className="h-5 w-5"/>
+                    </Link>
+                  </Button>
+                  <Button variant="secondary">Unfollow</Button>
+                </>
+              ) : user.isFollowing ? (
+                <Button variant="secondary">Unfollow</Button>
+              ) : (
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4"/> Follow
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const UserList = ({ users }: { users: User[] }) => (
   <div className="space-y-4">
