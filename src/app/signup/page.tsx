@@ -52,8 +52,8 @@ export default function SignupPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link href="/login" className="underline">
-              Sign in
+            <Link href="/login" className="underline font-bold text-orange-500 text-base">
+              Sign In
             </Link>
           </div>
         </CardContent>
