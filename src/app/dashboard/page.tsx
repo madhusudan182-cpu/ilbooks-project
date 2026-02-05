@@ -119,7 +119,7 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardContent className="px-2 pt-0 pb-1">
-                <p className="whitespace-pre-wrap text-lg">{post.content}</p>
+                <p className="whitespace-pre-wrap text-sm">{post.content}</p>
                 {post.imageUrl && (
                   <div className="mt-2 relative aspect-[16/9] rounded-md overflow-hidden border">
                     <Image
@@ -136,15 +136,15 @@ export default function HomePage() {
                 <div className="flex">
                   <Button variant="ghost" size="sm">
                     <Heart className="w-4 h-4 mr-1" />
-                    <span className="text-base">{post.likes}</span>
+                    <span className="text-xs">{post.likes}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <MessageCircle className="w-4 h-4 mr-1" />
-                    <span className="text-base">{post.comments}</span>
+                    <span className="text-xs">{post.comments}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <Share2 className="w-4 h-4 mr-1" />
-                    <span className="text-base">{post.shares}</span>
+                    <span className="text-xs">{post.shares}</span>
                   </Button>
                 </div>
               </CardFooter>
