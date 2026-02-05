@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { mockPosts, mockUsers } from "@/lib/data";
-import { MessageCircle, Heart, Share2, Image as ImageIcon } from "lucide-react";
+import { MessageCircle, Heart, Share2, Image as ImageIcon, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
@@ -55,6 +55,10 @@ export default function HomePage() {
                 <Button variant="ghost" size="icon">
                     <ImageIcon className="h-5 w-5 text-muted-foreground" />
                     <span className="sr-only">Add image</span>
+                </Button>
+                <Button variant="ghost" size="icon">
+                    <Video className="h-5 w-5 text-muted-foreground" />
+                    <span className="sr-only">Add video</span>
                 </Button>
             </div>
             <div className="flex items-center gap-1">
