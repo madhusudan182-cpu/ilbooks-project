@@ -54,8 +54,8 @@ export default function BookShopPage() {
         onClose={() => setShowPayment(false)}
         onSuccess={handlePaymentSuccess}
       />
-      <div className="p-4 md:p-6">
-        <h1 className="text-4xl font-bold font-headline mb-4 text-center">Book Shop</h1>
+      <div className="p-2 md:p-4">
+        <h1 className="text-4xl font-bold font-headline mb-2 text-center">Book Shop</h1>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Card>
