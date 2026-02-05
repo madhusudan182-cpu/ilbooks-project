@@ -47,7 +47,7 @@ export default function HomePage() {
               <form>
                 <Textarea
                   className={cn(
-                    "text-lg transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
+                    "text-base transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
                      isPosting ? "min-h-[40px]" : "h-8"
                   )}
                   placeholder="What's on your mind, bookworm?"
