@@ -249,7 +249,7 @@ export default function MessagesPage() {
                       </>
                     )}
                   </Avatar>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="font-semibold font-headline truncate">{conv.user.name}</p>
                       {!isIlbooks && <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>}
                   </div>
