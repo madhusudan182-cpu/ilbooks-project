@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { mockPosts, mockUsers } from "@/lib/data";
-import { MessageCircle, Heart, Share2 } from "lucide-react";
+import { MessageCircle, Heart, Share2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
@@ -37,7 +37,7 @@ export default function HomePage() {
               <form>
                 <Textarea
                   className={cn(
-                    "text-base transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
+                    "text-lg transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
                      isPosting ? "min-h-[40px]" : "h-8"
                   )}
                   placeholder="What's on your mind, bookworm?"
@@ -50,11 +50,19 @@ export default function HomePage() {
           </div>
         </CardContent>
         {isPosting && (
-          <CardFooter className="justify-end gap-1 p-1 border-t">
-            <Button size="sm" className="h-7 bg-pink-500 text-white hover:bg-pink-600" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button size="sm" className="h-7">Post</Button>
+          <CardFooter className="flex items-center justify-between p-1 border-t">
+            <div className="flex">
+                <Button variant="ghost" size="icon">
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="sr-only">Add image</span>
+                </Button>
+            </div>
+            <div className="flex items-center gap-1">
+                <Button size="sm" className="h-7 bg-pink-500 text-white hover:bg-pink-600" onClick={handleCancel}>
+                Cancel
+                </Button>
+                <Button size="sm" className="h-7">Post</Button>
+            </div>
           </CardFooter>
         )}
       </Card>
@@ -83,7 +91,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={profileUrl}
-                      className="font-headline hover:underline text-sm"
+                      className="font-headline hover:underline text-base"
                     >
                       {post.author.name}
                     </Link>
@@ -95,7 +103,7 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardContent className="px-2 pt-0 pb-1">
-                <p className="whitespace-pre-wrap text-base">{post.content}</p>
+                <p className="whitespace-pre-wrap text-lg">{post.content}</p>
                 {post.imageUrl && (
                   <div className="mt-2 relative aspect-[16/9] rounded-md overflow-hidden border">
                     <Image
@@ -112,15 +120,15 @@ export default function HomePage() {
                 <div className="flex">
                   <Button variant="ghost" size="sm">
                     <Heart className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{post.likes}</span>
+                    <span className="text-base">{post.likes}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <MessageCircle className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{post.comments}</span>
+                    <span className="text-base">{post.comments}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <Share2 className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{post.shares}</span>
+                    <span className="text-base">{post.shares}</span>
                   </Button>
                 </div>
               </CardFooter>
