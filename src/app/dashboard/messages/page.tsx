@@ -370,7 +370,7 @@ export default function MessagesPage() {
                          </Avatar>
 
                          <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
-                             <p className="break-words">{msg.text}</p>
+                             <p className="break-words text-sm">{msg.text}</p>
                             {msg.sender === currentUser.id ? (
                                 <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs opacity-80">
                                     {msg.status === 'pending' && <span className="italic">Pending</span>}
