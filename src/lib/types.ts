@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { Timestamp } from 'firebase/firestore';
 
 export type User = {
   id: string;
@@ -31,6 +32,18 @@ export type Book = {
   price: number;
   coverUrl: string;
   level: string;
+};
+
+export type Order = {
+  id: string;
+  userId: string;
+  customerName: string;
+  deliveryAddress: string;
+  mobileNumber: string;
+  books: Book[];
+  totalAmount: number;
+  orderDate: Timestamp;
+  status: 'Paid' | 'Shipped' | 'Delivered';
 };
 
 export type NavItem = {

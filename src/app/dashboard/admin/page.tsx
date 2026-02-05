@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { allSyllabi } from '@/lib/syllabus';
 import { allQuestions } from '@/lib/questions';
@@ -8,6 +8,8 @@ import type { Question, Book as BookType } from '@/lib/types';
 import { mockBooks, mockUsers } from "@/lib/data";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function AdminPage() {
     // In a real app, this user would come from an authentication session.
@@ -59,6 +61,18 @@ export default function AdminPage() {
           <p className="text-muted-foreground">
             Here you can manage users, questions, and other site settings.
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-2xl font-headline"><Package className="text-primary w-6 h-6"/> Customer Orders</CardTitle>
+            <CardDescription>View all completed transactions and order details.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Button asChild>
+              <Link href="/dashboard/admin/orders">View All Orders</Link>
+            </Button>
         </CardContent>
       </Card>
 

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Gift, Bell, Shield } from 'lucide-react';
+import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Gift, Bell, Shield, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -40,6 +40,7 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
   { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell },
   { href: '/dashboard/admin', title: 'Admin', icon: Shield, adminOnly: true },
+  { href: '/dashboard/admin/orders', title: 'Orders', icon: Package, adminOnly: true },
 ];
 
 const iconNavItems: NavItem[] = [

@@ -20,6 +20,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useFirestore } from '@/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function BookShopPage() {
   const [orderedBooks, setOrderedBooks] = useState<Book[]>([]);
@@ -29,6 +33,7 @@ export default function BookShopPage() {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [mobile, setMobile] = useState('');
+  const firestore = useFirestore();
 
   // In a real app, this would be the authenticated user.
   // For demonstration, we'll use a user at level 0.0 to show available books.
@@ -61,18 +66,64 @@ export default function BookShopPage() {
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowAddressDialog(false);
+    if (!firestore) {
+      toast({
+        title: 'Error',
+        description: 'Database not available.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    toast({
-      title: 'Thanks for your information!',
-      duration: 2000,
-    });
+    const newOrder = {
+      userId: currentUser.id,
+      customerName: name,
+      deliveryAddress: address,
+      mobileNumber: mobile,
+      books: orderedBooks.map((b) => ({
+        id: b.id,
+        title: b.title,
+        author: b.author,
+        price: b.price,
+        coverUrl: b.coverUrl,
+        level: b.level
+      })),
+      totalAmount: total,
+      orderDate: serverTimestamp(),
+      status: 'Paid' as const,
+    };
+    
+    const ordersCollection = collection(firestore, 'orders');
 
-    // Clear the cart and form fields after submission
-    setOrderedBooks([]);
-    setName('');
-    setAddress('');
-    setMobile('');
+    addDoc(ordersCollection, newOrder)
+      .then(() => {
+        setShowAddressDialog(false);
+        toast({
+          title: 'Thanks for your information!',
+          description: 'Your order has been placed.',
+          duration: 2000,
+        });
+
+        // Clear the cart and form fields after submission
+        setOrderedBooks([]);
+        setName('');
+        setAddress('');
+        setMobile('');
+      })
+      .catch(async (serverError) => {
+        console.error('Error placing order:', serverError);
+        const permissionError = new FirestorePermissionError({
+          path: ordersCollection.path,
+          operation: 'create',
+          requestResourceData: newOrder,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+            title: "Uh oh! Something went wrong.",
+            description: "Could not place your order. Please try again.",
+            variant: "destructive",
+        });
+      });
   };
 
   return (
