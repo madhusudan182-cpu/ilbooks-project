@@ -68,9 +68,9 @@ export default function SocialPage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
-      <h1 className="text-3xl font-bold font-headline mb-6 text-center">Social Circle</h1>
+      <h1 className="text-2xl font-bold font-headline mb-6 text-center">Social Circle</h1>
       <Tabs defaultValue="find">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 bg-primary/10">
           <TabsTrigger value="find">Find People</TabsTrigger>
           <TabsTrigger value="following"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
           <TabsTrigger value="followers"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
