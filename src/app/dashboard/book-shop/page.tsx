@@ -26,6 +26,7 @@ export default function BookShopPage() {
   const [showPayment, setShowPayment] = useState(false);
   const { toast } = useToast();
   const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [mobile, setMobile] = useState('');
 
@@ -69,6 +70,7 @@ export default function BookShopPage() {
 
     // Clear the cart and form fields after submission
     setOrderedBooks([]);
+    setName('');
     setAddress('');
     setMobile('');
   };
@@ -88,11 +90,24 @@ export default function BookShopPage() {
           <DialogHeader>
             <DialogTitle>Delivery Information</DialogTitle>
             <DialogDescription>
-              Please provide your address and mobile number for delivery.
+              Please provide your name, address, and mobile number for delivery.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAddressSubmit}>
             <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="col-span-3"
+                  placeholder="Your full name"
+                  required
+                />
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="address" className="text-right">
                   Your Address
