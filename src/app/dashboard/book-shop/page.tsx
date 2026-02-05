@@ -24,6 +24,7 @@ import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { cn } from '@/lib/utils';
 
 export default function BookShopPage() {
   const [orderedBooks, setOrderedBooks] = useState<Book[]>([]);
@@ -34,14 +35,25 @@ export default function BookShopPage() {
   const [address, setAddress] = useState('');
   const [mobile, setMobile] = useState('');
   const firestore = useFirestore();
+  const [activeCategory, setActiveCategory] = useState<'level' | 'vocab' | 'popular'>('level');
 
   // In a real app, this would be the authenticated user.
   // For demonstration, we'll use a user at level 0.0 to show available books.
   const currentUser = { ...mockUsers[1], level: 0.0 };
   const userLevel = currentUser.level.toFixed(1);
 
-  // Filter books to show only those relevant to the user's level.
-  const booksForLevel = mockBooks.filter((book) => book.level === userLevel);
+  const displayedBooks = (() => {
+    switch (activeCategory) {
+      case 'level':
+        return mockBooks.filter((book) => book.level === userLevel);
+      case 'vocab':
+        return mockBooks.filter((book) => book.category === 'vocab_grammar');
+      case 'popular':
+        return mockBooks.filter((book) => book.category === 'popular');
+      default:
+        return [];
+    }
+  })();
 
   const total = orderedBooks.reduce((sum, book) => sum + book.price, 0);
 
@@ -200,16 +212,31 @@ export default function BookShopPage() {
             You're in Level: {userLevel}
         </p>
         <div className="flex justify-center gap-2 mb-6">
-          <Button className="h-16 w-32 whitespace-normal text-center leading-tight">Books for your Level</Button>
-          <Button className="h-16 w-32 whitespace-normal text-center leading-tight">Vocabulary & Grammar</Button>
-          <Button className="h-16 w-32 whitespace-normal text-center leading-tight">Popular</Button>
+          <Button 
+            onClick={() => setActiveCategory('level')}
+            className={cn("h-16 w-32 whitespace-normal text-center leading-tight", activeCategory !== 'level' && "opacity-70")}
+          >
+            Books for your Level
+          </Button>
+          <Button 
+            onClick={() => setActiveCategory('vocab')}
+            className={cn("h-16 w-32 whitespace-normal text-center leading-tight", activeCategory !== 'vocab' && "opacity-70")}
+          >
+            Vocabulary & Grammar
+          </Button>
+          <Button 
+            onClick={() => setActiveCategory('popular')}
+            className={cn("h-16 w-32 whitespace-normal text-center leading-tight", activeCategory !== 'popular' && "opacity-70")}
+          >
+            Popular
+          </Button>
         </div>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Card>
               <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
-                {booksForLevel.length > 0 ? (
-                  booksForLevel.map((book) => (
+                {displayedBooks.length > 0 ? (
+                  displayedBooks.map((book) => (
                     <Card key={book.id} className="overflow-hidden flex flex-col">
                       <div className="relative aspect-[2/3] w-full">
                         <Image
@@ -235,8 +262,7 @@ export default function BookShopPage() {
                 ) : (
                   <div className="col-span-full text-center text-muted-foreground py-10">
                     <p>
-                      There are no books specifically recommended for your current level ({userLevel})
-                      yet.
+                      There are no books in this category yet.
                     </p>
                     <p>Check back soon!</p>
                   </div>

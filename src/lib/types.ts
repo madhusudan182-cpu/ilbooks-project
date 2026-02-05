@@ -32,6 +32,7 @@ export type Book = {
   price: number;
   coverUrl: string;
   level: string;
+  category?: 'vocab_grammar' | 'popular';
 };
 
 export type Order = {

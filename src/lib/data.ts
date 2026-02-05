@@ -96,6 +96,7 @@ export const mockBooks: Book[] = [
         price: 350,
         coverUrl: "https://picsum.photos/seed/bc2/400/600",
         level: '0.0',
+        category: 'popular',
     },
     {
         id: 'book-3',
@@ -112,6 +113,7 @@ export const mockBooks: Book[] = [
         price: 250,
         coverUrl: "https://picsum.photos/seed/bc4/400/600",
         level: '0.1',
+        category: 'popular',
     },
      {
         id: 'book-5',
@@ -128,5 +130,24 @@ export const mockBooks: Book[] = [
         price: 300,
         coverUrl: "https://picsum.photos/seed/bc6/400/600",
         level: '0.2',
+        category: 'popular',
+    },
+    {
+        id: 'book-7',
+        title: "English Grammar in Use",
+        author: "Raymond Murphy",
+        price: 450,
+        coverUrl: "https://picsum.photos/seed/bc7/400/600",
+        level: 'all',
+        category: 'vocab_grammar',
+    },
+    {
+        id: 'book-8',
+        title: "Word Power Made Easy",
+        author: "Norman Lewis",
+        price: 220,
+        coverUrl: "https://picsum.photos/seed/bc8/400/600",
+        level: 'all',
+        category: 'vocab_grammar',
     },
 ];
