@@ -359,15 +359,14 @@ export default function MessagesPage() {
                 {selectedConversation.messages.map(msg => (
                   <div key={msg.id} className={cn("group flex w-full max-w-full items-end gap-2", msg.sender === currentUser.id && "justify-end")}>
                       <div className={cn("flex items-end gap-2", msg.sender === currentUser.id ? "flex-row-reverse" : "flex-row")}>
-                         <Avatar className="h-9 w-9">
-                           <AvatarImage src={msg.sender === currentUser.id ? currentUser.avatarUrl : (selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined)} />
-                           <AvatarFallback>
-                              {msg.sender === currentUser.id 
-                                  ? currentUser.name.charAt(0) 
-                                  : (selectedConversation.user.name === 'ILBooks' ? <IlbooksLogo className="h-4 w-4" /> : selectedConversation.user.name.charAt(0))
-                              }
-                           </AvatarFallback>
-                         </Avatar>
+                         {msg.sender !== currentUser.id && (
+                           <Avatar className="h-9 w-9">
+                             <AvatarImage src={selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined} />
+                             <AvatarFallback>
+                                {selectedConversation.user.name === 'ILBooks' ? <IlbooksLogo className="h-4 w-4" /> : selectedConversation.user.name.charAt(0)}
+                             </AvatarFallback>
+                           </Avatar>
+                         )}
 
                          <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
                              <p className="break-words text-xs">{msg.text}</p>
