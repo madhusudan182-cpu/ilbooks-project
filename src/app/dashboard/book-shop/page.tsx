@@ -253,7 +253,7 @@ export default function BookShopPage() {
                         <div className="flex justify-between items-center mt-2">
                           <p className="font-bold text-sm text-primary">Tk {book.price}</p>
                           <Button size="sm" onClick={() => handleBuy(book)}>
-                            <ShoppingCart className="mr-2 h-4 w-4" /> Buy
+                            <ShoppingCart className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
