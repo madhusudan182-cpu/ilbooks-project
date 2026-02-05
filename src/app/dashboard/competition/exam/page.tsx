@@ -25,7 +25,7 @@ function ExamContent() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>(Array(questions.length).fill(null));
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_PER_QUESTION);
-  const [showResults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(true);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +33,6 @@ function ExamContent() {
     setQuestions(filteredQuestions);
     setUserAnswers(Array(filteredQuestions.length).fill(null));
     setCurrentQuestionIndex(0);
-    setShowResults(false);
     setTimeLeft(TOTAL_TIME_PER_QUESTION);
     setSelectedOption(null);
   }, [level]);
