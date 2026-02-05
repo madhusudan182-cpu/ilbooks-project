@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,18 +105,35 @@ export default function MessagesPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
+    const handlePopState = () => {
+        if (window.location.search === '') {
+            setSelectedConversation(null);
+        }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
     const chatWithId = searchParams.get('chatWith');
     const conversation = allConversations.find(c => c.user.id === chatWithId);
     if (chatWithId) {
-      setSelectedConversation(conversation || null);
+      if (conversation) {
+        setSelectedConversation(conversation);
+      }
+    } else {
+        setSelectedConversation(null);
     }
   }, [searchParams]);
+
+  const handleSelectConversation = (conv: Conversation) => {
+      setSelectedConversation(conv);
+      router.push(`/dashboard/messages?chatWith=${conv.user.id}`, { scroll: false });
+  }
 
   const handleSendMessage = (e: React.FormEvent) => {
       e.preventDefault();
@@ -212,7 +229,7 @@ export default function MessagesPage() {
               >
                 <button
                   className="flex flex-1 items-start gap-3 text-left min-w-0"
-                  onClick={() => setSelectedConversation(conv)}
+                  onClick={() => handleSelectConversation(conv)}
                 >
                   <Avatar className="h-11 w-11 border flex-shrink-0">
                      { isIlbooks ? (
@@ -280,8 +297,8 @@ export default function MessagesPage() {
         )}>
         {selectedConversation ? (
           <>
-            <div className="p-1 border-b flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0 h-8 w-8" onClick={() => setSelectedConversation(null)}>
+            <div className="p-1 border-b flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0 h-8 w-8" onClick={() => router.back()}>
                   <ArrowLeft className="h-4 w-4"/>
                 </Button>
                 <Avatar className="h-8 w-8 border flex-shrink-0">
@@ -297,7 +314,7 @@ export default function MessagesPage() {
                     )}
                 </Avatar>
                 <div className="flex-grow min-w-0">
-                    <h2 className="font-semibold text-sm font-headline leading-tight truncate">{selectedConversation.user.name}</h2>
+                    <h2 className="font-semibold text-xs font-headline leading-tight truncate">{selectedConversation.user.name}</h2>
                     <p className="text-xs text-muted-foreground leading-tight">
                         {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level}`}
                     </p>
@@ -379,7 +396,7 @@ export default function MessagesPage() {
                 ))}
                 </div>
             </ScrollArea>
-            <div className="p-2 border-t bg-background">
+            <div className="p-1 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-1">
                     {!isInputFocused && (
                         <div className="flex">
@@ -442,7 +459,7 @@ export default function MessagesPage() {
                           <span className="sr-only">Add emoji</span>
                       </Button>
                     </div>
-                    <Button type="submit" size="icon" aria-label="Send Message" disabled={!newMessage.trim()} className="shrink-0 h-9 w-9">
+                    <Button type="submit" size="icon" aria-label="Send Message" className="shrink-0 h-9 w-9">
                         <Send className="w-4 h-4"/>
                     </Button>
                 </form>
