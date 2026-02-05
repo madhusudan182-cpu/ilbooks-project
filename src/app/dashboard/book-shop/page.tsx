@@ -110,14 +110,14 @@ export default function BookShopPage() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="address" className="text-right">
-                  Your Address
+                  Address
                 </Label>
                 <Input
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="col-span-3"
-                  placeholder="Your full address"
+                  placeholder="Bazar, Thana, District"
                   required
                 />
               </div>
