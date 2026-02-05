@@ -197,7 +197,7 @@ export default function BookShopPage() {
       <div className="p-2 md:p-4">
         <h1 className="text-4xl font-bold font-headline mb-2 text-center">Book Shop</h1>
         <p className="text-lg font-bold text-primary text-center mb-4">
-            You're in Level: {userLevel}. Here are the books for your level.
+            You're in Level: {userLevel}.
         </p>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
