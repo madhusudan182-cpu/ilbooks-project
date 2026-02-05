@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { mockBooks, mockUsers } from '@/lib/data';
 import { ShoppingCart, CreditCard } from 'lucide-react';
@@ -60,10 +60,9 @@ export default function BookShopPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Books for Your Level</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-2xl font-bold text-primary">
                   You're in Level: {userLevel}. Here are the books for your level.
-                </CardDescription>
+                </CardTitle>
               </CardHeader>
               <CardContent className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {booksForLevel.length > 0 ? (
