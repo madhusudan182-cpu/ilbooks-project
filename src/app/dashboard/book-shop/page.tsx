@@ -38,8 +38,8 @@ export default function BookShopPage() {
   const [activeCategory, setActiveCategory] = useState<'level' | 'vocab' | 'popular'>('level');
 
   // In a real app, this would be the authenticated user.
-  // For demonstration, we'll use a user at level 0.0 to show available books.
-  const currentUser = { ...mockUsers[1], level: 0.0 };
+  // For demonstration, we are using a mock user.
+  const currentUser = mockUsers[1];
   const userLevel = currentUser.level.toFixed(1);
 
   const displayedBooks = (() => {

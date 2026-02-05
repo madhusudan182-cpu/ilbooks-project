@@ -112,7 +112,7 @@ export const mockBooks: Book[] = [
         author: "George Orwell",
         price: 250,
         coverUrl: "https://picsum.photos/seed/bc4/400/600",
-        level: '0.1',
+        level: '1.5',
         category: 'popular',
     },
      {
