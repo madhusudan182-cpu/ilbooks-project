@@ -222,17 +222,25 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "flex items-center gap-2 p-2 border-b min-w-0",
+                  "flex items-center gap-1 px-1 py-2 border-b min-w-0",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <button
-                  className="flex flex-1 items-center gap-2 text-left min-w-0"
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex flex-1 items-center gap-1 text-left min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                   onClick={() => handleSelectConversation(conv)}
+                  onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSelectConversation(conv);
+                      }
+                  }}
                 >
-                  <Avatar className="h-9 w-9 border flex-shrink-0">
+                  <Avatar className="h-8 w-8 border flex-shrink-0">
                      { isIlbooks ? (
                         <AvatarFallback className="bg-card">
                             <IlbooksLogo className="h-5 w-5" />
@@ -248,7 +256,7 @@ export default function MessagesPage() {
                       <p className="font-semibold font-headline truncate">{conv.user.name}</p>
                       {!isIlbooks && <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>}
                   </div>
-                </button>
+                </div>
                 <div className="flex-shrink-0 flex flex-col items-end text-right">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
                     <div className="h-5 flex items-center">
