@@ -20,6 +20,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockUsers } from '@/lib/data';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from '@/components/ui/alert-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 type NavItem = {
@@ -116,7 +117,7 @@ export default function DashboardLayout({
                     <span className="sr-only">Toggle navigation menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0">
+                <SheetContent side="left" className="p-0 flex flex-col">
                   <SheetHeader className="border-b p-4">
                       <SheetTitle>
                         <Link
@@ -129,22 +130,24 @@ export default function DashboardLayout({
                         </Link>
                     </SheetTitle>
                   </SheetHeader>
-                  <nav className="grid gap-2 p-4 text-lg font-medium">
-                    {allNavItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setIsSheetOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                          pathname === item.href && "bg-muted text-primary"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.title}
-                    </Link>
-                  ))}
-                  </nav>
+                  <ScrollArea className="flex-1">
+                    <nav className="grid gap-2 p-4 text-lg font-medium">
+                      {allNavItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsSheetOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                            pathname === item.href && "bg-muted text-primary"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.title}
+                      </Link>
+                    ))}
+                    </nav>
+                  </ScrollArea>
                 </SheetContent>
               </Sheet>
               
