@@ -20,7 +20,7 @@ export default function BookShopPage() {
     // In a real app, this would be the authenticated user.
     // For demonstration, we'll use a user at level 0.0 to show available books.
     const currentUser = { ...mockUsers[1], level: 0.0 };
-    const userLevel = currentUser.level.toString();
+    const userLevel = currentUser.level.toFixed(1);
 
     // Filter books to show only those relevant to the user's level.
     const booksForLevel = mockBooks.filter(book => book.level === userLevel);
