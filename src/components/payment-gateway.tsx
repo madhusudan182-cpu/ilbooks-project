@@ -55,6 +55,7 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
         toast({
           title: 'Payment Successful!',
           description: `Your payment of TK ${amount} for ${productName} was successful.`,
+          duration: 3000,
         });
         onSuccess();
         handleClose();
