@@ -154,7 +154,14 @@ export default function MessagesPage() {
 
   const handleSendMessage = (e: React.FormEvent) => {
       e.preventDefault();
-      if (newMessage.trim() === '') return;
+      
+      // Always blur on submit to hide keyboard
+      inputRef.current?.blur();
+
+      if (newMessage.trim() === '') {
+          setNewMessage(''); // Clear any whitespace
+          return;
+      }
 
       const newMsg = {
           id: Date.now(),
@@ -178,7 +185,6 @@ export default function MessagesPage() {
             allConversations[convIndex] = updatedConversation;
         }
         setNewMessage('');
-        inputRef.current?.blur();
       }
   };
 
