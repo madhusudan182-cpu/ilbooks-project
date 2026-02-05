@@ -31,7 +31,7 @@ export default function CompetitionPage() {
         if (showComingSoonDialog) {
             const timer = setTimeout(() => {
                 setShowComingSoonDialog(false);
-            }, 3000);
+            }, 5000);
             return () => clearTimeout(timer);
         }
     }, [showComingSoonDialog]);
