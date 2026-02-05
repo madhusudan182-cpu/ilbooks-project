@@ -418,7 +418,7 @@ export default function MessagesPage() {
                 ))}
                 </div>
             </ScrollArea>
-            <div className="p-1 border-t bg-background">
+            <div className="px-1 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-1">
                     <div className="flex items-center -ml-2">
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
