@@ -253,7 +253,7 @@ export default function MessagesPage() {
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <Avatar className="h-8 w-8 border flex-shrink-0">
+                <Avatar className="h-11 w-11 border flex-shrink-0">
                     { isIlbooks ? (
                     <AvatarFallback className="bg-card">
                         <IlbooksLogo className="h-5 w-5" />
@@ -268,7 +268,7 @@ export default function MessagesPage() {
                 
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                    {!isIlbooks && <p className="text-sm text-muted-foreground">{truncateMessage(conv.lastMessage)}</p>}
+                    {!isIlbooks && <p className="text-sm text-muted-foreground">{truncateMessage(conv.lastMessage, 25)}</p>}
                 </div>
                 
                 <div className="flex flex-col items-end flex-shrink-0">
@@ -323,7 +323,7 @@ export default function MessagesPage() {
                 <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0 h-8 w-8" onClick={() => router.back()}>
                   <ArrowLeft className="h-4 w-4"/>
                 </Button>
-                <Avatar className="h-8 w-8 border flex-shrink-0">
+                <Avatar className="h-9 w-9 border flex-shrink-0">
                     {selectedConversation.user.name === 'ILBooks' ? (
                         <AvatarFallback className="bg-card">
                             <IlbooksLogo className="h-4 w-4" />
@@ -359,7 +359,7 @@ export default function MessagesPage() {
                 {selectedConversation.messages.map(msg => (
                   <div key={msg.id} className={cn("group flex w-full max-w-full items-end gap-2", msg.sender === currentUser.id && "justify-end")}>
                       <div className={cn("flex items-end gap-2", msg.sender === currentUser.id ? "flex-row-reverse" : "flex-row")}>
-                         <Avatar className="h-8 w-8">
+                         <Avatar className="h-9 w-9">
                            <AvatarImage src={msg.sender === currentUser.id ? currentUser.avatarUrl : (selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined)} />
                            <AvatarFallback>
                               {msg.sender === currentUser.id 
