@@ -200,9 +200,9 @@ export default function BookShopPage() {
             You're in Level: {userLevel}
         </p>
         <div className="flex justify-center gap-2 mb-6">
-          <Button>Books for your Level</Button>
-          <Button variant="outline">Vocabulary & Grammar</Button>
-          <Button variant="outline">Popular</Button>
+          <Button className="h-16 w-32 whitespace-normal text-center leading-tight">Books for your Level</Button>
+          <Button variant="outline" className="h-16 w-32 whitespace-normal text-center leading-tight">Vocabulary & Grammar</Button>
+          <Button variant="outline" className="h-16 w-32 whitespace-normal text-center leading-tight">Popular</Button>
         </div>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
