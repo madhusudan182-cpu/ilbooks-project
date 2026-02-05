@@ -253,7 +253,7 @@ export default function MessagesPage() {
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <Avatar className="h-10 w-10 border flex-shrink-0">
+                <Avatar className="h-12 w-12 border flex-shrink-0">
                     { isIlbooks ? (
                     <AvatarFallback className="bg-card">
                         <IlbooksLogo className="h-6 w-6" />
@@ -368,10 +368,10 @@ export default function MessagesPage() {
                            </Avatar>
                          )}
 
-                         <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm font-sans", msg.sender === currentUser.id ? "bg-primary/10 text-primary-foreground" : "bg-card")}>
-                             <p className="break-words text-sm">{msg.text}</p>
+                         <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary/10" : "bg-card")}>
+                             <p className="break-words text-sm font-sans">{msg.text}</p>
                             {msg.sender === currentUser.id ? (
-                                <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs opacity-80">
+                                <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
                                     {msg.status === 'pending' && <span className="italic">Pending</span>}
                                     <span>{msg.timestamp}</span>
                                     {msg.status === 'pending' && <Clock className="h-4 w-4" />}
@@ -380,7 +380,7 @@ export default function MessagesPage() {
                                     {msg.status === 'seen' && <CheckCheck className="h-4 w-4 text-lime-300" />}
                                 </div>
                             ) : (
-                                <p className="text-xs mt-1.5 opacity-75 text-left">{msg.timestamp}</p>
+                                <p className="text-xs mt-1.5 text-muted-foreground text-left">{msg.timestamp}</p>
                             )}
                          </div>
                          
@@ -418,23 +418,25 @@ export default function MessagesPage() {
                 </div>
             </ScrollArea>
             <div className="p-1 border-t bg-background">
-                <form onSubmit={handleSendMessage} className="flex items-center gap-0">
-                    <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
-                        <Paperclip className="w-4 h-4"/>
-                        <span className="sr-only">Attach file</span>
-                    </Button>
-                    <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
-                        <Camera className="w-4 h-4"/>
-                        <span className="sr-only">Take a photo</span>
-                    </Button>
-                    <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
-                        <FileImage className="w-4 h-4"/>
-                        <span className="sr-only">Attach an image</span>
-                    </Button>
-                    <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
-                        <Mic className="w-4 h-4"/>
-                        <span className="sr-only">Record a voice message</span>
-                    </Button>
+                <form onSubmit={handleSendMessage} className="flex items-center gap-1">
+                    <div className="flex items-center">
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
+                            <Paperclip className="w-4 h-4"/>
+                            <span className="sr-only">Attach file</span>
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                            <Camera className="w-4 h-4"/>
+                            <span className="sr-only">Take a photo</span>
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                            <FileImage className="w-4 h-4"/>
+                            <span className="sr-only">Attach an image</span>
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                            <Mic className="w-4 h-4"/>
+                            <span className="sr-only">Record a voice message</span>
+                        </Button>
+                    </div>
                     <div className="relative flex-1">
                       <Input 
                           placeholder="Type a message..." 
