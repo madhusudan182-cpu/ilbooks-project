@@ -1,9 +1,9 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyBODkF3a2rNei3A-pIspc-Uo2a7o_2j9yM",
-  authDomain: "ilbooks-app.firebaseapp.com",
-  projectId: "ilbooks-app",
-  storageBucket: "ilbooks-app.appspot.com",
-  messagingSenderId: "991269389274",
-  appId: "1:991269389274:web:0b001d81f1295b9d36e8b4",
-  measurementId: "G-VFE6VMS2SE"
+  apiKey: "AIzaSyCn-akbdFtUis55j6HAhxwQtpYTKJJ6uU0",
+  authDomain: "studio-7175103333-eb9b0.firebaseapp.com",
+  projectId: "studio-7175103333-eb9b0",
+  storageBucket: "studio-7175103333-eb9b0.appspot.com",
+  messagingSenderId: "131580562261",
+  appId: "1:131580562261:web:7cdabf3a3a94310504fddc",
+  measurementId: ""
 };
