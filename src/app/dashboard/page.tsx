@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import Image from "next/image";
@@ -83,7 +83,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={profileUrl}
-                      className="font-headline hover:underline text-xs"
+                      className="font-headline hover:underline text-sm"
                     >
                       {post.author.name}
                     </Link>
@@ -95,7 +95,7 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardContent className="px-2 pt-0 pb-1">
-                <p className="whitespace-pre-wrap text-sm">{post.content}</p>
+                <p className="whitespace-pre-wrap text-base">{post.content}</p>
                 {post.imageUrl && (
                   <div className="mt-2 relative aspect-[16/9] rounded-md overflow-hidden border">
                     <Image
@@ -112,15 +112,15 @@ export default function HomePage() {
                 <div className="flex">
                   <Button variant="ghost" size="sm">
                     <Heart className="w-4 h-4 mr-1" />
-                    <span className="text-xs">{post.likes}</span>
+                    <span className="text-sm">{post.likes}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <MessageCircle className="w-4 h-4 mr-1" />
-                    <span className="text-xs">{post.comments}</span>
+                    <span className="text-sm">{post.comments}</span>
                   </Button>
                   <Button variant="ghost" size="sm">
                     <Share2 className="w-4 h-4 mr-1" />
-                    <span className="text-xs">{post.shares}</span>
+                    <span className="text-sm">{post.shares}</span>
                   </Button>
                 </div>
               </CardFooter>
