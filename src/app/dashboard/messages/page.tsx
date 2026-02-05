@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, MoreHorizontal, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock, Mic, Smile } from "lucide-react";
+import { Lock, MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, FileAudio, FileVideo as FileVideoIcon, FileText, Sheet, Presentation, MoreVertical, UserX, ShieldAlert, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock, Mic, Smile } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
@@ -370,7 +370,7 @@ export default function MessagesPage() {
                          </Avatar>
 
                          <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
-                             <p className="break-words text-sm">{msg.text}</p>
+                             <p className="break-words text-xs">{msg.text}</p>
                             {msg.sender === currentUser.id ? (
                                 <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs opacity-80">
                                     {msg.status === 'pending' && <span className="italic">Pending</span>}
@@ -388,7 +388,7 @@ export default function MessagesPage() {
                          <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <MoreHorizontal className="h-4 w-4" />
+                                    <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align={msg.sender === currentUser.id ? "end" : "start"}>
