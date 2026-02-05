@@ -208,7 +208,7 @@ export default function MessagesPage() {
         selectedConversation ? "hidden md:flex" : "flex"
         )}>
         <div className="p-1 border-b flex items-center gap-1">
-          <h1 className="text-lg font-bold font-headline px-2">Chat</h1>
+          <h1 className="text-base font-bold font-headline px-2">Chat</h1>
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input placeholder="Search chats..." className="pl-8 h-8" />
@@ -221,20 +221,20 @@ export default function MessagesPage() {
               <div
                 key={conv.user.id}
                 className={cn(
-                  "flex items-start gap-3 p-3 border-b min-w-0",
+                  "flex items-center gap-3 p-2 border-b min-w-0",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
                 <button
-                  className="flex flex-1 items-start gap-3 text-left min-w-0"
+                  className="flex flex-1 items-center gap-3 text-left min-w-0"
                   onClick={() => handleSelectConversation(conv)}
                 >
-                  <Avatar className="h-11 w-11 border flex-shrink-0">
+                  <Avatar className="h-9 w-9 border flex-shrink-0">
                      { isIlbooks ? (
                         <AvatarFallback className="bg-card">
-                            <IlbooksLogo className="h-6 w-6" />
+                            <IlbooksLogo className="h-5 w-5" />
                         </AvatarFallback>
                     ) : (
                       <>
@@ -245,14 +245,11 @@ export default function MessagesPage() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                       <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                      <p className="text-sm text-muted-foreground break-words">
-                          {conv.lastMessage}
-                      </p>
                   </div>
                 </button>
-                <div className="flex-shrink-0 flex flex-col items-end justify-between h-full text-right ml-2">
+                <div className="flex-shrink-0 flex flex-col items-end text-right ml-2">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
-                    <div className="h-6 flex items-center">
+                    <div className="h-5 flex items-center mt-1">
                       {conv.unread > 0 ? (
                           <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
                               {conv.unread}
@@ -260,7 +257,7 @@ export default function MessagesPage() {
                       ) : !isIlbooks ? (
                           <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                                  <Button variant="ghost" size="icon" className="h-5 w-5">
                                       <MoreVertical className="h-4 w-4" />
                                   </Button>
                               </DropdownMenuTrigger>
@@ -281,7 +278,7 @@ export default function MessagesPage() {
                               </DropdownMenuContent>
                           </DropdownMenu>
                       ) : (
-                          <div className="w-6" />
+                          <div className="w-5" />
                       )}
                     </div>
                 </div>
