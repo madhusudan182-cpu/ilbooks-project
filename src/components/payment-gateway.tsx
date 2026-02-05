@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,19 +23,20 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
   const [pin, setPin] = useState('');
   const [otp, setOtp] = useState('');
   const { toast } = useToast();
+  const otpInputRef = useRef<HTMLInputElement>(null);
 
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSelectedGateway(null);
     setPaymentStep('gateway');
     setPhoneNumber('');
     setPin('');
     setOtp('');
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     resetState();
     onClose();
-  };
+  }, [resetState, onClose]);
 
   const handleGatewaySelect = (gateway: 'bkash' | 'rocket') => {
     setSelectedGateway(gateway);
@@ -56,7 +57,8 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = useCallback(() => {
+    otpInputRef.current?.blur();
     if (otp.length === 6) {
       setPaymentStep('success');
       setTimeout(() => {
@@ -69,7 +71,14 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
         handleClose();
       }, 1500);
     }
-  };
+  }, [otp.length, amount, productName, toast, onSuccess, handleClose]);
+
+  useEffect(() => {
+    if (otp.length === 6) {
+      handleOtpSubmit();
+    }
+  }, [otp, handleOtpSubmit]);
+
 
   const handleBack = () => {
     if (paymentStep === 'otp') {
@@ -249,6 +258,7 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
                   One-Time Password (OTP)
                 </Label>
                 <Input
+                  ref={otpInputRef}
                   id="otp"
                   type="tel"
                   value={otp}
