@@ -108,7 +108,7 @@ export default function MessagesPage() {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
-  const truncateMessage = (message: string, maxLength = 30): string => {
+  const truncateMessage = (message: string, maxLength = 20): string => {
     if (message.length <= maxLength) {
       return message;
     }
@@ -247,16 +247,16 @@ export default function MessagesPage() {
                     }
                 }}
                 className={cn(
-                  "flex items-center gap-2 p-2 border-b cursor-pointer",
+                  "flex items-center gap-3 p-2 border-b cursor-pointer",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <Avatar className="h-11 w-11 border flex-shrink-0">
+                <Avatar className="h-12 w-12 border flex-shrink-0">
                     { isIlbooks ? (
                     <AvatarFallback className="bg-card">
-                        <IlbooksLogo className="h-5 w-5" />
+                        <IlbooksLogo className="h-6 w-6" />
                     </AvatarFallback>
                 ) : (
                     <>
@@ -266,14 +266,14 @@ export default function MessagesPage() {
                 )}
                 </Avatar>
                 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-semibold font-headline truncate">{conv.user.name}</p>
-                    {!isIlbooks && <p className="text-sm text-muted-foreground">{truncateMessage(conv.lastMessage, 25)}</p>}
+                    {!isIlbooks && <p className="text-sm text-muted-foreground truncate">{truncateMessage(conv.lastMessage)}</p>}
                 </div>
                 
                 <div className="flex flex-col items-end flex-shrink-0">
                   <p className="text-xs text-muted-foreground whitespace-nowrap">{conv.timestamp}</p>
-                  <div className="h-5 flex items-center">
+                  <div className="h-5 flex items-center mt-1">
                   {conv.unread > 0 ? (
                       <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 font-bold">
                           {conv.unread}
@@ -323,10 +323,10 @@ export default function MessagesPage() {
                 <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0 h-8 w-8" onClick={() => router.back()}>
                   <ArrowLeft className="h-4 w-4"/>
                 </Button>
-                <Avatar className="h-9 w-9 border flex-shrink-0">
+                <Avatar className="h-12 w-12 border flex-shrink-0">
                     {selectedConversation.user.name === 'ILBooks' ? (
                         <AvatarFallback className="bg-card">
-                            <IlbooksLogo className="h-4 w-4" />
+                            <IlbooksLogo className="h-6 w-6" />
                         </AvatarFallback>
                     ) : (
                         <>
@@ -336,7 +336,7 @@ export default function MessagesPage() {
                     )}
                 </Avatar>
                 <div className="flex-grow min-w-0">
-                    <h2 className="font-semibold text-xs font-headline leading-tight truncate">{selectedConversation.user.name}</h2>
+                    <h2 className="font-semibold text-sm font-headline leading-tight truncate">{selectedConversation.user.name}</h2>
                     <p className="text-xs text-muted-foreground leading-tight">
                         {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level}`}
                     </p>
@@ -360,16 +360,16 @@ export default function MessagesPage() {
                   <div key={msg.id} className={cn("group flex w-full max-w-full items-end gap-2", msg.sender === currentUser.id && "justify-end")}>
                       <div className={cn("flex items-end gap-2", msg.sender === currentUser.id ? "flex-row-reverse" : "flex-row")}>
                          {msg.sender !== currentUser.id && (
-                           <Avatar className="h-9 w-9">
+                           <Avatar className="h-12 w-12">
                              <AvatarImage src={selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined} />
                              <AvatarFallback>
-                                {selectedConversation.user.name === 'ILBooks' ? <IlbooksLogo className="h-4 w-4" /> : selectedConversation.user.name.charAt(0)}
+                                {selectedConversation.user.name === 'ILBooks' ? <IlbooksLogo className="h-6 w-6" /> : selectedConversation.user.name.charAt(0)}
                              </AvatarFallback>
                            </Avatar>
                          )}
 
                          <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary text-primary-foreground" : "bg-card")}>
-                             <p className="break-words text-xs">{msg.text}</p>
+                             <p className="font-sans break-words text-sm">{msg.text}</p>
                             {msg.sender === currentUser.id ? (
                                 <div className="flex justify-end items-center gap-1.5 mt-1.5 text-xs opacity-80">
                                     {msg.status === 'pending' && <span className="italic">Pending</span>}
