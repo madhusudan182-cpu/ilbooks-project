@@ -62,7 +62,7 @@ export default function BookShopPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Card>
-              <CardContent className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
                 {booksForLevel.length > 0 ? (
                   booksForLevel.map((book) => (
                     <Card key={book.id} className="overflow-hidden flex flex-col">
@@ -75,11 +75,11 @@ export default function BookShopPage() {
                           data-ai-hint="book cover"
                         />
                       </div>
-                      <div className="p-4 flex flex-col flex-grow">
-                        <h3 className="font-semibold font-headline flex-grow">{book.title}</h3>
-                        <p className="text-sm text-muted-foreground">{book.author}</p>
-                        <div className="flex justify-between items-center mt-4">
-                          <p className="font-bold text-lg text-primary">Tk {book.price}</p>
+                      <div className="p-2 flex flex-col flex-grow">
+                        <h3 className="font-semibold font-headline text-sm flex-grow">{book.title}</h3>
+                        <p className="text-xs text-muted-foreground">{book.author}</p>
+                        <div className="flex justify-between items-center mt-2">
+                          <p className="font-bold text-base text-primary">Tk {book.price}</p>
                           <Button size="sm" onClick={() => handleBuy(book)}>
                             <ShoppingCart className="mr-2 h-4 w-4" /> Buy
                           </Button>
