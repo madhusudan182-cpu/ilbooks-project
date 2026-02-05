@@ -35,13 +35,21 @@ export type Book = {
   category?: 'vocab_grammar' | 'popular';
 };
 
+export type OrderBook = {
+    id: string;
+    title: string;
+    author: string;
+    price: number;
+    quantity: number;
+}
+
 export type Order = {
   id: string;
   userId: string;
   customerName: string;
   deliveryAddress: string;
   mobileNumber: string;
-  books: Book[];
+  books: OrderBook[];
   totalAmount: number;
   orderDate: Timestamp;
   status: 'Paid' | 'Shipped' | 'Delivered';

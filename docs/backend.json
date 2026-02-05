@@ -29,9 +29,10 @@
               "id": { "type": "string" },
               "title": { "type": "string" },
               "author": { "type": "string" },
-              "price": { "type": "number" }
+              "price": { "type": "number" },
+              "quantity": { "type": "number" }
             },
-            "required": ["id", "title", "price"]
+            "required": ["id", "title", "price", "quantity"]
           }
         },
         "totalAmount": { "type": "number" },

@@ -92,7 +92,9 @@ export default function AdminOrdersPage() {
                                                         <TableRow>
                                                             <TableHead>Title</TableHead>
                                                             <TableHead>Author</TableHead>
-                                                            <TableHead className="text-right">Price</TableHead>
+                                                            <TableHead className="text-center">Quantity</TableHead>
+                                                            <TableHead className="text-right">Unit Price</TableHead>
+                                                            <TableHead className="text-right">Subtotal</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -100,7 +102,9 @@ export default function AdminOrdersPage() {
                                                             <TableRow key={book.id}>
                                                                 <TableCell>{book.title}</TableCell>
                                                                 <TableCell>{book.author}</TableCell>
+                                                                <TableCell className="text-center">{book.quantity}</TableCell>
                                                                 <TableCell className="text-right">Tk {book.price}</TableCell>
+                                                                <TableCell className="text-right">Tk {book.price * (book.quantity || 1)}</TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>

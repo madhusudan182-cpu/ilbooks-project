@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { mockBooks, mockUsers } from '@/lib/data';
-import { ShoppingCart, CreditCard } from 'lucide-react';
+import { ShoppingCart, CreditCard, Plus, Minus, Trash2 } from 'lucide-react';
 import { PaymentGateway } from '@/components/payment-gateway';
 import { useToast } from '@/hooks/use-toast';
 import type { Book } from '@/lib/types';
@@ -26,8 +26,10 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { cn } from '@/lib/utils';
 
+type CartItem = Book & { quantity: number };
+
 export default function BookShopPage() {
-  const [orderedBooks, setOrderedBooks] = useState<Book[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [showPayment, setShowPayment] = useState(false);
   const { toast } = useToast();
   const [showAddressDialog, setShowAddressDialog] = useState(false);
@@ -37,8 +39,6 @@ export default function BookShopPage() {
   const firestore = useFirestore();
   const [activeCategory, setActiveCategory] = useState<'level' | 'vocab' | 'popular'>('level');
 
-  // In a real app, this would be the authenticated user.
-  // For demonstration, we are using a mock user.
   const currentUser = mockUsers[1];
   const userLevel = currentUser.level.toFixed(1);
 
@@ -55,22 +55,36 @@ export default function BookShopPage() {
     }
   })();
 
-  const total = orderedBooks.reduce((sum, book) => sum + book.price, 0);
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleBuy = (book: Book) => {
-    if (!orderedBooks.find((b) => b.id === book.id)) {
-      setOrderedBooks([...orderedBooks, book]);
-      toast({
-        title: `${book.title} added to your order.`,
-        duration: 2000,
-      });
-    } else {
-      toast({
-        title: `${book.title} is already in your order.`,
-        variant: 'destructive',
-      });
-    }
+  const handleAddToCart = (book: Book) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === book.id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item.id === book.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        return [...prevCart, { ...book, quantity: 1 }];
+      }
+    });
+    toast({
+      title: `${book.title} added to your order.`,
+      duration: 2000,
+    });
   };
+
+  const handleUpdateQuantity = (bookId: string, newQuantity: number) => {
+    setCart((prevCart) => {
+      if (newQuantity <= 0) {
+        return prevCart.filter((item) => item.id !== bookId);
+      }
+      return prevCart.map((item) =>
+        item.id === bookId ? { ...item, quantity: newQuantity } : item
+      );
+    });
+  };
+
 
   const handlePaymentSuccess = () => {
     setShowAddressDialog(true);
@@ -92,13 +106,12 @@ export default function BookShopPage() {
       customerName: name,
       deliveryAddress: address,
       mobileNumber: mobile,
-      books: orderedBooks.map((b) => ({
-        id: b.id,
-        title: b.title,
-        author: b.author,
-        price: b.price,
-        coverUrl: b.coverUrl,
-        level: b.level
+      books: cart.map((item) => ({
+        id: item.id,
+        title: item.title,
+        author: item.author,
+        price: item.price,
+        quantity: item.quantity,
       })),
       totalAmount: total,
       orderDate: serverTimestamp(),
@@ -115,9 +128,7 @@ export default function BookShopPage() {
           description: 'Your order has been placed.',
           duration: 2000,
         });
-
-        // Clear the cart and form fields after submission
-        setOrderedBooks([]);
+        setCart([]);
         setName('');
         setAddress('');
         setMobile('');
@@ -252,7 +263,7 @@ export default function BookShopPage() {
                         <p className="text-xs text-muted-foreground">{book.author}</p>
                         <div className="flex justify-between items-center mt-2">
                           <p className="font-bold text-sm text-primary">Tk {book.price}</p>
-                          <Button size="sm" onClick={() => handleBuy(book)}>
+                          <Button size="sm" onClick={() => handleAddToCart(book)}>
                             <ShoppingCart className="h-4 w-4" />
                           </Button>
                         </div>
@@ -279,16 +290,27 @@ export default function BookShopPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {orderedBooks.length > 0 ? (
+                {cart.length > 0 ? (
                   <>
                     <div className="space-y-4">
-                      {orderedBooks.map((book) => (
-                        <div key={book.id} className="flex justify-between items-center">
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold">{book.title}</p>
-                            <p className="text-sm text-muted-foreground">{book.author}</p>
+                            <p className="font-semibold">{item.title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}>
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-4 text-center">{item.quantity}</span>
+                              <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}>
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                               <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={() => handleUpdateQuantity(item.id, 0)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                          <p className="font-medium">Tk {book.price}</p>
+                          <p className="font-medium">Tk {item.price * item.quantity}</p>
                         </div>
                       ))}
                     </div>
@@ -301,7 +323,7 @@ export default function BookShopPage() {
                       className="w-full mt-6 font-headline"
                       size="lg"
                       onClick={() => setShowPayment(true)}
-                      disabled={orderedBooks.length === 0}
+                      disabled={cart.length === 0}
                     >
                       <CreditCard className="mr-2 h-4 w-4" /> Proceed to Payment
                     </Button>
