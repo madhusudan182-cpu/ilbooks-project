@@ -40,7 +40,6 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
   { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell },
   { href: '/dashboard/admin', title: 'Admin', icon: Shield, adminOnly: true },
-  { href: '/dashboard/admin/orders', title: 'Orders', icon: Package, adminOnly: true },
 ];
 
 const iconNavItems: NavItem[] = [
