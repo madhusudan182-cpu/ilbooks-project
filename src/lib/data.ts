@@ -87,6 +87,7 @@ export const mockBooks: Book[] = [
         author: "Rabindranath Tagore",
         price: 150,
         coverUrl: "https://picsum.photos/seed/bc1/400/600",
+        level: '0.0',
     },
     {
         id: 'book-2',
@@ -94,6 +95,7 @@ export const mockBooks: Book[] = [
         author: "Jhumpa Lahiri",
         price: 350,
         coverUrl: "https://picsum.photos/seed/bc2/400/600",
+        level: '0.0',
     },
     {
         id: 'book-3',
@@ -101,6 +103,7 @@ export const mockBooks: Book[] = [
         author: "Tahmima Anam",
         price: 400,
         coverUrl: "https://picsum.photos/seed/bc3/400/600",
+        level: '0.1',
     },
     {
         id: 'book-4',
@@ -108,6 +111,7 @@ export const mockBooks: Book[] = [
         author: "George Orwell",
         price: 250,
         coverUrl: "https://picsum.photos/seed/bc4/400/600",
+        level: '0.1',
     },
      {
         id: 'book-5',
@@ -115,6 +119,7 @@ export const mockBooks: Book[] = [
         author: "Satyajit Ray",
         price: 500,
         coverUrl: "https://picsum.photos/seed/bc5/400/600",
+        level: '0.2',
     },
     {
         id: 'book-6',
@@ -122,5 +127,6 @@ export const mockBooks: Book[] = [
         author: "Paulo Coelho",
         price: 300,
         coverUrl: "https://picsum.photos/seed/bc6/400/600",
+        level: '0.2',
     },
 ];

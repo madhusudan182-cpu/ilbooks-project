@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { allSyllabi } from '@/lib/syllabus';
 import { allQuestions } from '@/lib/questions';
 import { cn } from '@/lib/utils';
-import type { Question } from '@/lib/types';
+import type { Question, Book as BookType } from '@/lib/types';
+import { mockBooks } from "@/lib/data";
+import Image from "next/image";
 
 export default function AdminPage() {
     const allLevels: string[] = [];
@@ -22,6 +24,14 @@ export default function AdminPage() {
         acc[q.level].push(q);
         return acc;
     }, {} as Record<string, Question[]>);
+    
+    const booksByLevel = mockBooks.reduce((acc, b) => {
+        if (!acc[b.level]) {
+            acc[b.level] = [];
+        }
+        acc[b.level].push(b);
+        return acc;
+    }, {} as Record<string, BookType[]>);
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8">
@@ -121,6 +131,51 @@ export default function AdminPage() {
               </Accordion>
           </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-2xl font-headline">
+                <BookOpen className="w-6 h-6 text-primary"/> Books for All Levels
+            </CardTitle>
+            <CardDescription>View and manage all competition books by level.</CardDescription>
+        </CardHeader>
+        <CardContent>
+             <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
+                {allLevels.map((level) => {
+                    const booksForLevel = booksByLevel[level] || [];
+                    return (
+                        <AccordionItem value={`level-b-${level}`} key={`level-b-${level}`}>
+                            <AccordionTrigger className="text-left font-semibold">
+                                Books for Level: {level}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">({booksForLevel.length} books)</span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                {booksForLevel.length > 0 ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {booksForLevel.map((book) => (
+                                            <Card key={book.id} className="overflow-hidden">
+                                                <div className="relative aspect-[2/3] w-full">
+                                                    <Image src={book.coverUrl} alt={book.title} fill className="object-cover" data-ai-hint="book cover" />
+                                                </div>
+                                                <div className="p-2 text-sm">
+                                                    <h4 className="font-semibold truncate">{book.title}</h4>
+                                                    <p className="text-xs text-muted-foreground truncate">{book.author}</p>
+                                                    <p className="font-bold text-primary mt-1">Tk {book.price}</p>
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-muted-foreground text-sm py-4 px-4">No books defined for this level.</p>
+                                )}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )
+                })}
+            </Accordion>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

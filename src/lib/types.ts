@@ -30,6 +30,7 @@ export type Book = {
   author: string;
   price: number;
   coverUrl: string;
+  level: string;
 };
 
 export type NavItem = {
