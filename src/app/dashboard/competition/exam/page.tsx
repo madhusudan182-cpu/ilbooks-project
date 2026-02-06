@@ -11,6 +11,10 @@ import { Progress } from '@/components/ui/progress';
 import { allQuestions } from '@/lib/questions';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { allSyllabi } from '@/lib/syllabus';
+import { currentUser } from '@/lib/auth';
+import type { ExamResult, SubjectResult } from '@/lib/types';
+
 
 const TOTAL_TIME_PER_QUESTION = 15; // seconds
 
@@ -33,6 +37,95 @@ function ExamContent() {
     setTimeLeft(TOTAL_TIME_PER_QUESTION);
     setSelectedOption(null);
   }, [level]);
+  
+  const handleFinishExam = useCallback(() => {
+    const syllabus = allSyllabi.find(s => s.level === level);
+    if (!syllabus) {
+      console.error("Syllabus not found for level:", level);
+      router.push('/dashboard/competition/exam/result');
+      return;
+    }
+
+    const subjectResults: SubjectResult[] = [];
+    let totalObtainedMarks = 0;
+    let totalMarks = 0;
+
+    for (const subjectName in syllabus.subjects) {
+      const subjectSyllabus = syllabus.subjects[subjectName];
+      const subjectQuestions = questions.filter(q => q.subject === subjectName);
+      
+      if (subjectQuestions.length === 0) continue;
+
+      const marksPerQuestion = subjectSyllabus.marks / subjectQuestions.length;
+      let correctAnswers = 0;
+      let incorrectAnswers = 0;
+
+      subjectQuestions.forEach(q => {
+        const questionIndex = questions.findIndex(ques => ques.id === q.id);
+        const userAnswer = userAnswers[questionIndex];
+        if (userAnswer) {
+            const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
+            if (userAnswer === correctAnswerText) {
+                correctAnswers++;
+            } else {
+                incorrectAnswers++;
+            }
+        }
+      });
+      
+      const obtainedMarks = (correctAnswers * marksPerQuestion) - (incorrectAnswers * 0.5);
+      const obtainedMarksClamped = Math.max(0, obtainedMarks);
+      const percentage = (obtainedMarksClamped / subjectSyllabus.marks) * 100;
+      
+      subjectResults.push({
+        subject: subjectName,
+        totalMarks: subjectSyllabus.marks,
+        obtainedMarks: parseFloat(obtainedMarksClamped.toFixed(2)),
+        percentage: parseFloat(percentage.toFixed(2)),
+        status: percentage >= 60 ? 'Passed' : 'Failed'
+      });
+
+      totalObtainedMarks += obtainedMarksClamped;
+      totalMarks += subjectSyllabus.marks;
+    }
+
+    const overallStatus = subjectResults.every(r => r.status === 'Passed') ? 'Passed' : 'Failed';
+    const totalPercentage = totalMarks > 0 ? (totalObtainedMarks / totalMarks) * 100 : 0;
+
+    const newResult: ExamResult = {
+        id: `result-${Date.now()}`,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userAvatarUrl: currentUser.avatarUrl,
+        level: level,
+        totalMarks: totalMarks,
+        totalObtainedMarks: parseFloat(totalObtainedMarks.toFixed(2)),
+        totalPercentage: parseFloat(totalPercentage.toFixed(2)),
+        overallStatus: overallStatus,
+        subjects: subjectResults,
+        examDate: new Date().toISOString().split('T')[0],
+    };
+
+    sessionStorage.setItem('lastExamResult', JSON.stringify(newResult));
+
+    if (overallStatus === 'Passed') {
+        const [major, minor] = level.split('.').map(Number);
+        let nextMajor = major;
+        let nextMinor = minor + 1;
+        if (nextMinor > 9) {
+            nextMinor = 0;
+            nextMajor = major + 1;
+            if (nextMajor === 1) { // Skip level 1.x
+                nextMajor = 2;
+            }
+        }
+        const nextLevel = `${nextMajor}.${nextMinor}`;
+        sessionStorage.setItem('currentUserLevel', nextLevel);
+    }
+
+    router.push('/dashboard/competition/exam/result');
+
+  }, [level, questions, userAnswers, router]);
 
   const handleNext = useCallback(() => {
     setSelectedOption(null);
@@ -40,9 +133,9 @@ function ExamContent() {
       setCurrentQuestionIndex(prev => prev + 1);
       setTimeLeft(TOTAL_TIME_PER_QUESTION);
     } else {
-      router.push('/dashboard/competition/exam/result');
+      handleFinishExam();
     }
-  }, [currentQuestionIndex, questions.length, router]);
+  }, [currentQuestionIndex, questions.length, handleFinishExam]);
 
   const currentQuestion = questions[currentQuestionIndex];
 

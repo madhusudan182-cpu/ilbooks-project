@@ -59,13 +59,31 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
 
 function ExamHistoryContent() {
     const searchParams = useSearchParams();
-    const [activeView, setActiveView] = useState<'last' | 'previous' | null>(null);
-    const userExamHistory = mockExamResults.filter(result => result.userId === currentUser.id)
-        .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
-    
-    const lastResult = userExamHistory.length > 0 ? userExamHistory[0] : null;
-
     const router = useRouter();
+    const [activeView, setActiveView] = useState<'last' | 'previous' | null>(null);
+
+    const [userExamHistory, setUserExamHistory] = useState<ExamResult[]>(() => 
+        mockExamResults.filter(result => result.userId === currentUser.id)
+        .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime())
+    );
+    
+    useEffect(() => {
+        const lastResultString = sessionStorage.getItem('lastExamResult');
+        if (lastResultString) {
+            try {
+                const lastResult = JSON.parse(lastResultString);
+                // Prepend the new result if it's not already in the history
+                if (!userExamHistory.some(r => r.id === lastResult.id)) {
+                    setUserExamHistory(prev => [lastResult, ...prev].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime()));
+                }
+            } catch (e) {
+                console.error("Failed to parse last exam result from session storage", e);
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
+
+    const lastResult = userExamHistory.length > 0 ? userExamHistory[0] : null;
 
     useEffect(() => {
         const viewParam = searchParams.get('view');
@@ -77,7 +95,6 @@ function ExamHistoryContent() {
     const handleBackClick = () => {
         if (activeView) {
             setActiveView(null);
-            // If we are on the page with a query param, we want to remove it to "go back"
             router.replace('/dashboard/competition/history', { scroll: false });
         } else {
             router.push('/dashboard/competition');
@@ -104,11 +121,11 @@ function ExamHistoryContent() {
                     <CardDescription>
                         Here is a list of your past exam attempts.
                     </CardDescription>
-                    <div className="pt-4 flex justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90">
+                    <div className="pt-4 flex flex-wrap justify-center gap-2">
+                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto p-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm">
                             Last Exam Result
                         </Button>
-                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90">
+                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto p-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm">
                             Previous Results
                         </Button>
                     </div>

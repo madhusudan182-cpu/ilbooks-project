@@ -21,9 +21,15 @@ export default function CompetitionPage() {
     const router = useRouter();
     const examFee = 20;
 
-    // In a real app, you'd get the current user from an auth context.
-    // To see the client view, you can now change the user in src/lib/auth.ts
-    const userLevel = currentUser.level.toFixed(1);
+    const [userLevel, setUserLevel] = useState(currentUser.level.toFixed(1));
+
+    useEffect(() => {
+        const savedLevel = sessionStorage.getItem('currentUserLevel');
+        if (savedLevel) {
+            setUserLevel(savedLevel);
+        }
+    }, []);
+
     const userSyllabus = allSyllabi.find(s => s.level === userLevel);
     
     useEffect(() => {
