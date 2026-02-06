@@ -1,4 +1,4 @@
-import type { User, Post, Book, ExamResult } from './types';
+import type { User, Post, Book, ExamResult, Transaction, PrizeWinner } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -200,5 +200,66 @@ export const mockExamResults: ExamResult[] = [
         { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
     ],
     examDate: '5 days ago',
+  },
+];
+
+export const mockTransactions: Transaction[] = [
+  {
+    id: 'txn-1',
+    date: '2 days ago',
+    type: 'Exam Fee',
+    amount: 20,
+    userId: 'user-2',
+    userName: 'Ben Carter',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-2',
+    date: '2 days ago',
+    type: 'Book Shop',
+    amount: 800,
+    userId: 'user-3',
+    userName: 'Cathy Liu',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-3',
+    date: '3 days ago',
+    type: 'Patronage',
+    amount: 1000,
+    userId: 'user-1',
+    userName: 'Alia Rahman',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-4',
+    date: '5 days ago',
+    type: 'Exam Fee',
+    amount: 20,
+    userId: 'user-4',
+    userName: 'David Hasan',
+    status: 'Completed'
+  },
+];
+
+export const mockPrizeWinners: PrizeWinner[] = [
+  {
+    id: 'prize-1',
+    userId: 'user-3',
+    userName: 'Cathy Liu',
+    userAvatarUrl: 'https://picsum.photos/seed/av3/100/100',
+    level: '3.0',
+    prize: 'BDT 500 Book Coupon',
+    status: 'Pending',
+  },
+  {
+    id: 'prize-2',
+    userId: 'user-1',
+    userName: 'Alia Rahman',
+    userAvatarUrl: 'https://picsum.photos/seed/av1/100/100',
+    level: '2.1',
+    prize: 'BDT 250 Book Coupon',
+    status: 'Awarded',
+    dateAwarded: '1 day ago'
   },
 ];

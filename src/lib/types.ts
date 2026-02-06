@@ -109,3 +109,24 @@ export type ExamResult = {
   subjects: SubjectResult[];
   examDate: string;
 };
+
+export type Transaction = {
+  id: string;
+  date: string;
+  type: 'Exam Fee' | 'Book Shop' | 'Patronage';
+  amount: number;
+  userId: string;
+  userName: string;
+  status: 'Completed' | 'Pending' | 'Failed';
+};
+
+export type PrizeWinner = {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatarUrl: string;
+  level: string;
+  prize: string;
+  status: 'Pending' | 'Awarded';
+  dateAwarded?: string;
+};

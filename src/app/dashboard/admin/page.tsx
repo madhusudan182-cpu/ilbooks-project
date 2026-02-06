@@ -1,11 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { mockUsers } from "@/lib/data";
 
 export default function AdminPage() {
@@ -14,14 +14,16 @@ export default function AdminPage() {
     // We are using mockUsers[0] which is an admin. 
     // To test non-admin protection, you could change this to mockUsers[1] and attempt to access /dashboard/admin.
     const currentUser = mockUsers[0];
+    const [isClient, setIsClient] = useState(false);
     
     useEffect(() => {
+      setIsClient(true);
         if (!currentUser.isAdmin) {
             router.push('/dashboard');
         }
     }, [currentUser.isAdmin, router]);
     
-    if (!currentUser.isAdmin) {
+    if (!currentUser.isAdmin || !isClient) {
         return null; // Or a loading spinner while redirecting
     }
 
@@ -44,69 +46,88 @@ export default function AdminPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl font-headline"><Package className="text-primary w-6 h-6"/> Customer Orders</CardTitle>
-            <CardDescription>View all completed transactions and order details.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Button asChild>
-              <Link href="/dashboard/admin/orders">View All Orders</Link>
-            </Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ClipboardList className="text-primary w-6 h-6"/> Exam Results</CardTitle>
-            <CardDescription>View the results of all user exam attempts.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Button asChild>
-              <Link href="/dashboard/admin/results">View User Results</Link>
-            </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl font-headline">
-                <Book className="w-6 h-6 text-primary"/> All Syllabi
-            </CardTitle>
-            <CardDescription>View all competition syllabi.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Button asChild>
-              <Link href="/dashboard/admin/syllabi">View Syllabus for All Levels</Link>
-            </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card>
           <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ListChecks className="text-primary w-6 h-6"/> All Questions</CardTitle>
-              <CardDescription>All available questions are visible to admins for review, grouped by level.</CardDescription>
+              <CardTitle className="flex items-center gap-3 text-2xl font-headline"><Package className="text-primary w-6 h-6"/> Customer Orders</CardTitle>
+              <CardDescription>View all completed transactions and order details.</CardDescription>
           </CardHeader>
           <CardContent>
               <Button asChild>
-                  <Link href="/dashboard/admin/questions">View Questions for All Levels</Link>
+                <Link href="/dashboard/admin/orders">View All Orders</Link>
               </Button>
           </CardContent>
-      </Card>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ClipboardList className="text-primary w-6 h-6"/> Exam Results</CardTitle>
+              <CardDescription>View the results of all user exam attempts.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Button asChild>
+                <Link href="/dashboard/admin/results">View User Results</Link>
+              </Button>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
+        <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-2xl font-headline">
+                  <Book className="w-6 h-6 text-primary"/> All Syllabi
+              </CardTitle>
+              <CardDescription>View all competition syllabi.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Button asChild>
+                <Link href="/dashboard/admin/syllabi">View Syllabus for All Levels</Link>
+              </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ListChecks className="text-primary w-6 h-6"/> All Questions</CardTitle>
+                <CardDescription>All available questions are visible to admins for review, grouped by level.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild>
+                    <Link href="/dashboard/admin/questions">View Questions for All Levels</Link>
+                </Button>
+            </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-2xl font-headline">
+                  <BookOpen className="w-6 h-6 text-primary"/> Books for All Levels
+              </CardTitle>
+              <CardDescription>View and manage all competition books by level.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Button asChild>
+                  <Link href="/dashboard/admin/books">View Books for All Levels</Link>
+              </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl font-headline">
-                <BookOpen className="w-6 h-6 text-primary"/> Books for All Levels
+              <Landmark className="text-primary w-6 h-6" /> Accounts
             </CardTitle>
-            <CardDescription>View and manage all competition books by level.</CardDescription>
-        </CardHeader>
-        <CardContent>
-             <Button asChild>
-                <Link href="/dashboard/admin/books">View Books for All Levels</Link>
+            <CardDescription>Manage financial transactions and user rewards.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            <Button asChild variant="outline">
+              <Link href="/dashboard/admin/accounts/transactions">View Money Transactions</Link>
             </Button>
-        </CardContent>
-      </Card>
+            <Button asChild variant="outline">
+              <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
     </div>
   );
