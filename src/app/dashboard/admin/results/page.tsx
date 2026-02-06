@@ -97,6 +97,15 @@ export default function AdminResultsPage() {
                                                                 </TableCell>
                                                             </TableRow>
                                                         ))}
+                                                        <TableRow className="font-bold bg-muted/50">
+                                                            <TableCell>Total</TableCell>
+                                                            <TableCell className="text-center">{result.totalMarks}</TableCell>
+                                                            <TableCell className="text-center">{result.totalObtainedMarks}</TableCell>
+                                                            <TableCell className="text-center">{result.totalPercentage.toFixed(0)}%</TableCell>
+                                                            <TableCell className={cn("text-right", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                                                                {result.overallStatus}
+                                                            </TableCell>
+                                                        </TableRow>
                                                     </TableBody>
                                                 </Table>
                                             </div>
