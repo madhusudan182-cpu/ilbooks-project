@@ -267,7 +267,7 @@ export default function MessagesPage() {
                   isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
-                <Avatar className="h-14 w-14 border flex-shrink-0">
+                <Avatar className="h-12 w-12 border flex-shrink-0">
                     { isIlbooks ? (
                     <AvatarFallback className="bg-card">
                         <IlbooksLogo className="h-8 w-8" />
@@ -358,7 +358,7 @@ export default function MessagesPage() {
                 <div className="flex-grow min-w-0">
                     <h2 className="font-semibold text-sm font-headline leading-tight truncate">{selectedConversation.user.name}</h2>
                     <p className="text-xs text-muted-foreground leading-tight">
-                        {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level}`}
+                        {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level.toFixed(1)}`}
                     </p>
                 </div>
                 {selectedConversation.user.name !== 'ILBooks' && (

@@ -112,7 +112,7 @@ export default function HomePage() {
                     >
                       {post.author.name}
                     </Link>
-                    <Badge variant="secondary" className="text-xs">Level: {post.author.level}</Badge>
+                    <Badge variant="secondary" className="text-xs">Level: {post.author.level.toFixed(1)}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {post.createdAt}

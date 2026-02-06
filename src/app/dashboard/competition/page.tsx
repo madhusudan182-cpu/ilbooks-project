@@ -23,7 +23,7 @@ export default function CompetitionPage() {
 
     // In a real app, you'd get the current user from an auth context.
     // To see the client view, you can now change the user in src/lib/auth.ts
-    const userLevel = currentUser.level.toString();
+    const userLevel = currentUser.level.toFixed(1);
     const userSyllabus = allSyllabi.find(s => s.level === userLevel);
     
     useEffect(() => {

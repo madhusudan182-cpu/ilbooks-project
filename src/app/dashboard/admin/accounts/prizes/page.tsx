@@ -70,7 +70,7 @@ export default function AdminPrizesPage() {
             userId: user.id,
             userName: user.name,
             userAvatarUrl: user.avatarUrl,
-            level: user.level.toString(),
+            level: user.level.toFixed(1),
             prize: newWinnerPrize,
             status: 'Pending',
         };
@@ -135,7 +135,7 @@ export default function AdminPrizesPage() {
                                         <SelectContent>
                                             {mockUsers.map(user => (
                                                 <SelectItem key={user.id} value={user.id}>
-                                                    {user.name} (Level: {user.level})
+                                                    {user.name} (Level: {user.level.toFixed(1)})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

@@ -20,7 +20,7 @@ const UserCard = ({ user }: { user: User }) => {
     <Card>
       <CardContent className="p-1 flex items-center gap-2">
         <Link href={profileUrl}>
-          <Avatar className="h-14 w-14">
+          <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatarUrl} alt={user.name} />
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -29,7 +29,7 @@ const UserCard = ({ user }: { user: User }) => {
           <Link href={profileUrl} className="hover:underline">
             <p className="font-semibold font-headline text-sm">{user.name}</p>
           </Link>
-          <p className="text-xs text-muted-foreground">Level: {user.level}</p>
+          <p className="text-xs text-muted-foreground">Level: {user.level.toFixed(1)}</p>
         </div>
         <div className="flex items-center gap-1">
           {!isCurrentUser && (
@@ -77,14 +77,14 @@ export default function SocialPage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold font-headline text-center mb-2">Social Circle</h1>
+      <h1 className="text-2xl font-bold font-headline text-center mb-4">Social Circle</h1>
       {isClient ? (
         <Tabs defaultValue="search">
           <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
-            <TabsTrigger value="search" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-2">Search</TabsTrigger>
-            <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-2"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
-            <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-2"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
-            <TabsTrigger value="mutual" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-2"><Users className="w-4 h-4 mr-2" />Mutual</TabsTrigger>
+            <TabsTrigger value="search" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs">Search</TabsTrigger>
+            <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-auto text-xs"><UserCheck className="w-4 h-4 mr-1" />Following</TabsTrigger>
+            <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
+            <TabsTrigger value="mutual" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-auto text-xs"><Users className="w-4 h-4 mr-1" />Mutual</TabsTrigger>
           </TabsList>
           <TabsContent value="search" className="mt-2">
             <UserList users={mockUsers} />

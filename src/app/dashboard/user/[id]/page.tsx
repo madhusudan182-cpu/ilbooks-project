@@ -41,7 +41,7 @@ export default function UserProfilePage() {
           <div className="flex-grow">
             <div className="flex items-baseline gap-4">
               <h1 className="text-3xl font-bold font-headline">{user.name}</h1>
-              <Badge className="text-sm">Level: {user.level}</Badge>
+              <Badge className="text-sm">Level: {user.level.toFixed(1)}</Badge>
             </div>
             <p className="text-muted-foreground mt-1">{user.institution}</p>
             <div className="flex items-center text-muted-foreground text-sm mt-2">
@@ -81,7 +81,7 @@ export default function UserProfilePage() {
                      <Link href={`/dashboard/user/${post.author.id}`} className="font-headline hover:underline text-sm">
                         {post.author.name}
                     </Link>
-                    <Badge variant="secondary" className="text-xs">Level: {post.author.level}</Badge>
+                    <Badge variant="secondary" className="text-xs">Level: {post.author.level.toFixed(1)}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {post.createdAt}
