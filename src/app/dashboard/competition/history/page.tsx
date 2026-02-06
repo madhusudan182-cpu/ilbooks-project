@@ -77,8 +77,10 @@ function ExamHistoryContent() {
     const handleBackClick = () => {
         if (activeView) {
             setActiveView(null);
+            // If we are on the page with a query param, we want to remove it to "go back"
+            router.replace('/dashboard/competition/history', { scroll: false });
         } else {
-            router.back();
+            router.push('/dashboard/competition');
         }
     };
 
@@ -106,7 +108,7 @@ function ExamHistoryContent() {
                         <Button onClick={() => setActiveView('last')} disabled={!lastResult}>
                             Last Exam Result
                         </Button>
-                        <Button onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0}>
+                        <Button onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} variant="secondary">
                             Previous Results
                         </Button>
                     </div>
@@ -126,6 +128,7 @@ function ExamHistoryContent() {
                                         <TableHead className="px-1 sm:px-2 py-2 text-xs">Date</TableHead>
                                         <TableHead className="px-1 sm:px-2 py-2 text-xs">Level</TableHead>
                                         <TableHead className="text-right px-1 sm:px-2 py-2 text-xs">Percentage</TableHead>
+                                        <TableHead className="text-right px-1 sm:px-2 py-2 text-xs">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -135,6 +138,9 @@ function ExamHistoryContent() {
                                             <TableCell className="px-1 sm:px-2 py-1 text-xs">{result.level}</TableCell>
                                             <TableCell className="text-right font-medium px-1 sm:px-2 py-1 text-xs">
                                                 {result.totalPercentage.toFixed(0)}%
+                                            </TableCell>
+                                            <TableCell className={cn("text-right font-bold px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                                                {result.overallStatus}
                                             </TableCell>
                                         </TableRow>
                                     ))}
