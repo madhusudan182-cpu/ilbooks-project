@@ -80,7 +80,7 @@ export default function SocialPage() {
       {isClient ? (
         <Tabs defaultValue="find">
           <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
-            <TabsTrigger value="find" className="bg-blue-500 text-white data-[state=active]:bg-blue-600">Find People</TabsTrigger>
+            <TabsTrigger value="find" className="bg-blue-500 text-white data-[state=active]:bg-blue-600">Search</TabsTrigger>
             <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
             <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
             <TabsTrigger value="mutual" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400"><Users className="w-4 h-4 mr-2" />Mutual</TabsTrigger>
