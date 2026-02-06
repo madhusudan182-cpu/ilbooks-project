@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Award } from 'lucide-react';
+import { Award } from 'lucide-react';
 
 export default function ExamCompletionPage() {
     const router = useRouter();
@@ -27,12 +27,6 @@ export default function ExamCompletionPage() {
                      <Button asChild className="w-full">
                         <Link href="/dashboard/competition/history">
                             See Your Exam Result
-                        </Link>
-                    </Button>
-                     <Button asChild variant="ghost">
-                        <Link href="/dashboard/competition">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Competition
                         </Link>
                     </Button>
                     <Button variant="outline" onClick={() => router.back()} className="w-full">
