@@ -98,13 +98,19 @@ export default function AdminPage() {
         <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-3 text-2xl font-headline">
-                  <BookOpen className="w-6 h-6 text-primary"/> Books for All Levels
+                  <BookOpen className="w-6 h-6 text-primary"/> Manage Books
               </CardTitle>
-              <CardDescription>View and manage all competition books by level.</CardDescription>
+              <CardDescription>View and manage all competition books by level or category.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-wrap gap-2">
               <Button asChild>
-                  <Link href="/dashboard/admin/books">View Books for All Levels</Link>
+                  <Link href="/dashboard/admin/books">All Levels</Link>
+              </Button>
+              <Button asChild>
+                  <Link href="/dashboard/admin/books?tab=vocab">Vocabulary & Grammar</Link>
+              </Button>
+              <Button asChild>
+                  <Link href="/dashboard/admin/books?tab=popular">Popular</Link>
               </Button>
           </CardContent>
         </Card>

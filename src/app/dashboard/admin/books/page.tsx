@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from 'next/navigation';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -80,8 +81,9 @@ const EditableBookGrid = ({
     );
 };
 
-
-export default function AllBooksPage() {
+function BooksPageContent() {
+    const searchParams = useSearchParams();
+    const tab = searchParams.get('tab') || 'levels';
     const [isClient, setIsClient] = useState(false);
     const [books, setBooks] = useState<BookType[]>(() => JSON.parse(JSON.stringify(mockBooks)));
     const { toast } = useToast();
@@ -264,7 +266,7 @@ export default function AllBooksPage() {
                 </CardHeader>
                 <CardContent>
                      {isClient ? (
-                        <Tabs defaultValue="levels">
+                        <Tabs defaultValue={tab}>
                             <TabsList className="grid w-full grid-cols-3">
                                 <TabsTrigger value="levels">All Levels</TabsTrigger>
                                 <TabsTrigger value="vocab">Vocabulary & Grammar</TabsTrigger>
@@ -389,5 +391,14 @@ export default function AllBooksPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+
+export default function AllBooksPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <BooksPageContent />
+        </Suspense>
     );
 }
