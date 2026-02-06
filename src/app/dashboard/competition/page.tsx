@@ -30,7 +30,8 @@ export default function CompetitionPage() {
         }
     }, []);
 
-    const userSyllabus = allSyllabi.find(s => s.level === userLevel);
+    const competitionLevel = userLevel.startsWith('0.') ? '0.0' : userLevel;
+    const userSyllabus = allSyllabi.find(s => s.level === competitionLevel);
     
     useEffect(() => {
         if (showComingSoonDialog) {
@@ -44,11 +45,11 @@ export default function CompetitionPage() {
 
     const handlePaymentSuccess = () => {
         console.log("Payment successful, starting exam...");
-        router.push(`/dashboard/competition/exam?level=${userLevel}`);
+        router.push(`/dashboard/competition/exam?level=${competitionLevel}`);
     };
     
     const handleStartExamClick = () => {
-        const hasQuestionsForLevel = allQuestions.some(q => q.level === userLevel);
+        const hasQuestionsForLevel = allQuestions.some(q => q.level === competitionLevel);
         if (hasQuestionsForLevel) {
             setShowPayment(true);
         } else {
@@ -123,7 +124,7 @@ export default function CompetitionPage() {
                     
                     <Card className="lg:col-span-1 md:col-span-2">
                         <CardHeader>
-                            <CardTitle className="text-lg">Syllabus for Level: {userLevel}</CardTitle>
+                            <CardTitle className="text-lg">Syllabus for Level: {competitionLevel}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {userSyllabus ? (
@@ -136,7 +137,7 @@ export default function CompetitionPage() {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-muted-foreground">Syllabus for your current level ({userLevel}) is not available yet.</p>
+                                <p className="text-muted-foreground">Syllabus for your current level ({competitionLevel}) is not available yet.</p>
                             )}
                         </CardContent>
                     </Card>
