@@ -46,6 +46,18 @@ export const mockUsers: User[] = [
     isFollowing: true,
     isMutual: true,
   },
+  {
+    id: 'user-5',
+    name: 'Paban Bangali',
+    avatarUrl: 'https://picsum.photos/seed/av5/100/100',
+    level: 0.0,
+    institution: 'New Learner',
+    location: 'Dhaka, Bangladesh',
+    hobbies: ['Reading', 'Learning'],
+    isFollowing: false,
+    isMutual: false,
+    isAdmin: false,
+  },
 ];
 
 export const mockPosts: Post[] = [
@@ -235,9 +247,9 @@ export const mockExamResults: ExamResult[] = [
   },
   {
     id: 'result-6',
-    userId: 'user-4',
-    userName: 'David Hasan',
-    userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
+    userId: 'user-5',
+    userName: 'Paban Bangali',
+    userAvatarUrl: 'https://picsum.photos/seed/av5/100/100',
     level: '0.0',
     totalMarks: 60,
     totalObtainedMarks: 45,

@@ -29,6 +29,8 @@ export default function AdminResultsPage() {
     const [selectedResult, setSelectedResult] = useState<ExamResult | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+    const sortedResults = [...results].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
+
     const handleEditClick = (result: ExamResult) => {
         // Deep copy to avoid mutating the original state object directly in the dialog
         setSelectedResult(JSON.parse(JSON.stringify(result)));
@@ -119,11 +121,11 @@ export default function AdminResultsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {!results || results.length === 0 ? (
+                        {!sortedResults || sortedResults.length === 0 ? (
                             <p className="text-muted-foreground text-center py-10">No exam results found.</p>
                         ) : (
                             <Accordion type="multiple" className="w-full">
-                                {results.map(result => (
+                                {sortedResults.map(result => (
                                     <AccordionItem value={result.id} key={result.id}>
                                         <AccordionTrigger>
                                             <div className="flex justify-between items-center w-full pr-4">
