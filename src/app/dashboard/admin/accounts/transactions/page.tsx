@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,9 +9,20 @@ import { mockTransactions } from '@/lib/data';
 import type { Transaction } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+type FilterType = Transaction['type'] | 'All Transactions';
 
 export default function AdminTransactionsPage() {
+    const [filter, setFilter] = useState<FilterType>('All Transactions');
+
     const transactions = [...mockTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    const filteredTransactions = transactions.filter(transaction => {
+        if (filter === 'All Transactions') return true;
+        return transaction.type === filter;
+    });
+
     let cumulativeAmount = 0;
 
     const getIconForType = (type: Transaction['type']) => {
@@ -21,6 +33,13 @@ export default function AdminTransactionsPage() {
             default: return null;
         }
     }
+    
+    const filterButtons: { label: string; value: FilterType }[] = [
+        { label: "All Transactions", value: "All Transactions" },
+        { label: "Exam Fee", value: "Exam Fee" },
+        { label: "Book Shop", value: "Book Shop" },
+        { label: "Patronization", value: "Patronage" },
+    ];
 
     return (
         <div className="p-4 md:p-6 lg:p-8">
@@ -43,7 +62,19 @@ export default function AdminTransactionsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {!transactions || transactions.length === 0 ? (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {filterButtons.map(({ label, value }) => (
+                            <Button
+                                key={value}
+                                variant={filter === value ? 'default' : 'outline'}
+                                onClick={() => setFilter(value)}
+                            >
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {!filteredTransactions || filteredTransactions.length === 0 ? (
                         <p className="text-muted-foreground text-center py-10">No transactions found.</p>
                     ) : (
                         <Table>
@@ -57,7 +88,7 @@ export default function AdminTransactionsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {transactions.map(transaction => {
+                                {filteredTransactions.map(transaction => {
                                     cumulativeAmount += transaction.amount;
                                     return (
                                     <TableRow key={transaction.id}>
