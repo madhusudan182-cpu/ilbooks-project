@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { allSyllabi } from '@/lib/syllabus';
 import type { Syllabus, SyllabusTopic } from '@/lib/types';
@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function AllSyllabiPage() {
     const [isClient, setIsClient] = useState(false);
@@ -150,10 +151,12 @@ export default function AllSyllabiPage() {
                                         <div className="flex justify-between items-center w-full">
                                            <span>Syllabus for Level: {level}</span>
                                            {!isEditing && (
-                                               <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEditClick(level); }} className="mr-4 h-8 px-3">
-                                                    <Edit className="mr-2 h-4 w-4" />
+                                                <div role="button"
+                                                    onClick={(e) => { e.stopPropagation(); handleEditClick(level); }}
+                                                    className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), "mr-4 h-8 px-3")}>
+                                                    <Edit />
                                                     Edit
-                                                </Button>
+                                                </div>
                                            )}
                                         </div>
                                     </AccordionTrigger>
