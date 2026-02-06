@@ -62,9 +62,8 @@ export default function AdminTransactionsPage() {
                                     <TableRow key={transaction.id}>
                                         <TableCell className="text-muted-foreground">{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center">
                                                 {getIconForType(transaction.type)}
-                                                {transaction.type}
                                             </div>
                                         </TableCell>
                                         <TableCell>
