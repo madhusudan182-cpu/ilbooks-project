@@ -11,6 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { mockPosts, mockUsers } from "@/lib/data";
 import { MessageCircle, Heart, Share2, Image as ImageIcon, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function HomePage() {
   const currentUser = mockUsers[0];
@@ -18,6 +25,7 @@ export default function HomePage() {
   const [isPosting, setIsPosting] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const [isCommentDialogOpen, setIsCommentDialogOpen] = useState(false);
 
   const handleCancel = () => {
     setPostContent("");
@@ -47,7 +55,7 @@ export default function HomePage() {
               <form>
                 <Textarea
                   className={cn(
-                    "text-base transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
+                    "text-sm transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
                      isPosting ? "min-h-[40px]" : "h-8"
                   )}
                   placeholder="What's on your mind, bookworm?"
@@ -138,7 +146,7 @@ export default function HomePage() {
                     <Heart className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.likes}</span>
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setIsCommentDialogOpen(true)}>
                     <MessageCircle className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.comments}</span>
                   </Button>
@@ -152,6 +160,19 @@ export default function HomePage() {
           );
         })}
       </div>
+
+      <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Write your comment</DialogTitle>
+          </DialogHeader>
+          <Textarea placeholder="Write your comment...." />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCommentDialogOpen(false)}>Cancel</Button>
+            <Button onClick={() => setIsCommentDialogOpen(false)}>Comment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
