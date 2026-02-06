@@ -163,6 +163,46 @@ function ExamContent() {
   };
   
   if (questions.length === 0) {
+    const majorLevel = Math.floor(parseFloat(level));
+    const examSchedules: { [key: number]: string } = {
+        1: "Your will take place at Friday: 9 am to 10 am",
+        2: "Your will take place at Friday: 10 am to 11 am",
+        3: "Your will take place at Friday: 8 pm to 9 pm",
+        4: "Your will take place at Friday: 9 pm to 10 pm",
+        5: "Your will take place at Saturday: 9 am to 10 am",
+        6: "Your will take place at Saturday: 10 am to 11 am",
+        7: "Your will take place at Saturday: 8 pm to 9 pm",
+        8: "Your will take place at Saturday: 9 pm to 10 pm",
+        9: "Your will take place at Sunday: 8 pm to 9 pm",
+        10: "Your will take place at Sunday: 9 pm to 10 pm",
+        11: "Your will take place at Monday: 8 pm to 9 pm",
+        12: "Your will take place at Monday: 9 pm to 10 pm",
+        13: "Your will take place at Tuesday: 8 pm to 9 pm",
+        14: "Your will take place at Tuesday: 9 pm to 10 pm",
+        15: "Your will take place at Wednesday: 8 pm to 9 pm",
+        16: "Your will take place at Wednesday: 9 pm to 10 pm",
+        17: "Your will take place at Thursday: 8 pm to 9 pm",
+        18: "Your will take place at Thursday: 9 pm to 10 pm",
+        19: "Your will take place at Thursday: 10 pm to 11 pm",
+    };
+    const scheduleMessage = examSchedules[majorLevel];
+
+    if (scheduleMessage) {
+        return (
+            <main className="flex items-center justify-center min-h-screen bg-background p-4">
+                <Card className="w-full max-w-2xl text-center">
+                    <CardHeader>
+                        <CardTitle>Exam Schedule</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">{scheduleMessage}</p>
+                        <Button asChild className="mt-4"><Link href="/dashboard/competition">Back to Competition</Link></Button>
+                    </CardContent>
+                </Card>
+            </main>
+        );
+    }
+
     return (
         <main className="flex items-center justify-center min-h-screen bg-background p-4">
             <Card className="w-full max-w-2xl text-center">
