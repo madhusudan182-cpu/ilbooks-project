@@ -11,9 +11,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminPage() {
+    const [isClient, setIsClient] = useState(false)
+ 
+    useEffect(() => {
+      setIsClient(true)
+    }, [])
+
     const router = useRouter();
     // In a real app, this user would come from an authentication session.
     // We are using mockUsers[0] which is an admin. 
@@ -105,11 +111,11 @@ export default function AdminPage() {
               <CardDescription>All available questions are visible to admins for review, grouped by level.</CardDescription>
           </CardHeader>
           <CardContent>
-              <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
+              {isClient ? <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
                   {allLevels.map((level) => {
                       const questionsForLevel = questionsByLevel[level] || [];
                       return (
-                          <AccordionItem value={`level-q-${level}`} key={`level-q-${level}`}>
+                          <AccordionItem value={`level-q-${level}`} key={level}>
                               <AccordionTrigger className="text-left font-semibold">
                                   Questions for Level: {level}
                                   <span className="text-sm font-normal text-muted-foreground ml-2">({questionsForLevel.length} questions)</span>
@@ -140,7 +146,7 @@ export default function AdminPage() {
                           </AccordionItem>
                       )
                   })}
-              </Accordion>
+              </Accordion> : null}
           </CardContent>
       </Card>
 
@@ -152,11 +158,11 @@ export default function AdminPage() {
             <CardDescription>View and manage all competition books by level.</CardDescription>
         </CardHeader>
         <CardContent>
-             <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
+             {isClient ? <Accordion type="multiple" className="w-full max-h-[40rem] overflow-y-auto">
                 {allLevels.map((level) => {
                     const booksForLevel = booksByLevel[level] || [];
                     return (
-                        <AccordionItem value={`level-b-${level}`} key={`level-b-${level}`}>
+                        <AccordionItem value={`level-b-${level}`} key={level}>
                             <AccordionTrigger className="text-left font-semibold">
                                 Books for Level: {level}
                                 <span className="text-sm font-normal text-muted-foreground ml-2">({booksForLevel.length} books)</span>
@@ -184,7 +190,7 @@ export default function AdminPage() {
                         </AccordionItem>
                     )
                 })}
-            </Accordion>
+            </Accordion> : null}
         </CardContent>
       </Card>
 

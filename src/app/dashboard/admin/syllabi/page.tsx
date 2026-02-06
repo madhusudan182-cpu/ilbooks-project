@@ -6,8 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { allSyllabi } from '@/lib/syllabus';
 import { Book, ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function AllSyllabiPage() {
+    const [isClient, setIsClient] = useState(false)
+ 
+    useEffect(() => {
+      setIsClient(true)
+    }, [])
+
     const allLevels: string[] = [];
     for (let i = 0; i <= 19; i++) {
         if (i === 1) continue; // Skip level 1.x
@@ -37,7 +44,7 @@ export default function AllSyllabiPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
+                    {isClient ? <Accordion type="single" collapsible className="w-full">
                         {allLevels.map((level) => {
                             const syllabus = allSyllabi.find(s => s.level === level);
                             return (
@@ -60,7 +67,7 @@ export default function AllSyllabiPage() {
                                 </AccordionItem>
                             )
                         })}
-                    </Accordion>
+                    </Accordion> : null}
                 </CardContent>
             </Card>
         </div>
