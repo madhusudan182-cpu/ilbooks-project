@@ -26,11 +26,19 @@ export default function ExamHistoryPage() {
                 <CardHeader className="p-4">
                     <CardTitle className="flex items-center gap-2 text-2xl font-headline">
                         <History className="w-6 h-6 text-primary" />
-                        Your Exam History
+                        Your Exam Result
                     </CardTitle>
                     <CardDescription>
                         Here is a list of your past exam attempts.
                     </CardDescription>
+                    <div className="pt-4 flex flex-wrap justify-center gap-2">
+                        <Button asChild>
+                            <Link href="#">Last Exam Result</Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="#">Previous Exam Result</Link>
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     {userExamHistory.length > 0 ? (
@@ -59,14 +67,6 @@ export default function ExamHistoryPage() {
                     ) : (
                         <p className="text-muted-foreground text-center py-8">You have no exam history yet.</p>
                     )}
-                     <div className="p-4 flex flex-wrap justify-center gap-2">
-                        <Button asChild>
-                            <Link href="#">Last Exam Result</Link>
-                        </Button>
-                        <Button asChild variant="outline">
-                            <Link href="#">Previous Exam Result</Link>
-                        </Button>
-                    </div>
                 </CardContent>
             </Card>
         </div>
