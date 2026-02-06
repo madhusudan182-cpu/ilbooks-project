@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Book, Award, Percent, DollarSign, Edit, History } from "lucide-react";
+import { ArrowRight, Book, Award, Percent, DollarSign, Edit, ClipboardList } from "lucide-react";
 import { PaymentGateway } from '@/components/payment-gateway';
 import { allSyllabi } from '@/lib/syllabus';
 import { currentUser } from '@/lib/auth';
@@ -76,11 +76,11 @@ export default function CompetitionPage() {
                     <h1 className="text-4xl font-bold font-headline">Competition</h1>
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
                     <div className="flex flex-col justify-center items-center gap-2 mt-4">
-                        <Badge className="text-base">Your Current Level: {userLevel}</Badge>
+                        <Badge className="text-base bg-red-100 text-red-800">Your Current Level: {userLevel}</Badge>
                         <Button asChild variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
                             <Link href="/dashboard/competition/history">
-                                <History className="mr-2 h-4 w-4" />
-                                See Your Exam History
+                                <ClipboardList className="mr-2 h-4 w-4" />
+                                Exam Result
                             </Link>
                         </Button>
                     </div>
