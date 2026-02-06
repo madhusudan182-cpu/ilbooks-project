@@ -122,10 +122,10 @@ function ExamHistoryContent() {
                         Here is a list of your past exam attempts.
                     </CardDescription>
                     <div className="pt-4 flex flex-wrap justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-4 py-2 text-sm">
+                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
                             Last Exam Result
                         </Button>
-                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto px-4 py-2 text-sm">
+                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
                             Previous Results
                         </Button>
                     </div>
