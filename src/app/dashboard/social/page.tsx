@@ -20,7 +20,7 @@ const UserCard = ({ user }: { user: User }) => {
     <Card>
       <CardContent className="p-1 flex items-center gap-2">
         <Link href={profileUrl}>
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-12 w-12">
             <AvatarImage src={user.avatarUrl} alt={user.name} />
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -80,7 +80,7 @@ export default function SocialPage() {
       <h1 className="text-2xl font-bold font-headline text-center">Social Circle</h1>
       {isClient ? (
         <Tabs defaultValue="search">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1 mt-2">
+          <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1 mt-1">
             <TabsTrigger value="search" className="bg-blue-500 text-white data-[state=active]:bg-blue-600">Search</TabsTrigger>
             <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
             <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
