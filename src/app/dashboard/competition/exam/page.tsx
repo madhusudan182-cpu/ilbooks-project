@@ -108,6 +108,10 @@ function ExamContent() {
 
     sessionStorage.setItem('lastExamResult', JSON.stringify(newResult));
 
+    // Clear registration status on exam completion
+    sessionStorage.removeItem(`examRegistered_${level}`);
+    sessionStorage.removeItem(`examRegistrationExpiry_${level}`);
+
     if (overallStatus === 'Passed') {
         const [major, minor] = level.split('.').map(Number);
         let nextMajor = major;

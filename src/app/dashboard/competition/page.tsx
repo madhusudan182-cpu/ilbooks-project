@@ -15,6 +15,27 @@ import { allQuestions } from '@/lib/questions';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 
+const examSchedules: { [key: number]: { day: number, start: number, end: number } } = {
+    1: { day: 5, start: 9, end: 10 },    // Fri 9am-10am
+    2: { day: 5, start: 10, end: 11 },   // Fri 10am-11am
+    3: { day: 5, start: 20, end: 21 },   // Fri 8pm-9pm
+    4: { day: 5, start: 21, end: 22 },   // Fri 9pm-10pm
+    5: { day: 6, start: 9, end: 10 },    // Sat 9am-10am
+    6: { day: 6, start: 10, end: 11 },   // Sat 10am-11am
+    7: { day: 6, start: 20, end: 21 },   // Sat 8pm-9pm
+    8: { day: 6, start: 21, end: 22 },   // Sat 9pm-10pm
+    9: { day: 0, start: 20, end: 21 },   // Sun 8pm-9pm
+    10: { day: 0, start: 21, end: 22 },  // Sun 9pm-10pm
+    11: { day: 1, start: 20, end: 21 },  // Mon 8pm-9pm
+    12: { day: 1, start: 21, end: 22 },  // Mon 9pm-10pm
+    13: { day: 2, start: 20, end: 21 },  // Tue 8pm-9pm
+    14: { day: 2, start: 21, end: 22 },  // Tue 9pm-10pm
+    15: { day: 3, start: 20, end: 21 },  // Wed 8pm-9pm
+    16: { day: 3, start: 21, end: 22 },  // Wed 9pm-10pm
+    17: { day: 4, start: 20, end: 21 },  // Thu 8pm-9pm
+    18: { day: 4, start: 21, end: 22 },  // Thu 9pm-10pm
+    19: { day: 4, start: 22, end: 23 },  // Thu 10pm-11pm
+};
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
@@ -39,62 +60,44 @@ export default function CompetitionPage() {
     
     useEffect(() => {
         const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
-        if (registrationStatus === 'true') {
-            setIsRegistered(true);
-        } else {
-            setIsRegistered(false);
-        }
+        setIsRegistered(registrationStatus === 'true');
     }, [competitionLevel]);
 
     useEffect(() => {
-        const examSchedules: { [key: number]: { day: number, start: number, end: number } } = {
-            1: { day: 5, start: 9, end: 10 },
-            2: { day: 5, start: 10, end: 11 },
-            3: { day: 5, start: 20, end: 21 },
-            4: { day: 5, start: 21, end: 22 },
-            5: { day: 6, start: 9, end: 10 },
-            6: { day: 6, start: 10, end: 11 },
-            7: { day: 6, start: 20, end: 21 },
-            8: { day: 6, start: 21, end: 22 },
-            9: { day: 0, start: 20, end: 21 },
-            10: { day: 0, start: 21, end: 22 },
-            11: { day: 1, start: 20, end: 21 },
-            12: { day: 1, start: 21, end: 22 },
-            13: { day: 2, start: 20, end: 21 },
-            14: { day: 2, start: 21, end: 22 },
-            15: { day: 3, start: 20, end: 21 },
-            16: { day: 3, start: 21, end: 22 },
-            17: { day: 4, start: 20, end: 21 },
-            18: { day: 4, start: 21, end: 22 },
-            19: { day: 4, start: 22, end: 23 },
-        };
+        const checkTimeAndRegistration = () => {
+            // Check for expired registration
+            const expiryTimestamp = sessionStorage.getItem(`examRegistrationExpiry_${competitionLevel}`);
+            if (expiryTimestamp && Date.now() > parseInt(expiryTimestamp, 10)) {
+                sessionStorage.removeItem(`examRegistered_${competitionLevel}`);
+                sessionStorage.removeItem(`examRegistrationExpiry_${competitionLevel}`);
+                setIsRegistered(false);
+                setIsExamTime(false);
+                return; // Exit to prevent further checks in this cycle
+            }
 
-        const checkTime = () => {
+            // Check for current exam window
             const [majorLevel] = competitionLevel.split('.').map(Number);
+            const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
             
-            if (!isRegistered || majorLevel < 1) {
+            if (registrationStatus !== 'true' || majorLevel < 1) {
                 setIsExamTime(false);
                 return;
             }
-            
-            const now = new Date();
-            const day = now.getDay();
-            const hour = now.getHours();
-            
-            const schedule = examSchedules[majorLevel];
 
-            if (schedule && day === schedule.day && hour >= schedule.start && hour < schedule.end) {
+            const now = new Date();
+            const schedule = examSchedules[majorLevel];
+            if (schedule && now.getDay() === schedule.day && now.getHours() >= schedule.start && now.getHours() < schedule.end) {
                 setIsExamTime(true);
             } else {
                 setIsExamTime(false);
             }
         };
 
-        checkTime();
-        const interval = setInterval(checkTime, 60000); 
+        checkTimeAndRegistration();
+        const interval = setInterval(checkTimeAndRegistration, 30000); // Check every 30 seconds
 
         return () => clearInterval(interval);
-    }, [isRegistered, competitionLevel]);
+    }, [competitionLevel]);
 
     useEffect(() => {
         if (showComingSoonDialog) {
@@ -115,6 +118,24 @@ export default function CompetitionPage() {
             console.log("Payment successful, registration complete.");
             sessionStorage.setItem(`examRegistered_${competitionLevel}`, 'true');
             setIsRegistered(true);
+
+            // Store the expiry time for this registration
+            const schedule = examSchedules[majorLevel];
+            if (schedule) {
+                const now = new Date();
+                const examDate = new Date(now);
+                const dayDiff = (schedule.day - now.getDay() + 7) % 7;
+
+                if (dayDiff === 0 && now.getHours() >= schedule.end) {
+                    // If exam for today is already over, schedule for next week
+                    examDate.setDate(now.getDate() + 7);
+                } else {
+                    examDate.setDate(now.getDate() + dayDiff);
+                }
+                examDate.setHours(schedule.end, 0, 0, 0); // Set to the end hour of the exam
+                sessionStorage.setItem(`examRegistrationExpiry_${competitionLevel}`, examDate.getTime().toString());
+            }
+
             toast({
                 title: "Registration Successful!",
                 description: "Your 'Take the Exam' button will appear during the scheduled time.",
@@ -126,10 +147,8 @@ export default function CompetitionPage() {
         const [majorLevel] = userLevel.split('.').map(Number);
         
         if (majorLevel >= 1) {
-            // For levels 1.0 and up, always show payment on "Register" click
             setShowPayment(true);
         } else {
-            // For level 0.x, check if questions exist before showing payment
             const hasQuestionsForLevel = allQuestions.some(q => q.level === competitionLevel);
             if (hasQuestionsForLevel) {
                 setShowPayment(true);
