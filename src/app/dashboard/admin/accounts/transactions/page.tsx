@@ -3,16 +3,15 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Landmark, ArrowLeft, BookOpen, Crown, Trophy } from 'lucide-react';
 import { mockTransactions } from '@/lib/data';
 import type { Transaction } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export default function AdminTransactionsPage() {
-    const transactions = mockTransactions;
+    const transactions = [...mockTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let cumulativeAmount = 0;
 
     const getIconForType = (type: Transaction['type']) => {
         switch (type) {
@@ -54,11 +53,13 @@ export default function AdminTransactionsPage() {
                                     <TableHead>Type</TableHead>
                                     <TableHead>User</TableHead>
                                     <TableHead className="text-right">Amount (TK)</TableHead>
-                                    <TableHead className="text-right">Status</TableHead>
+                                    <TableHead className="text-right">Cumulative Amount (TK)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {transactions.map(transaction => (
+                                {transactions.map(transaction => {
+                                    cumulativeAmount += transaction.amount;
+                                    return (
                                     <TableRow key={transaction.id}>
                                         <TableCell className="text-muted-foreground">{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
                                         <TableCell>
@@ -74,19 +75,11 @@ export default function AdminTransactionsPage() {
                                         <TableCell className="text-right font-medium">
                                             {transaction.amount.toFixed(2)}
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <Badge
-                                                className={cn(
-                                                    transaction.status === 'Completed' ? 'bg-green-100 text-green-800' : 
-                                                    transaction.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                )}
-                                            >
-                                                {transaction.status}
-                                            </Badge>
+                                        <TableCell className="text-right font-medium">
+                                            {cumulativeAmount.toFixed(2)}
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                )})}
                             </TableBody>
                         </Table>
                     )}
