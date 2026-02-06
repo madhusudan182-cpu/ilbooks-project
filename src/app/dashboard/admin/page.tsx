@@ -118,11 +118,11 @@ export default function AdminPage() {
             </CardTitle>
             <CardDescription>Manage financial transactions and user rewards.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            <Button asChild variant="outline">
+          <CardContent className="flex flex-wrap gap-2">
+            <Button asChild>
               <Link href="/dashboard/admin/accounts/transactions">View Money Transactions</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild>
               <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
             </Button>
           </CardContent>
