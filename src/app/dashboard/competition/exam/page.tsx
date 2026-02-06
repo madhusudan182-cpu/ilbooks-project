@@ -111,6 +111,7 @@ function ExamContent() {
     // Clear registration status on exam completion
     sessionStorage.removeItem(`examRegistered_${level}`);
     sessionStorage.removeItem(`examRegistrationExpiry_${level}`);
+    sessionStorage.removeItem(`notificationSent_${level}`);
 
     if (overallStatus === 'Passed') {
         const [major, minor] = level.split('.').map(Number);

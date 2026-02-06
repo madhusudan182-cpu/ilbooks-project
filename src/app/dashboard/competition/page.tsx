@@ -70,6 +70,7 @@ export default function CompetitionPage() {
             if (expiryTimestamp && Date.now() > parseInt(expiryTimestamp, 10)) {
                 sessionStorage.removeItem(`examRegistered_${competitionLevel}`);
                 sessionStorage.removeItem(`examRegistrationExpiry_${competitionLevel}`);
+                sessionStorage.removeItem(`notificationSent_${competitionLevel}`);
                 setIsRegistered(false);
                 setIsExamTime(false);
                 return; // Exit to prevent further checks in this cycle
@@ -86,8 +87,34 @@ export default function CompetitionPage() {
 
             const now = new Date();
             const schedule = examSchedules[majorLevel];
-            if (schedule && now.getDay() === schedule.day && now.getHours() >= schedule.start && now.getHours() < schedule.end) {
-                setIsExamTime(true);
+            if (schedule) {
+                if (now.getDay() === schedule.day && now.getHours() >= schedule.start && now.getHours() < schedule.end) {
+                    setIsExamTime(true);
+                } else {
+                    setIsExamTime(false);
+                }
+
+                // --- Notification Logic ---
+                const notificationSent = sessionStorage.getItem(`notificationSent_${competitionLevel}`);
+                if (!notificationSent) {
+                    const examStartDate = new Date(now);
+                    const dayDiff = (schedule.day - now.getDay() + 7) % 7;
+
+                    examStartDate.setDate(now.getDate() + dayDiff);
+                    examStartDate.setHours(schedule.start, 0, 0, 0);
+                    
+                    const timeUntilExam = examStartDate.getTime() - now.getTime();
+                    const minutesUntilExam = timeUntilExam / (1000 * 60);
+    
+                    if (minutesUntilExam > 0 && minutesUntilExam <= 30) {
+                        toast({
+                            title: "Exam Reminder",
+                            description: `Your exam for Level ${competitionLevel} starts in under 30 minutes.`,
+                            duration: 10000
+                        });
+                        sessionStorage.setItem(`notificationSent_${competitionLevel}`, 'true');
+                    }
+                }
             } else {
                 setIsExamTime(false);
             }
@@ -97,7 +124,7 @@ export default function CompetitionPage() {
         const interval = setInterval(checkTimeAndRegistration, 30000); // Check every 30 seconds
 
         return () => clearInterval(interval);
-    }, [competitionLevel]);
+    }, [competitionLevel, toast]);
 
     useEffect(() => {
         if (showComingSoonDialog) {
