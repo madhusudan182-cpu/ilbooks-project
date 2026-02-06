@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, History } from 'lucide-react';
@@ -11,6 +12,7 @@ import { currentUser } from '@/lib/auth';
 
 export default function ExamHistoryPage() {
     const userExamHistory = mockExamResults.filter(result => result.userId === currentUser.id);
+    const router = useRouter();
 
     return (
         <div className="p-2 md:p-4 lg:p-6">
@@ -69,6 +71,9 @@ export default function ExamHistoryPage() {
                     )}
                 </CardContent>
             </Card>
+            <div className="mt-4 flex justify-center">
+                <Button onClick={() => router.back()}>Back</Button>
+            </div>
         </div>
     );
 }
