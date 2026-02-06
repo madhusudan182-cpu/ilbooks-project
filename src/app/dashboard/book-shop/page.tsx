@@ -266,14 +266,12 @@ export default function BookShopPage() {
                             <div className="flex justify-between items-center mt-2 w-full gap-2">
                                 <Button size="sm" asChild className="flex-1">
                                     <Link href={book.pdfUrl} target="_blank" rel="noopener noreferrer">
-                                        <BookIcon className="mr-2 h-4 w-4" />
                                         Read
                                     </Link>
                                 </Button>
-                                <Button size="sm" variant="secondary" asChild className="flex-1">
+                                <Button size="icon" variant="secondary" asChild>
                                     <Link href={book.pdfUrl} download>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Download
+                                        <Download className="h-4 w-4" />
                                     </Link>
                                 </Button>
                             </div>
