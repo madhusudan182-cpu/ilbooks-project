@@ -13,15 +13,19 @@ import { allSyllabi } from '@/lib/syllabus';
 import { currentUser } from '@/lib/auth';
 import { allQuestions } from '@/lib/questions';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function CompetitionPage() {
     const [showPayment, setShowPayment] = useState(false);
     const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
     const router = useRouter();
+    const { toast } = useToast();
     const examFee = 20;
 
     const [userLevel, setUserLevel] = useState(currentUser.level.toFixed(1));
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [isExamTime, setIsExamTime] = useState(false);
 
     useEffect(() => {
         const savedLevel = sessionStorage.getItem('currentUserLevel');
@@ -34,6 +38,65 @@ export default function CompetitionPage() {
     const userSyllabus = allSyllabi.find(s => s.level === competitionLevel);
     
     useEffect(() => {
+        const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
+        if (registrationStatus === 'true') {
+            setIsRegistered(true);
+        } else {
+            setIsRegistered(false);
+        }
+    }, [competitionLevel]);
+
+    useEffect(() => {
+        const examSchedules: { [key: number]: { day: number, start: number, end: number } } = {
+            1: { day: 5, start: 9, end: 10 },
+            2: { day: 5, start: 10, end: 11 },
+            3: { day: 5, start: 20, end: 21 },
+            4: { day: 5, start: 21, end: 22 },
+            5: { day: 6, start: 9, end: 10 },
+            6: { day: 6, start: 10, end: 11 },
+            7: { day: 6, start: 20, end: 21 },
+            8: { day: 6, start: 21, end: 22 },
+            9: { day: 0, start: 20, end: 21 },
+            10: { day: 0, start: 21, end: 22 },
+            11: { day: 1, start: 20, end: 21 },
+            12: { day: 1, start: 21, end: 22 },
+            13: { day: 2, start: 20, end: 21 },
+            14: { day: 2, start: 21, end: 22 },
+            15: { day: 3, start: 20, end: 21 },
+            16: { day: 3, start: 21, end: 22 },
+            17: { day: 4, start: 20, end: 21 },
+            18: { day: 4, start: 21, end: 22 },
+            19: { day: 4, start: 22, end: 23 },
+        };
+
+        const checkTime = () => {
+            const [majorLevel] = competitionLevel.split('.').map(Number);
+            
+            if (!isRegistered || majorLevel < 1) {
+                setIsExamTime(false);
+                return;
+            }
+            
+            const now = new Date();
+            const day = now.getDay();
+            const hour = now.getHours();
+            
+            const schedule = examSchedules[majorLevel];
+
+            if (schedule && day === schedule.day && hour >= schedule.start && hour < schedule.end) {
+                setIsExamTime(true);
+            } else {
+                setIsExamTime(false);
+            }
+        };
+
+        checkTime();
+        const interval = setInterval(checkTime, 60000); 
+
+        return () => clearInterval(interval);
+    }, [isRegistered, competitionLevel]);
+
+    useEffect(() => {
         if (showComingSoonDialog) {
             const timer = setTimeout(() => {
                 setShowComingSoonDialog(false);
@@ -44,8 +107,19 @@ export default function CompetitionPage() {
 
 
     const handlePaymentSuccess = () => {
-        console.log("Payment successful, starting exam...");
-        router.push(`/dashboard/competition/exam?level=${competitionLevel}`);
+        const [majorLevel] = competitionLevel.split('.').map(Number);
+        if (majorLevel < 1) {
+             console.log("Payment successful, starting exam for level 0...");
+             router.push(`/dashboard/competition/exam?level=${competitionLevel}`);
+        } else {
+            console.log("Payment successful, registration complete.");
+            sessionStorage.setItem(`examRegistered_${competitionLevel}`, 'true');
+            setIsRegistered(true);
+            toast({
+                title: "Registration Successful!",
+                description: "Your 'Take the Exam' button will appear during the scheduled time.",
+            });
+        }
     };
     
     const handleStartExamClick = () => {
@@ -95,12 +169,25 @@ export default function CompetitionPage() {
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
                     <div className="flex flex-col justify-center items-center gap-2 mt-4">
                         <Badge className="text-base bg-red-100 text-red-800">Your Current Level: {userLevel}</Badge>
-                        <Button asChild variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
-                            <Link href="/dashboard/competition/history">
-                                <ClipboardList className="mr-2 h-4 w-4" />
-                                Exam Result
-                            </Link>
-                        </Button>
+                         <div className="flex gap-2">
+                            <Button asChild variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
+                                <Link href="/dashboard/competition/history">
+                                    <ClipboardList className="mr-2 h-4 w-4" />
+                                    Exam Result
+                                </Link>
+                            </Button>
+                            {isExamTime && (
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    className="bg-green-600 text-white hover:bg-green-700 animate-pulse"
+                                >
+                                    <Link href={`/dashboard/competition/exam?level=${competitionLevel}`}>
+                                        Take the Exam
+                                    </Link>
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -155,10 +242,17 @@ export default function CompetitionPage() {
                 </div>
                 
                 <div className="text-center mt-8">
-                     <Button size="lg" className="font-headline px-4 md:px-8" onClick={handleStartExamClick}>
-                        {buttonText} <ArrowRight className="ml-2 w-5 h-5"/>
-                     </Button>
-                     <p className="text-xs text-muted-foreground mt-2">Exam duration: 15 seconds per question.</p>
+                     {(!isRegistered || majorLevel < 1) && (
+                        <Button size="lg" className="font-headline px-4 md:px-8" onClick={handleStartExamClick}>
+                           {buttonText} <ArrowRight className="ml-2 w-5 h-5"/>
+                        </Button>
+                     )}
+                     <p className="text-xs text-muted-foreground mt-2">
+                        {isRegistered && majorLevel >= 1 
+                            ? "You are registered. The 'Take the Exam' button will appear at your scheduled time."
+                            : "Exam duration: 15 seconds per question."
+                         }
+                    </p>
                 </div>
 
             </div>
