@@ -120,7 +120,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button asChild>
-              <Link href="/dashboard/admin/accounts/transactions">View Money Transactions</Link>
+              <Link href="/dashboard/admin/accounts/transactions">Transactions</Link>
             </Button>
             <Button asChild>
               <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
