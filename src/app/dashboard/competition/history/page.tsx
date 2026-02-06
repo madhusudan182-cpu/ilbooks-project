@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, ClipboardList } from 'lucide-react';
@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { currentUser } from '@/lib/auth';
 import type { ExamResult } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DetailedResultTable = ({ result }: { result: ExamResult }) => (
     <div className="border rounded-lg overflow-hidden my-4 animate-fade-in-up">
@@ -56,8 +57,8 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
     </div>
 );
 
-
-export default function ExamHistoryPage() {
+function ExamHistoryContent() {
+    const searchParams = useSearchParams();
     const [activeView, setActiveView] = useState<'last' | 'previous' | null>(null);
     const userExamHistory = mockExamResults.filter(result => result.userId === currentUser.id)
         .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
@@ -65,6 +66,14 @@ export default function ExamHistoryPage() {
     const lastResult = userExamHistory.length > 0 ? userExamHistory[0] : null;
 
     const router = useRouter();
+
+    useEffect(() => {
+        const viewParam = searchParams.get('view');
+        if (viewParam === 'last') {
+            setActiveView('last');
+        }
+    }, [searchParams]);
+
 
     return (
         <div className="p-2 md:p-4 lg:p-6">
@@ -134,5 +143,38 @@ export default function ExamHistoryPage() {
                 <Button onClick={() => router.back()}>Back</Button>
             </div>
         </div>
+    );
+}
+
+export default function ExamHistoryPage() {
+    return (
+        <Suspense fallback={
+            <div className="p-2 md:p-4 lg:p-6">
+                <div className="mb-2">
+                    <Skeleton className="h-9 w-40" />
+                </div>
+                <Card>
+                    <CardHeader className="p-4">
+                        <div className="flex items-center gap-2">
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                            <Skeleton className="h-7 w-48" />
+                        </div>
+                        <Skeleton className="h-4 w-64 mt-2" />
+                        <div className="pt-4 flex flex-wrap justify-center gap-2">
+                            <Skeleton className="h-10 w-36" />
+                            <Skeleton className="h-10 w-36" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-2 sm:px-4">
+                        <Skeleton className="h-24 w-full" />
+                    </CardContent>
+                </Card>
+                <div className="mt-4 flex justify-center">
+                    <Skeleton className="h-10 w-24" />
+                </div>
+            </div>
+        }>
+            <ExamHistoryContent />
+        </Suspense>
     );
 }

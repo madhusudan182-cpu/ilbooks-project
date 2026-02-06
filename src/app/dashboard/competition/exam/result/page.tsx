@@ -25,7 +25,7 @@ export default function ExamCompletionPage() {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-4">
                      <Button asChild className="w-full">
-                        <Link href="/dashboard/competition/history">
+                        <Link href="/dashboard/competition/history?view=last">
                             See Your Exam Result
                         </Link>
                     </Button>
