@@ -49,11 +49,19 @@ export default function CompetitionPage() {
     };
     
     const handleStartExamClick = () => {
-        const hasQuestionsForLevel = allQuestions.some(q => q.level === competitionLevel);
-        if (hasQuestionsForLevel) {
+        const [majorLevel] = userLevel.split('.').map(Number);
+        
+        if (majorLevel >= 1) {
+            // For levels 1.0 and up, always show payment on "Register" click
             setShowPayment(true);
         } else {
-            setShowComingSoonDialog(true);
+            // For level 0.x, check if questions exist before showing payment
+            const hasQuestionsForLevel = allQuestions.some(q => q.level === competitionLevel);
+            if (hasQuestionsForLevel) {
+                setShowPayment(true);
+            } else {
+                setShowComingSoonDialog(true);
+            }
         }
     }
 
