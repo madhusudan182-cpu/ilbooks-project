@@ -100,7 +100,7 @@ export default function CompetitionPage() {
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
                                     <History className="mr-2 h-4 w-4" />
-                                    Exam History
+                                    See Your Exam History
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl">
