@@ -6,98 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ClipboardList, ArrowLeft, Edit } from 'lucide-react';
-import type { ExamResult, SubjectResult } from '@/lib/types';
+import { ClipboardList, ArrowLeft } from 'lucide-react';
+import type { ExamResult } from '@/lib/types';
 import { mockExamResults } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export default function AdminResultsPage() {
-    const [results, setResults] = useState<ExamResult[]>(mockExamResults);
-    const [selectedResult, setSelectedResult] = useState<ExamResult | null>(null);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [results] = useState<ExamResult[]>(mockExamResults);
 
     const sortedResults = [...results].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
-
-    const handleEditClick = (result: ExamResult) => {
-        // Deep copy to avoid mutating the original state object directly in the dialog
-        setSelectedResult(JSON.parse(JSON.stringify(result)));
-        setIsEditDialogOpen(true);
-    };
-
-    const handleSaveChanges = () => {
-        if (!selectedResult) return;
-
-        // Recalculate totals and percentages
-        const totalObtainedMarks = selectedResult.subjects.reduce((sum, r) => sum + Number(r.obtainedMarks), 0);
-        const totalMarks = selectedResult.subjects.reduce((sum, r) => sum + r.totalMarks, 0);
-        const totalPercentage = totalMarks > 0 ? (totalObtainedMarks / totalMarks) * 100 : 0;
-        
-        const updatedSubjects = selectedResult.subjects.map(s => {
-            const obtained = Number(s.obtainedMarks);
-            const total = s.totalMarks;
-            const percentage = total > 0 ? (obtained / total) * 100 : 0;
-            return {
-                ...s,
-                obtainedMarks: obtained,
-                percentage,
-                status: percentage >= 60 ? 'Passed' : 'Failed'
-            } as SubjectResult;
-        });
-
-        const overallStatus = updatedSubjects.every(r => r.status === 'Passed') ? 'Passed' : 'Failed';
-        
-        const updatedResult: ExamResult = {
-            ...selectedResult,
-            subjects: updatedSubjects,
-            totalObtainedMarks,
-            totalMarks,
-            totalPercentage,
-            overallStatus
-        };
-
-        setResults(prevResults =>
-            prevResults.map(r => r.id === updatedResult.id ? updatedResult : r)
-        );
-        setIsEditDialogOpen(false);
-        setSelectedResult(null);
-    };
-    
-    const handleSubjectMarkChange = (subjectName: string, newMarks: string) => {
-        if (!selectedResult) return;
-        
-        const marks = parseInt(newMarks, 10);
-        const subjectToUpdate = selectedResult.subjects.find(s => s.subject === subjectName);
-
-        if (subjectToUpdate && (marks > subjectToUpdate.totalMarks || marks < 0)) {
-            // Optionally, prevent invalid marks
-            return;
-        }
-
-        setSelectedResult(prev => {
-            if (!prev) return null;
-            return {
-                ...prev,
-                subjects: prev.subjects.map(s => 
-                    s.subject === subjectName 
-                        ? { ...s, obtainedMarks: isNaN(marks) ? 0 : marks } 
-                        : s
-                )
-            };
-        });
-    };
 
     return (
         <>
@@ -127,35 +47,28 @@ export default function AdminResultsPage() {
                             <Accordion type="multiple" className="w-full">
                                 {sortedResults.map(result => (
                                     <AccordionItem value={result.id} key={result.id}>
-                                        <div className="flex items-center w-full">
-                                            <AccordionTrigger className="flex-1">
-                                                <div className="flex justify-between items-center w-full pr-4">
-                                                    <div className="flex items-center gap-4 text-left">
-                                                        <Avatar className="h-10 w-10 hidden sm:flex">
-                                                            <AvatarImage src={result.userAvatarUrl} alt={result.userName} />
-                                                            <AvatarFallback>{result.userName.charAt(0)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="grid gap-0">
-                                                            <p className="font-semibold">{result.userName}</p>
-                                                            <p className="text-sm text-muted-foreground">
-                                                                Level: {result.level}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="font-bold text-lg">{result.totalObtainedMarks}/{result.totalMarks}</p>
-                                                        <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
-                                                            {result.overallStatus}
-                                                        </Badge>
+                                        <AccordionTrigger>
+                                            <div className="flex justify-between items-center w-full pr-4">
+                                                <div className="flex items-center gap-4 text-left">
+                                                    <Avatar className="h-10 w-10 hidden sm:flex">
+                                                        <AvatarImage src={result.userAvatarUrl} alt={result.userName} />
+                                                        <AvatarFallback>{result.userName.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="grid gap-0">
+                                                        <p className="font-semibold">{result.userName}</p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Level: {result.level}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                            </AccordionTrigger>
-                                            <div className="pr-6 pl-2">
-                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(result)}>
-                                                    <Edit className="mr-2 h-4 w-4" /> Edit
-                                                </Button>
+                                                <div className="text-right">
+                                                    <p className="font-bold text-lg">{result.totalObtainedMarks}/{result.totalMarks}</p>
+                                                    <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
+                                                        {result.overallStatus}
+                                                    </Badge>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <div className="space-y-4">
                                                 <div>
@@ -210,41 +123,6 @@ export default function AdminResultsPage() {
                     </CardContent>
                 </Card>
             </div>
-            
-            {selectedResult && (
-                 <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Edit Exam Result</DialogTitle>
-                            <DialogDescription>
-                                Editing marks for {selectedResult.userName} (Level: {selectedResult.level}).
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            {selectedResult.subjects.map(subject => (
-                                <div key={subject.subject} className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor={`marks-${subject.subject}`} className="text-right col-span-2">
-                                        {subject.subject} (out of {subject.totalMarks})
-                                    </Label>
-                                    <Input
-                                        id={`marks-${subject.subject}`}
-                                        type="number"
-                                        value={subject.obtainedMarks}
-                                        onChange={(e) => handleSubjectMarkChange(subject.subject, e.target.value)}
-                                        className="col-span-2"
-                                        max={subject.totalMarks}
-                                        min={0}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSaveChanges}>Save Changes</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
         </>
     );
 }
