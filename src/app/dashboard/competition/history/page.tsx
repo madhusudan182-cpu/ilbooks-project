@@ -27,7 +27,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Total</TableHead>
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Obtained</TableHead>
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Percentage</TableHead>
-                        <TableHead className="font-bold text-black text-xs text-right px-1 sm:px-2 py-1">Status</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -37,7 +37,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.totalMarks}</TableCell>
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.obtainedMarks}</TableCell>
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.percentage.toFixed(0)}%</TableCell>
-                            <TableCell className={cn("text-right font-bold px-1 sm:px-2 py-1 text-xs", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                            <TableCell className={cn("text-center font-bold px-1 sm:px-2 py-1 text-xs", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
                                 {subjectResult.status}
                             </TableCell>
                         </TableRow>
@@ -47,7 +47,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalMarks}</TableCell>
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalObtainedMarks}</TableCell>
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalPercentage.toFixed(0)}%</TableCell>
-                        <TableCell className={cn("text-right px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                        <TableCell className={cn("text-center font-bold px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
                             {result.overallStatus}
                         </TableCell>
                     </TableRow>
@@ -105,10 +105,10 @@ function ExamHistoryContent() {
                         Here is a list of your past exam attempts.
                     </CardDescription>
                     <div className="pt-4 flex flex-wrap justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult}>
+                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 min-w-[150px]">
                             Last Exam Result
                         </Button>
-                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0}>
+                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 min-w-[150px]">
                             Previous Results
                         </Button>
                     </div>
@@ -125,21 +125,21 @@ function ExamHistoryContent() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="px-1 sm:px-2 py-2 text-xs">Date</TableHead>
-                                        <TableHead className="px-1 sm:px-2 py-2 text-xs">Level</TableHead>
-                                        <TableHead className="text-right px-1 sm:px-2 py-2 text-xs">Percentage</TableHead>
-                                        <TableHead className="text-right px-1 sm:px-2 py-2 text-xs">Status</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Date</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Level</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Percentage</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {userExamHistory.map(result => (
                                         <TableRow key={result.id}>
-                                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{format(new Date(result.examDate), 'dd/MM/yyyy')}</TableCell>
-                                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{result.level}</TableCell>
-                                            <TableCell className="text-right font-medium px-1 sm:px-2 py-1 text-xs">
+                                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{format(new Date(result.examDate), 'dd/MM/yyyy')}</TableCell>
+                                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.level}</TableCell>
+                                            <TableCell className="text-center font-medium px-1 sm:px-2 py-1 text-xs">
                                                 {result.totalPercentage.toFixed(0)}%
                                             </TableCell>
-                                            <TableCell className={cn("text-right font-bold px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                                            <TableCell className={cn("text-center font-bold px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
                                                 {result.overallStatus}
                                             </TableCell>
                                         </TableRow>
