@@ -63,9 +63,12 @@ export default function AdminResultsPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="font-bold text-lg">{result.totalObtainedMarks}/{result.totalMarks}</p>
-                                                    <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
-                                                        {result.overallStatus}
-                                                    </Badge>
+                                                    <div className="flex justify-end items-center gap-2">
+                                                        <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
+                                                            {result.overallStatus}
+                                                        </Badge>
+                                                        <span className="text-sm font-semibold text-muted-foreground">({result.totalPercentage.toFixed(0)}%)</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </AccordionTrigger>
