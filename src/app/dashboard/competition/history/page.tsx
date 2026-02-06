@@ -43,7 +43,7 @@ export default function ExamHistoryPage() {
                                         <TableHead>Date</TableHead>
                                         <TableHead>Level</TableHead>
                                         <TableHead>Score</TableHead>
-                                        <TableHead className="text-right">Status</TableHead>
+                                        <TableHead className="text-right">Percentage</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -52,10 +52,8 @@ export default function ExamHistoryPage() {
                                             <TableCell>{format(new Date(result.examDate), 'dd/MM/yyyy')}</TableCell>
                                             <TableCell>{result.level}</TableCell>
                                             <TableCell className="font-medium">{result.totalObtainedMarks}/{result.totalMarks}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
-                                                    {result.overallStatus}
-                                                </Badge>
+                                            <TableCell className="text-right font-medium">
+                                                {result.totalPercentage.toFixed(0)}%
                                             </TableCell>
                                         </TableRow>
                                     ))}
