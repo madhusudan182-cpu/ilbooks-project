@@ -23,31 +23,31 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
             <Table>
                 <TableHeader>
                     <TableRow className="bg-yellow-300 hover:bg-yellow-300">
-                        <TableHead className="font-bold text-black text-xs px-2 py-2">Subject</TableHead>
-                        <TableHead className="font-bold text-black text-xs text-center px-2 py-2">Total Marks</TableHead>
-                        <TableHead className="font-bold text-black text-xs text-center px-2 py-2">Obtained</TableHead>
-                        <TableHead className="font-bold text-black text-xs text-center px-2 py-2">Percentage</TableHead>
-                        <TableHead className="font-bold text-black text-xs text-right px-2 py-2">Status</TableHead>
+                        <TableHead className="font-bold text-black text-xs px-1 sm:px-2 py-1">Subject</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Total</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Obtained</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">%</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-right px-1 sm:px-2 py-1">Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {result.subjects.map((subjectResult) => (
                         <TableRow key={subjectResult.subject}>
-                            <TableCell className="px-2 py-2 text-sm">{subjectResult.subject}</TableCell>
-                            <TableCell className="text-center px-2 py-2 text-sm">{subjectResult.totalMarks}</TableCell>
-                            <TableCell className="text-center px-2 py-2 text-sm">{subjectResult.obtainedMarks}</TableCell>
-                            <TableCell className="text-center px-2 py-2 text-sm">{subjectResult.percentage.toFixed(0)}%</TableCell>
-                            <TableCell className={cn("text-right font-bold px-2 py-2 text-sm", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{subjectResult.subject}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.totalMarks}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.obtainedMarks}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.percentage.toFixed(0)}%</TableCell>
+                            <TableCell className={cn("text-right font-bold px-1 sm:px-2 py-1 text-xs", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
                                 {subjectResult.status}
                             </TableCell>
                         </TableRow>
                     ))}
                     <TableRow className="font-bold bg-muted/80">
-                        <TableCell className="px-2 py-2 text-sm">Total</TableCell>
-                        <TableCell className="text-center px-2 py-2 text-sm">{result.totalMarks}</TableCell>
-                        <TableCell className="text-center px-2 py-2 text-sm">{result.totalObtainedMarks}</TableCell>
-                        <TableCell className="text-center px-2 py-2 text-sm">{result.totalPercentage.toFixed(0)}%</TableCell>
-                        <TableCell className={cn("text-right px-2 py-2 text-sm", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                        <TableCell className="px-1 sm:px-2 py-1 text-xs">Total</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalMarks}</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalObtainedMarks}</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalPercentage.toFixed(0)}%</TableCell>
+                        <TableCell className={cn("text-right px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
                             {result.overallStatus}
                         </TableCell>
                     </TableRow>
@@ -115,17 +115,17 @@ function ExamHistoryContent() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="px-2 py-2 text-xs">Date</TableHead>
-                                        <TableHead className="px-2 py-2 text-xs">Level</TableHead>
-                                        <TableHead className="text-right px-2 py-2 text-xs">Percentage</TableHead>
+                                        <TableHead className="px-1 sm:px-2 py-2 text-xs">Date</TableHead>
+                                        <TableHead className="px-1 sm:px-2 py-2 text-xs">Level</TableHead>
+                                        <TableHead className="text-right px-1 sm:px-2 py-2 text-xs">Percentage</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {userExamHistory.map(result => (
                                         <TableRow key={result.id}>
-                                            <TableCell className="px-2 py-2 text-sm">{format(new Date(result.examDate), 'dd/MM/yyyy')}</TableCell>
-                                            <TableCell className="px-2 py-2 text-sm">{result.level}</TableCell>
-                                            <TableCell className="text-right font-medium px-2 py-2 text-sm">
+                                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{format(new Date(result.examDate), 'dd/MM/yyyy')}</TableCell>
+                                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{result.level}</TableCell>
+                                            <TableCell className="text-right font-medium px-1 sm:px-2 py-1 text-xs">
                                                 {result.totalPercentage.toFixed(0)}%
                                             </TableCell>
                                         </TableRow>
