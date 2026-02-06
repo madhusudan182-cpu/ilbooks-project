@@ -122,10 +122,10 @@ function ExamHistoryContent() {
                         Here is a list of your past exam attempts.
                     </CardDescription>
                     <div className="pt-4 flex flex-wrap justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
+                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-4 py-2 text-sm">
                             Last Exam Result
                         </Button>
-                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
+                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto px-4 py-2 text-sm">
                             Previous Results
                         </Button>
                     </div>
@@ -141,11 +141,11 @@ function ExamHistoryContent() {
                         <div className="overflow-x-auto mt-4 animate-fade-in-up">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Date</TableHead>
-                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Level</TableHead>
-                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Percentage</TableHead>
-                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs">Status</TableHead>
+                                    <TableRow className="bg-yellow-300 hover:bg-yellow-300">
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs font-bold text-black">Date</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs font-bold text-black">Level</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs font-bold text-black">Percentage</TableHead>
+                                        <TableHead className="text-center px-1 sm:px-2 py-2 text-xs font-bold text-black">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
