@@ -98,7 +98,7 @@ export default function CompetitionPage() {
                         <Badge className="text-base">Your Current Level: {userLevel}</Badge>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="bg-pink-100 text-pink-800 border-pink-200 hover:bg-pink-200 hover:text-pink-900">
+                                <Button variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
                                     <History className="mr-2 h-4 w-4" />
                                     Exam History
                                 </Button>
