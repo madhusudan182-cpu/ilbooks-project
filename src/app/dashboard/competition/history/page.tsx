@@ -23,7 +23,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
             <Table>
                 <TableHeader>
                     <TableRow className="bg-yellow-300 hover:bg-yellow-300">
-                        <TableHead className="font-bold text-black text-xs px-1 sm:px-2 py-1">Subject</TableHead>
+                        <TableHead className="font-bold text-black text-xs px-1 sm:px-2 py-1 text-center">Subject</TableHead>
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Total</TableHead>
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Obtained</TableHead>
                         <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Percentage</TableHead>
@@ -33,7 +33,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
                 <TableBody>
                     {result.subjects.map((subjectResult) => (
                         <TableRow key={subjectResult.subject}>
-                            <TableCell className="px-1 sm:px-2 py-1 text-xs">{subjectResult.subject}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.subject}</TableCell>
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.totalMarks}</TableCell>
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.obtainedMarks}</TableCell>
                             <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.percentage.toFixed(0)}%</TableCell>
@@ -43,7 +43,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
                         </TableRow>
                     ))}
                     <TableRow className="font-bold bg-muted/80">
-                        <TableCell className="px-1 sm:px-2 py-1 text-xs">Total</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">Total</TableCell>
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalMarks}</TableCell>
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalObtainedMarks}</TableCell>
                         <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalPercentage.toFixed(0)}%</TableCell>
@@ -104,11 +104,11 @@ function ExamHistoryContent() {
                     <CardDescription>
                         Here is a list of your past exam attempts.
                     </CardDescription>
-                    <div className="pt-4 flex flex-wrap justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 min-w-[150px]">
+                    <div className="pt-4 flex justify-center gap-2">
+                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90">
                             Last Exam Result
                         </Button>
-                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 min-w-[150px]">
+                        <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90">
                             Previous Results
                         </Button>
                     </div>
