@@ -69,11 +69,11 @@ export default function SocialPage() {
     <div className="p-4 md:p-6 lg:p-8">
       <h1 className="text-2xl font-bold font-headline mb-6 text-center">Social Circle</h1>
       <Tabs defaultValue="find">
-        <TabsList className="grid w-full grid-cols-4 bg-primary/10">
-          <TabsTrigger value="find">Find People</TabsTrigger>
-          <TabsTrigger value="following"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
-          <TabsTrigger value="followers"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
-          <TabsTrigger value="mutual"><Users className="w-4 h-4 mr-2" />Mutual</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
+          <TabsTrigger value="find" className="bg-blue-500 text-white data-[state=active]:bg-blue-600">Find People</TabsTrigger>
+          <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400"><UserCheck className="w-4 h-4 mr-2" />Following</TabsTrigger>
+          <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600"><UserPlus className="w-4 h-4 mr-2" />Followers</TabsTrigger>
+          <TabsTrigger value="mutual" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400"><Users className="w-4 h-4 mr-2" />Mutual</TabsTrigger>
         </TabsList>
         <TabsContent value="find" className="mt-6">
           <UserList users={mockUsers} />
