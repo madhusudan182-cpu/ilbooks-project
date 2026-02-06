@@ -15,6 +15,7 @@ import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MoreVertical, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
 
 // In a real app, you'd get the current user from an auth context.
 // We simulate by picking a user. mockUsers[0] is an admin.
@@ -110,6 +111,7 @@ export default function MessagesPage() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const truncateMessage = (message: string, maxLength = 20): string => {
     if (message.length <= maxLength) {
@@ -155,11 +157,6 @@ export default function MessagesPage() {
   const handleSendMessage = (e: React.FormEvent) => {
       e.preventDefault();
       
-      if (newMessage.trim() === '') {
-          setNewMessage(''); // Clear any whitespace
-          return;
-      }
-
       const newMsg = {
           id: Date.now(),
           text: newMessage,
@@ -169,19 +166,24 @@ export default function MessagesPage() {
       };
 
       if (selectedConversation) {
-        const updatedConversation = {
-            ...selectedConversation,
-            messages: [...selectedConversation.messages, newMsg],
-            lastMessage: newMsg.text,
-            timestamp: newMsg.timestamp,
-        };
-
-        setSelectedConversation(updatedConversation);
-        const convIndex = allConversations.findIndex(c => c.user.id === selectedConversation.user.id);
-        if (convIndex > -1) {
-            allConversations[convIndex] = updatedConversation;
+        if (newMessage.trim() !== '') {
+            const updatedConversation = {
+                ...selectedConversation,
+                messages: [...selectedConversation.messages, newMsg],
+                lastMessage: newMsg.text,
+                timestamp: newMsg.timestamp,
+            };
+    
+            setSelectedConversation(updatedConversation);
+            const convIndex = allConversations.findIndex(c => c.user.id === selectedConversation.user.id);
+            if (convIndex > -1) {
+                allConversations[convIndex] = updatedConversation;
+            }
+            setNewMessage('');
+        } else if (inputRef.current) {
+            // If message is empty and enter is pressed, just blur.
+            inputRef.current.blur();
         }
-        setNewMessage('');
       }
   };
 
@@ -362,11 +364,11 @@ export default function MessagesPage() {
                 </div>
                 {selectedConversation.user.name !== 'ILBooks' && (
                     <div className="flex items-center flex-shrink-0">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Audio call feature coming soon!" })}>
                             <Phone className="w-4 h-4" />
                             <span className="sr-only">Audio Call</span>
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Video call feature coming soon!" })}>
                             <Video className="w-4 h-4" />
                             <span className="sr-only">Video Call</span>
                         </Button>
@@ -438,21 +440,21 @@ export default function MessagesPage() {
                 </div>
             </ScrollArea>
             <div className="px-1 border-t bg-background">
-                <form onSubmit={handleSendMessage} className="flex items-center gap-1">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9">
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => toast({ title: "File attachment coming soon!" })}>
                             <Paperclip className="w-5 h-5"/>
                             <span className="sr-only">Attach file</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Camera feature coming soon!" })}>
                             <Camera className="w-5 h-5"/>
                             <span className="sr-only">Take a photo</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Image attachment coming soon!" })}>
                             <FileImage className="w-5 h-5"/>
                             <span className="sr-only">Attach an image</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-9 w-9 -ml-2">
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Voice message feature coming soon!" })}>
                             <Mic className="w-5 h-5"/>
                             <span className="sr-only">Record a voice message</span>
                         </Button>
@@ -467,7 +469,7 @@ export default function MessagesPage() {
                           onFocus={() => setIsInputFocused(true)}
                           onBlur={() => setIsInputFocused(false)}
                       />
-                      <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                      <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => toast({ title: "Emoji picker coming soon!" })}>
                           <Smile className="w-4 h-4 text-muted-foreground" />
                           <span className="sr-only">Add emoji</span>
                       </Button>
