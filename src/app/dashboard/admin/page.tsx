@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Shield, Book, ListChecks, BookOpen, Package } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -7,18 +9,26 @@ import { cn } from '@/lib/utils';
 import type { Question, Book as BookType } from '@/lib/types';
 import { mockBooks, mockUsers } from "@/lib/data";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function AdminPage() {
+    const router = useRouter();
     // In a real app, this user would come from an authentication session.
     // We are using mockUsers[0] which is an admin. 
     // To test non-admin protection, you could change this to mockUsers[1] and attempt to access /dashboard/admin.
     const currentUser = mockUsers[0];
     
+    useEffect(() => {
+        if (!currentUser.isAdmin) {
+            router.push('/dashboard');
+        }
+    }, [currentUser.isAdmin, router]);
+    
     if (!currentUser.isAdmin) {
-        redirect('/dashboard');
+        return null; // Or a loading spinner while redirecting
     }
 
     const allLevels: string[] = [];
