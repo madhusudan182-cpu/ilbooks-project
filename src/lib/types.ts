@@ -87,3 +87,25 @@ export type Syllabus = {
     [subjectName: string]: SyllabusTopic;
   };
 };
+
+export type SubjectResult = {
+  subject: string;
+  totalMarks: number;
+  obtainedMarks: number;
+  percentage: number;
+  status: 'Passed' | 'Failed';
+};
+
+export type ExamResult = {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatarUrl: string;
+  level: string;
+  totalMarks: number;
+  totalObtainedMarks: number;
+  totalPercentage: number;
+  overallStatus: 'Passed' | 'Failed';
+  subjects: SubjectResult[];
+  examDate: string;
+};

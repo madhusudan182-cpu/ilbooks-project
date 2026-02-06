@@ -1,4 +1,4 @@
-import type { User, Post, Book } from './types';
+import type { User, Post, Book, ExamResult } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -150,4 +150,55 @@ export const mockBooks: Book[] = [
         level: 'all',
         category: 'vocab_grammar',
     },
+];
+
+export const mockExamResults: ExamResult[] = [
+  {
+    id: 'result-1',
+    userId: 'user-2',
+    userName: 'Ben Carter',
+    userAvatarUrl: 'https://picsum.photos/seed/av2/100/100',
+    level: '1.5',
+    totalMarks: 20,
+    totalObtainedMarks: 15,
+    totalPercentage: 75,
+    overallStatus: 'Passed',
+    subjects: [
+      { subject: 'Bengali', totalMarks: 10, obtainedMarks: 8, percentage: 80, status: 'Passed' },
+      { subject: 'English', totalMarks: 10, obtainedMarks: 7, percentage: 70, status: 'Passed' },
+    ],
+    examDate: '2 days ago',
+  },
+  {
+    id: 'result-2',
+    userId: 'user-4',
+    userName: 'David Hasan',
+    userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
+    level: '0.5',
+    totalMarks: 30,
+    totalObtainedMarks: 17,
+    totalPercentage: 56.67,
+    overallStatus: 'Failed',
+    subjects: [
+        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 10, percentage: 66.67, status: 'Passed' },
+        { subject: 'English', totalMarks: 15, obtainedMarks: 7, percentage: 46.67, status: 'Failed' },
+    ],
+    examDate: '3 days ago',
+  },
+    {
+    id: 'result-3',
+    userId: 'user-3',
+    userName: 'Cathy Liu',
+    userAvatarUrl: 'https://picsum.photos/seed/av3/100/100',
+    level: '3.0',
+    totalMarks: 25,
+    totalObtainedMarks: 22,
+    totalPercentage: 88,
+    overallStatus: 'Passed',
+    subjects: [
+        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 13, percentage: 86.67, status: 'Passed' },
+        { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
+    ],
+    examDate: '5 days ago',
+  },
 ];

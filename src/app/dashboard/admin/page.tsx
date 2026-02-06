@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen, Package } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -52,6 +52,18 @@ export default function AdminPage() {
         <CardContent>
             <Button asChild>
               <Link href="/dashboard/admin/orders">View All Orders</Link>
+            </Button>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ClipboardList className="text-primary w-6 h-6"/> Exam Results</CardTitle>
+            <CardDescription>View the results of all user exam attempts.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Button asChild>
+              <Link href="/dashboard/admin/results">View User Results</Link>
             </Button>
         </CardContent>
       </Card>
