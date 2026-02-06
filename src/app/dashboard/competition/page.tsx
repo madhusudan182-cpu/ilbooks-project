@@ -75,7 +75,7 @@ export default function CompetitionPage() {
                 <div className="text-center">
                     <h1 className="text-4xl font-bold font-headline">Competition</h1>
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
-                    <div className="flex justify-center items-center gap-2 mt-4">
+                    <div className="flex flex-col justify-center items-center gap-2 mt-4">
                         <Badge className="text-base">Your Current Level: {userLevel}</Badge>
                         <Button asChild variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
                             <Link href="/dashboard/competition/history">
