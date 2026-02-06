@@ -59,9 +59,12 @@ export default function ExamHistoryPage() {
                     ) : (
                         <p className="text-muted-foreground text-center py-8">You have no exam history yet.</p>
                     )}
-                     <div className="p-4 text-center">
+                     <div className="p-4 flex flex-wrap justify-center gap-2">
                         <Button asChild>
-                            <Link href="/dashboard/competition">Back</Link>
+                            <Link href="#">Last Exam Result</Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="#">Previous Exam Result</Link>
                         </Button>
                     </div>
                 </CardContent>
