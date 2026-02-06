@@ -233,6 +233,22 @@ export const mockExamResults: ExamResult[] = [
     ],
     examDate: '2024-07-20',
   },
+  {
+    id: 'result-6',
+    userId: 'user-4',
+    userName: 'David Hasan',
+    userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
+    level: '0.0',
+    totalMarks: 60,
+    totalObtainedMarks: 45,
+    totalPercentage: 75,
+    overallStatus: 'Passed',
+    subjects: [
+      { subject: 'Bengali', totalMarks: 30, obtainedMarks: 20, percentage: 66.67, status: 'Passed' },
+      { subject: 'English', totalMarks: 30, obtainedMarks: 25, percentage: 83.33, status: 'Passed' },
+    ],
+    examDate: '2024-07-28',
+  },
 ];
 
 export const mockTransactions: Transaction[] = [
