@@ -9,6 +9,7 @@ import { mockTransactions } from '@/lib/data';
 import type { Transaction } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 export default function AdminTransactionsPage() {
     const transactions = mockTransactions;
@@ -59,7 +60,7 @@ export default function AdminTransactionsPage() {
                             <TableBody>
                                 {transactions.map(transaction => (
                                     <TableRow key={transaction.id}>
-                                        <TableCell className="text-muted-foreground">{transaction.date}</TableCell>
+                                        <TableCell className="text-muted-foreground">{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 {getIconForType(transaction.type)}

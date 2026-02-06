@@ -167,7 +167,7 @@ export const mockExamResults: ExamResult[] = [
       { subject: 'Bengali', totalMarks: 10, obtainedMarks: 8, percentage: 80, status: 'Passed' },
       { subject: 'English', totalMarks: 10, obtainedMarks: 7, percentage: 70, status: 'Passed' },
     ],
-    examDate: '2 days ago',
+    examDate: '2024-07-22',
   },
   {
     id: 'result-2',
@@ -183,7 +183,7 @@ export const mockExamResults: ExamResult[] = [
         { subject: 'Bengali', totalMarks: 15, obtainedMarks: 10, percentage: 66.67, status: 'Passed' },
         { subject: 'English', totalMarks: 15, obtainedMarks: 7, percentage: 46.67, status: 'Failed' },
     ],
-    examDate: '3 days ago',
+    examDate: '2024-07-21',
   },
     {
     id: 'result-3',
@@ -199,14 +199,14 @@ export const mockExamResults: ExamResult[] = [
         { subject: 'Bengali', totalMarks: 15, obtainedMarks: 13, percentage: 86.67, status: 'Passed' },
         { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
     ],
-    examDate: '5 days ago',
+    examDate: '2024-07-19',
   },
 ];
 
 export const mockTransactions: Transaction[] = [
   {
     id: 'txn-1',
-    date: '2 days ago',
+    date: '2024-07-22',
     type: 'Exam Fee',
     amount: 20,
     userId: 'user-2',
@@ -215,7 +215,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: 'txn-2',
-    date: '2 days ago',
+    date: '2024-07-22',
     type: 'Book Shop',
     amount: 800,
     userId: 'user-3',
@@ -224,7 +224,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: 'txn-3',
-    date: '3 days ago',
+    date: '2024-07-21',
     type: 'Patronage',
     amount: 1000,
     userId: 'user-1',
@@ -233,7 +233,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: 'txn-4',
-    date: '5 days ago',
+    date: '2024-07-19',
     type: 'Exam Fee',
     amount: 20,
     userId: 'user-4',
@@ -260,6 +260,6 @@ export const mockPrizeWinners: PrizeWinner[] = [
     level: '2.1',
     prize: 'BDT 250 Book Coupon',
     status: 'Awarded',
-    dateAwarded: '1 day ago'
+    dateAwarded: '2024-07-23'
   },
 ];

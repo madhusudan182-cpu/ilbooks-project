@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 export default function AdminPrizesPage() {
     const [winners, setWinners] = useState(mockPrizeWinners);
@@ -20,7 +21,7 @@ export default function AdminPrizesPage() {
     const handleMarkAsAwarded = (winnerId: string) => {
         setWinners(prevWinners => 
             prevWinners.map(winner => 
-                winner.id === winnerId ? { ...winner, status: 'Awarded', dateAwarded: 'Just now' } : winner
+                winner.id === winnerId ? { ...winner, status: 'Awarded', dateAwarded: new Date().toISOString() } : winner
             )
         );
         toast({ title: "Prize status updated to 'Awarded'" });
@@ -84,7 +85,7 @@ export default function AdminPrizesPage() {
                                                 {winner.status}
                                             </Badge>
                                             {winner.dateAwarded && (
-                                                <p className="text-xs text-muted-foreground mt-1">{winner.dateAwarded}</p>
+                                                <p className="text-xs text-muted-foreground mt-1">{format(new Date(winner.dateAwarded), 'dd/MM/yyyy')}</p>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">

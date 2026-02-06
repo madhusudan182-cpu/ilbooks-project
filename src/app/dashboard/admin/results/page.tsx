@@ -11,6 +11,7 @@ import { mockExamResults } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 export default function AdminResultsPage() {
     const results = mockExamResults;
@@ -70,7 +71,7 @@ export default function AdminResultsPage() {
                                                 <h4 className="font-semibold">Result Details</h4>
                                                 <p className="text-sm text-muted-foreground">
                                                     User: <Link href={`/dashboard/user/${result.userId}`} className="text-primary underline">{result.userName}</Link> <br />
-                                                    Exam Date: {result.examDate}
+                                                    Exam Date: {format(new Date(result.examDate), 'dd/MM/yyyy')}
                                                 </p>
                                             </div>
                                             <div>
