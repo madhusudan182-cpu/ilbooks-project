@@ -127,33 +127,35 @@ export default function AdminResultsPage() {
                             <Accordion type="multiple" className="w-full">
                                 {sortedResults.map(result => (
                                     <AccordionItem value={result.id} key={result.id}>
-                                        <AccordionTrigger>
-                                            <div className="flex justify-between items-center w-full pr-4">
-                                                <div className="flex items-center gap-4 text-left">
-                                                    <Avatar className="h-10 w-10 hidden sm:flex">
-                                                        <AvatarImage src={result.userAvatarUrl} alt={result.userName} />
-                                                        <AvatarFallback>{result.userName.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="grid gap-0">
-                                                        <p className="font-semibold">{result.userName}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Level: {result.level}
-                                                        </p>
+                                        <div className="flex items-center w-full">
+                                            <AccordionTrigger className="flex-1">
+                                                <div className="flex justify-between items-center w-full pr-4">
+                                                    <div className="flex items-center gap-4 text-left">
+                                                        <Avatar className="h-10 w-10 hidden sm:flex">
+                                                            <AvatarImage src={result.userAvatarUrl} alt={result.userName} />
+                                                            <AvatarFallback>{result.userName.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="grid gap-0">
+                                                            <p className="font-semibold">{result.userName}</p>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                Level: {result.level}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="flex items-center gap-2">
                                                     <div className="text-right">
                                                         <p className="font-bold text-lg">{result.totalObtainedMarks}/{result.totalMarks}</p>
                                                         <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
                                                             {result.overallStatus}
                                                         </Badge>
                                                     </div>
-                                                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleEditClick(result); }}>
-                                                        <Edit className="mr-2 h-4 w-4" /> Edit
-                                                    </Button>
                                                 </div>
+                                            </AccordionTrigger>
+                                            <div className="pr-6 pl-2">
+                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(result)}>
+                                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                                </Button>
                                             </div>
-                                        </AccordionTrigger>
+                                        </div>
                                         <AccordionContent>
                                             <div className="space-y-4">
                                                 <div>
