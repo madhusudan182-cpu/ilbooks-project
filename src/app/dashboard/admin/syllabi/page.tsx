@@ -14,11 +14,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
+interface EditableSubject extends SyllabusTopic {
+    id: string; // for stable key
+    name: string;
+}
+
 export default function AllSyllabiPage() {
     const [isClient, setIsClient] = useState(false);
     const [syllabi, setSyllabi] = useState<Syllabus[]>(() => JSON.parse(JSON.stringify(allSyllabi))); // Deep copy for safety
     const [editingLevel, setEditingLevel] = useState<string | null>(null);
-    const [editedSyllabus, setEditedSyllabus] = useState<Syllabus | null>(null);
+    const [editedSubjects, setEditedSubjects] = useState<EditableSubject[]>([]);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -35,26 +40,49 @@ export default function AllSyllabiPage() {
     const handleEditClick = (level: string) => {
         const syllabusToEdit = syllabi.find(s => s.level === level) || { level, subjects: {} };
         setEditingLevel(level);
-        setEditedSyllabus(JSON.parse(JSON.stringify(syllabusToEdit))); // Deep copy to avoid direct state mutation
+        const subjectsAsArray = Object.entries(syllabusToEdit.subjects).map(([name, details], index) => ({
+            id: `${level}-${name.replace(/\s+/g, '-')}-${index}`,
+            name,
+            ...details
+        }));
+        setEditedSubjects(subjectsAsArray);
     };
 
     const handleCancelClick = () => {
         setEditingLevel(null);
-        setEditedSyllabus(null);
+        setEditedSubjects([]);
     };
 
     const handleSaveClick = () => {
-        if (!editedSyllabus || !editingLevel) return;
+        if (!editingLevel) return;
 
-        // Filter out subjects with empty names
-        const cleanedSubjects: { [subjectName: string]: SyllabusTopic } = {};
-        Object.entries(editedSyllabus.subjects).forEach(([name, details]) => {
-            if (name.trim()) {
-                cleanedSubjects[name.trim()] = details;
+        const newSubjectsObject: { [subjectName: string]: SyllabusTopic } = {};
+        let hasError = false;
+        const subjectNames = new Set<string>();
+
+        for (const subject of editedSubjects) {
+            const trimmedName = subject.name.trim();
+            if (!trimmedName) continue; // Skip subjects with empty names
+
+            if (subjectNames.has(trimmedName)) {
+                toast({
+                    title: "Error: Duplicate subject name",
+                    description: `The subject name "${trimmedName}" is used more than once. Please use unique names.`,
+                    variant: "destructive",
+                });
+                hasError = true;
+                break;
             }
-        });
-        const finalSyllabus = { ...editedSyllabus, subjects: cleanedSubjects };
+            subjectNames.add(trimmedName);
+            newSubjectsObject[trimmedName] = { marks: subject.marks, topics: subject.topics };
+        }
 
+        if (hasError) return;
+
+        const finalSyllabus: Syllabus = {
+            level: editingLevel,
+            subjects: newSubjectsObject,
+        };
 
         setSyllabi(currentSyllabi => {
             const existingIndex = currentSyllabi.findIndex(s => s.level === editingLevel);
@@ -63,57 +91,44 @@ export default function AllSyllabiPage() {
                 newSyllabi[existingIndex] = finalSyllabus;
                 return newSyllabi;
             } else {
-                return [...currentSyllabi, finalSyllabus];
+                return [...currentSyllabi, finalSyllabus].sort((a,b) => parseFloat(a.level) - parseFloat(b.level));
             }
         });
+
         toast({ title: "Syllabus saved!", description: `Changes for Level ${editingLevel} have been saved for this session.` });
         setEditingLevel(null);
-        setEditedSyllabus(null);
+        setEditedSubjects([]);
     };
     
-    const handleSubjectChange = (subjectName: string, field: 'marks' | 'topics', value: string | number) => {
-        if (!editedSyllabus) return;
-        const newSubjects = { ...editedSyllabus.subjects };
-        if(newSubjects[subjectName]) {
-            if (field === 'marks') {
-                newSubjects[subjectName] = { ...newSubjects[subjectName], marks: Number(value) || 0 };
-            } else {
-                newSubjects[subjectName] = { ...newSubjects[subjectName], topics: (value as string).split('\n') };
+    const handleEditedSubjectChange = (id: string, field: 'name' | 'marks' | 'topics', value: string | number) => {
+        setEditedSubjects(currentSubjects => currentSubjects.map(s => {
+            if (s.id === id) {
+                if (field === 'topics') {
+                    return { ...s, topics: (value as string).split('\n') };
+                }
+                if (field === 'marks') {
+                    return { ...s, marks: Number(value) || 0 };
+                }
+                return { ...s, [field]: value };
             }
-            setEditedSyllabus({ ...editedSyllabus, subjects: newSubjects });
-        }
-    };
-
-    const handleSubjectNameChange = (oldName: string, newName: string) => {
-        if (!editedSyllabus || oldName === newName || !newName) return;
-        const newSubjects: { [subjectName: string]: SyllabusTopic } = {};
-        Object.entries(editedSyllabus.subjects).forEach(([name, details]) => {
-            if (name === oldName) {
-                newSubjects[newName] = details;
-            } else {
-                newSubjects[name] = details;
-            }
-        });
-        setEditedSyllabus({ ...editedSyllabus, subjects: newSubjects });
+            return s;
+        }));
     };
 
     const handleAddSubject = () => {
-        if (!editedSyllabus) return;
-        const newSubjectName = `New Subject ${Object.keys(editedSyllabus.subjects).length + 1}`;
-        setEditedSyllabus({
-            ...editedSyllabus,
-            subjects: {
-                ...editedSyllabus.subjects,
-                [newSubjectName]: { marks: 10, topics: ['New Topic'] }
-            }
-        });
+        if (!editingLevel) return;
+        const newId = `new-subject-${Date.now()}`;
+        const newSubject: EditableSubject = {
+            id: newId,
+            name: `New Subject ${editedSubjects.length + 1}`,
+            marks: 10,
+            topics: ['New Topic']
+        };
+        setEditedSubjects(current => [...current, newSubject]);
     };
 
-    const handleRemoveSubject = (subjectName: string) => {
-        if (!editedSyllabus) return;
-        const newSubjects = { ...editedSyllabus.subjects };
-        delete newSubjects[subjectName];
-        setEditedSyllabus({ ...editedSyllabus, subjects: newSubjects });
+    const handleRemoveSubject = (id: string) => {
+        setEditedSubjects(current => current.filter(s => s.id !== id));
     };
 
 
@@ -160,38 +175,38 @@ export default function AllSyllabiPage() {
                                         </div>
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        {isEditing && editedSyllabus ? (
+                                        {isEditing ? (
                                             <div className="p-4 bg-muted/50 rounded-lg">
-                                                {Object.entries(editedSyllabus.subjects).map(([subjectName, details]) => (
-                                                    <div key={subjectName} className="mb-4 p-4 border rounded-md bg-background">
+                                                {editedSubjects.map((subject) => (
+                                                    <div key={subject.id} className="mb-4 p-4 border rounded-md bg-background">
                                                         <div className="flex justify-between items-center mb-2">
                                                             <Input
-                                                                defaultValue={subjectName}
-                                                                onBlur={(e) => handleSubjectNameChange(subjectName, e.target.value)}
+                                                                value={subject.name}
+                                                                onChange={(e) => handleEditedSubjectChange(subject.id, 'name', e.target.value)}
                                                                 className="font-semibold text-lg"
                                                             />
-                                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveSubject(subjectName)}>
+                                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveSubject(subject.id)}>
                                                                 <Trash2 className="h-4 w-4 text-destructive" />
                                                             </Button>
                                                         </div>
                                                         <div className="grid gap-2">
                                                             <div>
-                                                                <Label htmlFor={`marks-${level}-${subjectName}`} className="text-sm font-medium">Marks</Label>
+                                                                <Label htmlFor={`marks-${level}-${subject.id}`} className="text-sm font-medium">Marks</Label>
                                                                 <Input
-                                                                    id={`marks-${level}-${subjectName}`}
+                                                                    id={`marks-${level}-${subject.id}`}
                                                                     type="number"
-                                                                    value={details.marks}
-                                                                    onChange={(e) => handleSubjectChange(subjectName, 'marks', e.target.value)}
+                                                                    value={subject.marks}
+                                                                    onChange={(e) => handleEditedSubjectChange(subject.id, 'marks', e.target.value)}
                                                                     className="w-24"
                                                                 />
                                                             </div>
                                                             <div>
-                                                                <Label htmlFor={`topics-${level}-${subjectName}`} className="text-sm font-medium">Topics (one per line)</Label>
+                                                                <Label htmlFor={`topics-${level}-${subject.id}`} className="text-sm font-medium">Topics (one per line)</Label>
                                                                 <Textarea
-                                                                    id={`topics-${level}-${subjectName}`}
-                                                                    value={details.topics.join('\n')}
-                                                                    onChange={(e) => handleSubjectChange(subjectName, 'topics', e.target.value)}
-                                                                    rows={details.topics.length + 1}
+                                                                    id={`topics-${level}-${subject.id}`}
+                                                                    value={subject.topics.join('\n')}
+                                                                    onChange={(e) => handleEditedSubjectChange(subject.id, 'topics', e.target.value)}
+                                                                    rows={subject.topics.length + 1}
                                                                 />
                                                             </div>
                                                         </div>
@@ -206,7 +221,7 @@ export default function AllSyllabiPage() {
                                                     <Button onClick={handleSaveClick}><Save className="mr-2 h-4 w-4" />Save</Button>
                                                 </div>
                                             </div>
-                                        ) : syllabus ? (
+                                        ) : syllabus && Object.keys(syllabus.subjects).length > 0 ? (
                                             Object.entries(syllabus.subjects).map(([subjectName, details]) => (
                                                 <div key={subjectName} className="mb-4 last:mb-0">
                                                     <h4 className="font-semibold">{subjectName} ({details.marks} Marks)</h4>
@@ -216,7 +231,7 @@ export default function AllSyllabiPage() {
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-muted-foreground">Syllabus not yet defined for this level.</p>
+                                            <p className="text-muted-foreground p-4">Syllabus not yet defined for this level.</p>
                                         )}
                                     </AccordionContent>
                                 </AccordionItem>
