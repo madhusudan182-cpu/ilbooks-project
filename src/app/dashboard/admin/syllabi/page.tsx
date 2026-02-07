@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -25,7 +25,8 @@ interface EditableSubject extends SyllabusTopic {
 
 export default function AllSyllabiPage() {
     const firestore = useFirestore();
-    const { data: syllabi, loading: syllabiLoading } = useCollection<Syllabus>(firestore ? collection(firestore, 'syllabi') : null);
+    const syllabiQuery = useMemo(() => (firestore ? collection(firestore, 'syllabi') : null), [firestore]);
+    const { data: syllabi, loading: syllabiLoading } = useCollection<Syllabus>(syllabiQuery);
     
     const [editingLevel, setEditingLevel] = useState<string | null>(null);
     const [editedSubjects, setEditedSubjects] = useState<EditableSubject[]>([]);
