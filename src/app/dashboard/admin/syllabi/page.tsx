@@ -56,13 +56,13 @@ export default function AllSyllabiPage() {
     const handleSaveClick = () => {
         if (!editingLevel) return;
 
-        const newSubjectsObject: { [subjectName: string]: SyllabusTopic } = {};
+        const newSubjectsObject: { [subjectName: string]: Omit<SyllabusTopic, 'id' | 'name'> } = {};
         let hasError = false;
         const subjectNames = new Set<string>();
 
         for (const subject of editedSubjects) {
             const trimmedName = subject.name.trim();
-            if (!trimmedName) continue; // Skip subjects with empty names
+            if (!trimmedName) continue; 
 
             if (subjectNames.has(trimmedName)) {
                 toast({
@@ -74,11 +74,9 @@ export default function AllSyllabiPage() {
                 break;
             }
             subjectNames.add(trimmedName);
-            // a subject must have a name to be saved
+            
             const { id, name, ...rest } = subject;
-            if (name) {
-             newSubjectsObject[name] = rest;
-            }
+            newSubjectsObject[trimmedName] = rest;
         }
 
         if (hasError) return;
@@ -89,14 +87,16 @@ export default function AllSyllabiPage() {
         };
 
         setSyllabi(currentSyllabi => {
-            const existingIndex = currentSyllabi.findIndex(s => s.level === editingLevel);
+            const newSyllabi = [...currentSyllabi];
+            const existingIndex = newSyllabi.findIndex(s => s.level === editingLevel);
+
             if (existingIndex > -1) {
-                const newSyllabi = [...currentSyllabi];
                 newSyllabi[existingIndex] = finalSyllabus;
-                return newSyllabi;
             } else {
-                return [...currentSyllabi, finalSyllabus].sort((a,b) => parseFloat(a.level) - parseFloat(b.level));
+                newSyllabi.push(finalSyllabus);
             }
+            
+            return newSyllabi.sort((a,b) => parseFloat(a.level) - parseFloat(b.level));
         });
 
         toast({ title: "Syllabus saved!", description: `Changes for Level ${editingLevel} have been saved for this session.` });

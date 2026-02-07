@@ -59,7 +59,13 @@ export default function AllQuestionsPage() {
 
         setQuestions(currentQuestions => {
             const otherQuestions = currentQuestions.filter(q => q.level !== editingLevel);
-            return [...otherQuestions, ...editedQuestions].sort((a, b) => parseFloat(a.level) - parseFloat(b.level));
+            const newQuestions = [...otherQuestions, ...editedQuestions];
+            return newQuestions.sort((a, b) => {
+                const levelA = parseFloat(a.level);
+                const levelB = parseFloat(b.level);
+                if (levelA !== levelB) return levelA - levelB;
+                return a.id.localeCompare(b.id);
+            });
         });
 
         toast({ title: "Questions saved!", description: `Changes for Level ${editingLevel} have been saved for this session.` });
@@ -74,8 +80,12 @@ export default function AllQuestionsPage() {
     const handleAnswerTextChange = (qId: string, ansIndex: number, text: string) => {
         setEditedQuestions(current => current.map(q => {
             if (q.id === qId) {
-                const newAnswers = [...q.answers];
-                newAnswers[ansIndex].text = text;
+                const newAnswers = q.answers.map((ans, idx) => {
+                    if (idx === ansIndex) {
+                        return { ...ans, text: text };
+                    }
+                    return ans;
+                });
                 return { ...q, answers: newAnswers };
             }
             return q;
@@ -95,9 +105,14 @@ export default function AllQuestionsPage() {
     const handleRemoveAnswer = (qId: string, ansIndex: number) => {
         setEditedQuestions(current => current.map(q => {
             if (q.id === qId && q.answers.length > 2) {
-                const newAnswers = q.answers.filter((_, idx) => idx !== ansIndex);
-                 if (!newAnswers.some(a => a.isCorrect)) {
-                    newAnswers[0].isCorrect = true;
+                let newAnswers = q.answers.filter((_, idx) => idx !== ansIndex);
+                 if (!newAnswers.some(a => a.isCorrect) && newAnswers.length > 0) {
+                    newAnswers = newAnswers.map((ans, idx) => {
+                        if (idx === 0) {
+                            return { ...ans, isCorrect: true };
+                        }
+                        return ans;
+                    });
                 }
                 return { ...q, answers: newAnswers };
             }

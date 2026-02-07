@@ -138,20 +138,33 @@ function BooksPageContent() {
     const handleSaveClick = () => {
         if (!editingMode) return;
 
-        if (editingMode.type === 'levels') {
-            const level = editingMode.identifier;
-            setBooks(currentBooks => {
-                const otherBooks = currentBooks.filter(b => b.level !== level);
-                return [...otherBooks, ...editedBooks].sort((a, b) => parseFloat(a.level) - parseFloat(b.level));
+        setBooks(currentBooks => {
+            let otherBooks: BookType[];
+
+            if (editingMode.type === 'levels') {
+                otherBooks = currentBooks.filter(book => book.level !== editingMode.identifier);
+            } else if (editingMode.type === 'vocab') {
+                otherBooks = currentBooks.filter(book => book.category !== 'vocab_grammar');
+            } else { // 'popular'
+                otherBooks = currentBooks.filter(book => book.category !== 'popular');
+            }
+
+            const newBooks = [...otherBooks, ...editedBooks];
+            
+            return newBooks.sort((a, b) => {
+                 const levelA = parseFloat(a.level);
+                 const levelB = parseFloat(b.level);
+                 if (levelA !== levelB) return levelA - levelB;
+                 return a.title.localeCompare(b.title);
             });
-            toast({ title: "Books saved!", description: `Changes for Level ${level} have been saved for this session.` });
-        } else if (editingMode.type === 'vocab') {
-            setBooks(current => [...current.filter(b => b.category !== 'vocab_grammar'), ...editedBooks]);
-            toast({ title: "Vocabulary books saved!" });
-        } else if (editingMode.type === 'popular') {
-            setBooks(current => [...current.filter(b => b.category !== 'popular'), ...editedBooks]);
-            toast({ title: "Popular books saved!" });
+        });
+        
+        if (editingMode.type === 'levels') {
+            toast({ title: "Books saved!", description: `Changes for Level ${editingMode.identifier} have been saved for this session.` });
+        } else {
+            toast({ title: `${editingMode.type.charAt(0).toUpperCase() + editingMode.type.slice(1)} books saved!` });
         }
+
 
         setEditingMode(null);
         setEditedBooks([]);
