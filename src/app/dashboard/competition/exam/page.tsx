@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +8,10 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { allQuestions } from '@/lib/questions';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { currentUser } from '@/lib/auth';
-import type { ExamResult, SubjectResult, Syllabus } from '@/lib/types';
+import type { ExamResult, SubjectResult, Syllabus, Question } from '@/lib/types';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 
@@ -25,9 +24,15 @@ function ExamContent() {
   const level = searchParams.get('level') || '0.0';
   const firestore = useFirestore();
 
-  const [questions, setQuestions] = useState(allQuestions.filter(q => q.level === level));
+  const questionsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'questions'), where('level', '==', level));
+  }, [firestore, level]);
+
+  const { data: questions, loading: questionsLoading } = useCollection<Question>(questionsQuery);
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(string | null)[]>(Array(questions.length).fill(null));
+  const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_PER_QUESTION);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
@@ -42,17 +47,17 @@ function ExamContent() {
   const syllabus = userSyllabusArr?.[0];
 
   useEffect(() => {
-    const filteredQuestions = allQuestions.filter(q => q.level === level);
-    setQuestions(filteredQuestions);
-    setUserAnswers(Array(filteredQuestions.length).fill(null));
-    setCurrentQuestionIndex(0);
-    setTimeLeft(TOTAL_TIME_PER_QUESTION);
-    setSelectedOption(null);
-  }, [level]);
+    if (questions) {
+      setUserAnswers(Array(questions.length).fill(null));
+      setCurrentQuestionIndex(0);
+      setTimeLeft(TOTAL_TIME_PER_QUESTION);
+      setSelectedOption(null);
+    }
+  }, [questions]);
   
   const handleFinishExam = useCallback(() => {
-    if (!syllabus) {
-      console.error("Syllabus not found for level:", level);
+    if (!syllabus || !questions) {
+      console.error("Syllabus or questions not found for level:", level);
       router.push('/dashboard/competition/exam/result');
       return;
     }
@@ -144,6 +149,7 @@ function ExamContent() {
   }, [level, questions, userAnswers, router, syllabus]);
 
   const handleNext = useCallback(() => {
+    if (!questions) return;
     setSelectedOption(null);
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -151,12 +157,12 @@ function ExamContent() {
     } else {
       handleFinishExam();
     }
-  }, [currentQuestionIndex, questions.length, handleFinishExam]);
+  }, [currentQuestionIndex, questions, handleFinishExam]);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions ? questions[currentQuestionIndex] : null;
 
   useEffect(() => {
-    if (questions.length === 0) return;
+    if (!questions || questions.length === 0) return;
 
     if (timeLeft === 0) {
       handleNext();
@@ -168,7 +174,7 @@ function ExamContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, questions.length, handleNext]);
+  }, [timeLeft, questions, handleNext]);
 
 
   const handleAnswerSelect = (answer: string) => {
@@ -178,6 +184,25 @@ function ExamContent() {
     setSelectedOption(answer);
   };
   
+  if (questionsLoading || !questions) {
+    return (
+       <main className="flex items-center justify-center min-h-screen bg-background p-4">
+        <Card className="w-full max-w-2xl text-center">
+            <CardHeader>
+                <CardTitle>Loading Exam...</CardTitle>
+            </CardHeader>
+            <CardContent>
+                 <Skeleton className="h-4 w-3/4 mx-auto" />
+                 <div className="mt-6 space-y-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                 </div>
+            </CardContent>
+        </Card>
+      </main>
+    )
+  }
+
   if (questions.length === 0) {
     const majorLevel = Math.floor(parseFloat(level));
     const examSchedules: { [key: number]: string } = {
@@ -249,14 +274,14 @@ function ExamContent() {
         </CardHeader>
         <CardContent>
           <div className="py-2">
-            <p className="text-center font-medium">{currentQuestion.questionText}</p>
+            <p className="text-center font-medium">{currentQuestion?.questionText}</p>
           </div>
           <RadioGroup 
             value={userAnswers[currentQuestionIndex] || ''}
             onValueChange={handleAnswerSelect}
             className="grid grid-cols-1 sm:grid-cols-2 gap-3"
           >
-            {currentQuestion.answers.map((answer, index) => (
+            {currentQuestion?.answers.map((answer, index) => (
               <div key={index}>
                 <RadioGroupItem value={answer.text} id={`r${index}`} className="peer sr-only" />
                 <Label 

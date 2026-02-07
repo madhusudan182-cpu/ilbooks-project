@@ -1,19 +1,23 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from 'next/navigation';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockBooks } from "@/lib/data";
 import type { Book as BookType } from '@/lib/types';
 import { BookOpen, ArrowLeft, Edit, Save, X, PlusCircle, Trash2, Upload } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, doc, writeBatch } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const BookCard = ({ book }: { book: BookType }) => (
     <Card className="overflow-hidden">
@@ -88,16 +92,13 @@ type EditMode = {
 function BooksPageContent() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'levels';
-    const [isClient, setIsClient] = useState(false);
-    const [books, setBooks] = useState<BookType[]>(() => JSON.parse(JSON.stringify(mockBooks)));
+    const firestore = useFirestore();
+    const booksQuery = useMemo(() => (firestore ? collection(firestore, 'books') : null), [firestore]);
+    const { data: books, loading: booksLoading } = useCollection<BookType>(booksQuery);
     const { toast } = useToast();
 
     const [editingMode, setEditingMode] = useState<EditMode | null>(null);
     const [editedBooks, setEditedBooks] = useState<BookType[]>([]);
-
-    useEffect(() => {
-      setIsClient(true)
-    }, []);
 
     const allLevels: string[] = [];
     for (let i = 0; i <= 19; i++) {
@@ -106,16 +107,16 @@ function BooksPageContent() {
         }
     }
 
-    const booksByLevel = books.reduce((acc, b) => {
+    const booksByLevel = useMemo(() => books?.reduce((acc, b) => {
         if (!b.category && b.level) {
             if (!acc[b.level]) acc[b.level] = [];
             acc[b.level].push(b);
         }
         return acc;
-    }, {} as Record<string, BookType[]>);
+    }, {} as Record<string, BookType[]>) || {}, [books]);
 
-    const vocabBooks = books.filter(b => b.category === 'vocab_grammar');
-    const popularBooks = books.filter(b => b.category === 'popular');
+    const vocabBooks = useMemo(() => books?.filter(b => b.category === 'vocab_grammar') || [], [books]);
+    const popularBooks = useMemo(() => books?.filter(b => b.category === 'popular') || [], [books]);
 
     const handleEditClick = (type: EditMode['type'], identifier: string) => {
         let booksToEdit: BookType[] = [];
@@ -135,39 +136,54 @@ function BooksPageContent() {
         setEditedBooks([]);
     };
 
-    const handleSaveClick = () => {
-        if (!editingMode) return;
+    const handleSaveClick = async () => {
+        if (!editingMode || !firestore) return;
 
-        setBooks(currentBooks => {
-            let otherBooks: BookType[];
-
-            if (editingMode.type === 'levels') {
-                otherBooks = currentBooks.filter(book => book.level !== editingMode.identifier);
-            } else if (editingMode.type === 'vocab') {
-                otherBooks = currentBooks.filter(book => book.category !== 'vocab_grammar');
-            } else { // 'popular'
-                otherBooks = currentBooks.filter(book => book.category !== 'popular');
-            }
-
-            const newBooks = [...otherBooks, ...editedBooks];
-            
-            return newBooks.sort((a, b) => {
-                 const levelA = parseFloat(a.level);
-                 const levelB = parseFloat(b.level);
-                 if (levelA !== levelB) return levelA - levelB;
-                 return a.title.localeCompare(b.title);
-            });
-        });
-        
+        let originalBooks: BookType[] = [];
         if (editingMode.type === 'levels') {
-            toast({ title: "Books saved!", description: `Changes for Level ${editingMode.identifier} have been saved for this session.` });
-        } else {
-            toast({ title: `${editingMode.type.charAt(0).toUpperCase() + editingMode.type.slice(1)} books saved!` });
+            originalBooks = books?.filter(book => book.level === editingMode.identifier) || [];
+        } else if (editingMode.type === 'vocab') {
+            originalBooks = books?.filter(b => b.category === 'vocab_grammar') || [];
+        } else { // 'popular'
+            originalBooks = books?.filter(b => b.category === 'popular') || [];
         }
+        
+        const batch = writeBatch(firestore);
 
+        // Books to delete
+        originalBooks.forEach(ogBook => {
+            if (!editedBooks.find(edBook => edBook.id === ogBook.id)) {
+                batch.delete(doc(firestore, "books", ogBook.id));
+            }
+        });
 
-        setEditingMode(null);
-        setEditedBooks([]);
+        // Books to add or update
+        editedBooks.forEach(book => {
+            const { id, ...bookData } = book;
+            const docRef = doc(firestore, "books", id);
+            batch.set(docRef, bookData);
+        });
+
+        try {
+            await batch.commit();
+            toast({ title: "Books saved!", description: "Your changes have been saved permanently." });
+        } catch (serverError) {
+            console.error("Error saving books:", serverError);
+            const permissionError = new FirestorePermissionError({
+                path: 'books',
+                operation: 'write',
+                requestResourceData: editedBooks
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            toast({
+                title: "Uh oh! Something went wrong.",
+                description: "Could not save books. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setEditingMode(null);
+            setEditedBooks([]);
+        }
     };
 
     const handleBookChange = (bookId: string, field: keyof BookType, value: string | number) => {
@@ -229,7 +245,13 @@ function BooksPageContent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                     {isClient ? (
+                     {booksLoading ? (
+                        <div className="space-y-2">
+                           <Skeleton className="h-12 w-full" />
+                           <Skeleton className="h-12 w-full" />
+                           <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : (
                         <div className="mt-4">
                             {tab === 'levels' && (
                                 <Accordion type="single" collapsible className="w-full max-h-[60rem] overflow-y-auto">
@@ -350,7 +372,7 @@ function BooksPageContent() {
                                 </>
                             )}
                         </div>
-                     ) : null}
+                     )}
                 </CardContent>
             </Card>
         </div>

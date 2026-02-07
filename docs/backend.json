@@ -70,6 +70,47 @@
         }
       },
       "required": ["level", "subjects"]
+    },
+    "Book": {
+      "title": "Book",
+      "description": "Represents a book in the store.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "price": { "type": "number" },
+        "coverUrl": { "type": "string", "format": "uri" },
+        "pdfUrl": { "type": "string", "format": "uri" },
+        "level": { "type": "string" },
+        "category": { "type": "string", "enum": ["vocab_grammar", "popular"] }
+      },
+      "required": ["title", "author", "price", "coverUrl", "level"]
+    },
+    "Answer": {
+      "title": "Answer",
+      "description": "Represents an answer to a question.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "isCorrect": { "type": "boolean" }
+      },
+      "required": ["text", "isCorrect"]
+    },
+    "Question": {
+      "title": "Question",
+      "description": "Represents an exam question.",
+      "type": "object",
+      "properties": {
+        "level": { "type": "string" },
+        "subject": { "type": "string", "enum": ["Bengali", "English"] },
+        "questionText": { "type": "string" },
+        "answers": {
+          "type": "array",
+          "items": { "$ref": "#/backend/entities/Answer" }
+        },
+        "explanation": { "type": "string" }
+      },
+      "required": ["level", "subject", "questionText", "answers", "explanation"]
     }
   },
   "auth": {
@@ -87,6 +128,14 @@
     "/syllabi/{level}": {
       "schema": { "$ref": "#/backend/entities/Syllabus" },
       "description": "Stores the syllabus for each competition level."
+    },
+    "/books/{bookId}": {
+      "schema": { "$ref": "#/backend/entities/Book" },
+      "description": "Stores all books for the book shop and competitions."
+    },
+    "/questions/{questionId}": {
+      "schema": { "$ref": "#/backend/entities/Question" },
+      "description": "Stores all exam questions for all levels."
     }
   }
 }

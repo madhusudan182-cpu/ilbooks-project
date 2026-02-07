@@ -92,78 +92,10 @@ export const mockPosts: Post[] = [
   },
 ];
 
-export const mockBooks: Book[] = [
-    {
-        id: 'book-1',
-        title: "Gitanjali",
-        author: "Rabindranath Tagore",
-        price: 150,
-        coverUrl: "https://picsum.photos/seed/bc1/400/600",
-        level: '0.0',
-    },
-    {
-        id: 'book-2',
-        title: "The Namesake",
-        author: "Jhumpa Lahiri",
-        price: 350,
-        coverUrl: "https://picsum.photos/seed/bc2/400/600",
-        level: '0.0',
-        category: 'popular',
-    },
-    {
-        id: 'book-3',
-        title: "A Golden Age",
-        author: "Tahmima Anam",
-        price: 400,
-        coverUrl: "https://picsum.photos/seed/bc3/400/600",
-        level: '0.1',
-    },
-    {
-        id: 'book-4',
-        title: "Nineteen Eighty-Four",
-        author: "George Orwell",
-        price: 250,
-        coverUrl: "https://picsum.photos/seed/bc4/400/600",
-        level: '1.5',
-        category: 'popular',
-    },
-     {
-        id: 'book-5',
-        title: "Feluda Samagra 1",
-        author: "Satyajit Ray",
-        price: 500,
-        coverUrl: "https://picsum.photos/seed/bc5/400/600",
-        level: '0.2',
-    },
-    {
-        id: 'book-6',
-        title: "The Alchemist",
-        author: "Paulo Coelho",
-        price: 300,
-        coverUrl: "https://picsum.photos/seed/bc6/400/600",
-        level: '0.2',
-        category: 'popular',
-    },
-    {
-        id: 'book-7',
-        title: "English Grammar in Use",
-        author: "Raymond Murphy",
-        price: 450,
-        coverUrl: "https://picsum.photos/seed/bc7/400/600",
-        level: 'all',
-        category: 'vocab_grammar',
-        pdfUrl: '/sample.pdf',
-    },
-    {
-        id: 'book-8',
-        title: "Word Power Made Easy",
-        author: "Norman Lewis",
-        price: 220,
-        coverUrl: "https://picsum.photos/seed/bc8/400/600",
-        level: 'all',
-        category: 'vocab_grammar',
-    },
-];
+// This mock data is no longer used for the main application logic.
+// Book data is now fetched from and managed in Firestore.
+// You can use the admin panel to add/edit books.
+export const mockBooks: Book[] = [];
 
 export const mockExamResults: ExamResult[] = [
   {

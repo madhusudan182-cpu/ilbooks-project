@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { allQuestions } from '@/lib/questions';
 import { cn } from '@/lib/utils';
 import type { Question } from '@/lib/types';
 import { ListChecks, ArrowLeft, Edit, Save, X, PlusCircle, Trash2 } from "lucide-react";
@@ -15,19 +14,21 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, doc, writeBatch } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AllQuestionsPage() {
-    const [isClient, setIsClient] = useState(false);
-    const [questions, setQuestions] = useState(() => JSON.parse(JSON.stringify(allQuestions)));
+    const firestore = useFirestore();
+    const questionsQuery = useMemo(() => (firestore ? collection(firestore, 'questions') : null), [firestore]);
+    const { data: questions, loading: questionsLoading } = useCollection<Question>(questionsQuery);
+    
     const [editingLevel, setEditingLevel] = useState<string | null>(null);
     const [editedQuestions, setEditedQuestions] = useState<Question[]>([]);
     const { toast } = useToast();
  
-    useEffect(() => {
-      setIsClient(true)
-    }, []);
-
     const allLevels: string[] = [];
     for (let i = 0; i <= 19; i++) {
         for (let j = 0; j <= 9; j++) {
@@ -35,13 +36,13 @@ export default function AllQuestionsPage() {
         }
     }
 
-    const questionsByLevel = questions.reduce((acc: Record<string, Question[]>, q: Question) => {
+    const questionsByLevel = useMemo(() => questions?.reduce((acc: Record<string, Question[]>, q: Question) => {
         if (!acc[q.level]) {
             acc[q.level] = [];
         }
         acc[q.level].push(q);
         return acc;
-    }, {} as Record<string, Question[]>);
+    }, {} as Record<string, Question[]>) || {}, [questions]);
     
     const handleEditClick = (level: string) => {
         const questionsToEdit = questionsByLevel[level] || [];
@@ -54,23 +55,46 @@ export default function AllQuestionsPage() {
         setEditedQuestions([]);
     };
 
-    const handleSaveClick = () => {
-        if (!editingLevel) return;
+    const handleSaveClick = async () => {
+        if (!editingLevel || !firestore) return;
 
-        setQuestions(currentQuestions => {
-            const otherQuestions = currentQuestions.filter(q => q.level !== editingLevel);
-            const newQuestions = [...otherQuestions, ...editedQuestions];
-            return newQuestions.sort((a, b) => {
-                const levelA = parseFloat(a.level);
-                const levelB = parseFloat(b.level);
-                if (levelA !== levelB) return levelA - levelB;
-                return a.id.localeCompare(b.id);
-            });
+        const originalQuestions = questions?.filter(q => q.level === editingLevel) || [];
+        const batch = writeBatch(firestore);
+
+        // Questions to delete
+        originalQuestions.forEach(ogQuestion => {
+            if (!editedQuestions.find(edQuestion => edQuestion.id === ogQuestion.id)) {
+                batch.delete(doc(firestore, "questions", ogQuestion.id));
+            }
         });
 
-        toast({ title: "Questions saved!", description: `Changes for Level ${editingLevel} have been saved for this session.` });
-        setEditingLevel(null);
-        setEditedQuestions([]);
+        // Questions to add or update
+        editedQuestions.forEach(question => {
+            const { id, ...questionData } = question;
+            const docRef = doc(firestore, "questions", id);
+            batch.set(docRef, questionData);
+        });
+        
+        try {
+            await batch.commit();
+            toast({ title: "Questions saved!", description: `Changes for Level ${editingLevel} have been saved permanently.` });
+        } catch (serverError) {
+            console.error("Error saving questions:", serverError);
+            const permissionError = new FirestorePermissionError({
+                path: 'questions',
+                operation: 'write',
+                requestResourceData: editedQuestions
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            toast({
+                title: "Uh oh! Something went wrong.",
+                description: "Could not save questions. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setEditingLevel(null);
+            setEditedQuestions([]);
+        }
     };
 
     const handleQuestionChange = (qId: string, field: 'questionText' | 'explanation' | 'subject', value: string) => {
@@ -80,12 +104,8 @@ export default function AllQuestionsPage() {
     const handleAnswerTextChange = (qId: string, ansIndex: number, text: string) => {
         setEditedQuestions(current => current.map(q => {
             if (q.id === qId) {
-                const newAnswers = q.answers.map((ans, idx) => {
-                    if (idx === ansIndex) {
-                        return { ...ans, text: text };
-                    }
-                    return ans;
-                });
+                const newAnswers = [...q.answers];
+                newAnswers[ansIndex] = { ...newAnswers[ansIndex], text: text };
                 return { ...q, answers: newAnswers };
             }
             return q;
@@ -107,12 +127,7 @@ export default function AllQuestionsPage() {
             if (q.id === qId && q.answers.length > 2) {
                 let newAnswers = q.answers.filter((_, idx) => idx !== ansIndex);
                  if (!newAnswers.some(a => a.isCorrect) && newAnswers.length > 0) {
-                    newAnswers = newAnswers.map((ans, idx) => {
-                        if (idx === 0) {
-                            return { ...ans, isCorrect: true };
-                        }
-                        return ans;
-                    });
+                    newAnswers[0].isCorrect = true;
                 }
                 return { ...q, answers: newAnswers };
             }
@@ -171,7 +186,13 @@ export default function AllQuestionsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {isClient ? <Accordion type="single" collapsible className="w-full max-h-[60rem] overflow-y-auto">
+                    {questionsLoading ? (
+                         <div className="space-y-2">
+                           <Skeleton className="h-12 w-full" />
+                           <Skeleton className="h-12 w-full" />
+                           <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : <Accordion type="single" collapsible className="w-full max-h-[60rem] overflow-y-auto">
                         {allLevels.map((level) => {
                             const questionsForLevel = questionsByLevel[level] || [];
                             const isEditing = editingLevel === level;
@@ -278,7 +299,7 @@ export default function AllQuestionsPage() {
                                 </AccordionItem>
                             )
                         })}
-                    </Accordion> : null}
+                    </Accordion>}
                 </CardContent>
             </Card>
         </div>

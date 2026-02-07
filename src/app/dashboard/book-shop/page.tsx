@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { mockBooks } from '@/lib/data';
-import { ShoppingCart, CreditCard, Plus, Minus, Trash2, Download, BookOpen as BookIcon } from 'lucide-react';
+import { ShoppingCart, CreditCard, Plus, Minus, Trash2, Download } from 'lucide-react';
 import { PaymentGateway } from '@/components/payment-gateway';
 import { useToast } from '@/hooks/use-toast';
 import type { Book } from '@/lib/types';
@@ -21,12 +20,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useCollection } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { cn } from '@/lib/utils';
 import { currentUser } from '@/lib/auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type CartItem = Book & { quantity: number };
 
@@ -41,20 +41,24 @@ export default function BookShopPage() {
   const firestore = useFirestore();
   const [activeCategory, setActiveCategory] = useState<'level' | 'vocab' | 'popular'>('level');
 
+  const booksQuery = useMemo(() => (firestore ? collection(firestore, 'books') : null), [firestore]);
+  const { data: books, loading: booksLoading } = useCollection<Book>(booksQuery);
+
   const userLevel = currentUser.level.toFixed(1);
 
-  const displayedBooks = (() => {
+  const displayedBooks = useMemo(() => {
+    if (!books) return [];
     switch (activeCategory) {
       case 'level':
-        return mockBooks.filter((book) => !book.category && book.level === userLevel);
+        return books.filter((book) => !book.category && book.level === userLevel);
       case 'vocab':
-        return mockBooks.filter((book) => book.category === 'vocab_grammar');
+        return books.filter((book) => book.category === 'vocab_grammar');
       case 'popular':
-        return mockBooks.filter((book) => book.category === 'popular');
+        return books.filter((book) => book.category === 'popular');
       default:
         return [];
     }
-  })();
+  }, [books, activeCategory, userLevel]);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -247,7 +251,16 @@ export default function BookShopPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
-                {displayedBooks.length > 0 ? (
+                {booksLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="aspect-[2/3] w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-3 w-3/4" />
+                      <Skeleton className="h-8 w-full" />
+                    </div>
+                  ))
+                ) : displayedBooks.length > 0 ? (
                   displayedBooks.map((book) => (
                     <Card key={book.id} className="overflow-hidden flex flex-col">
                       <div className="relative aspect-[2/3] w-full">

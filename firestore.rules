@@ -13,5 +13,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true; // In a real app, you'd restrict this to admins
     }
+    match /books/{bookId} {
+      allow read: if true;
+      allow write: if true; // In a real app, you'd restrict this to admins
+    }
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if true; // In a real app, you'd restrict this to admins
+    }
   }
 }
