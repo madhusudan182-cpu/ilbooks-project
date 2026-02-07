@@ -74,7 +74,11 @@ export default function AllSyllabiPage() {
                 break;
             }
             subjectNames.add(trimmedName);
-            newSubjectsObject[trimmedName] = { marks: subject.marks, topics: subject.topics };
+            // a subject must have a name to be saved
+            const { id, name, ...rest } = subject;
+            if (name) {
+             newSubjectsObject[name] = rest;
+            }
         }
 
         if (hasError) return;
@@ -120,7 +124,7 @@ export default function AllSyllabiPage() {
         const newId = `new-subject-${Date.now()}`;
         const newSubject: EditableSubject = {
             id: newId,
-            name: `New Subject ${editedSubjects.length + 1}`,
+            name: `New Subject`,
             marks: 10,
             topics: ['New Topic']
         };
@@ -154,7 +158,7 @@ export default function AllSyllabiPage() {
                 </CardHeader>
                 <CardContent>
                     {isClient ? (
-                    <Accordion type="single" collapsible className="w-full">
+                    <Accordion type="single" collapsible className="w-full max-h-[60rem] overflow-y-auto">
                         {allLevels.map((level) => {
                             const syllabus = syllabi.find(s => s.level === level);
                             const isEditing = editingLevel === level;
@@ -184,6 +188,7 @@ export default function AllSyllabiPage() {
                                                                 value={subject.name}
                                                                 onChange={(e) => handleEditedSubjectChange(subject.id, 'name', e.target.value)}
                                                                 className="font-semibold text-lg"
+                                                                placeholder="Subject Name"
                                                             />
                                                             <Button variant="ghost" size="icon" onClick={() => handleRemoveSubject(subject.id)}>
                                                                 <Trash2 className="h-4 w-4 text-destructive" />

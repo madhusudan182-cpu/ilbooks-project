@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export default function AllQuestionsPage() {
     const [isClient, setIsClient] = useState(false);
@@ -213,10 +215,15 @@ export default function AllQuestionsPage() {
                                                                 </div>
                                                                  <div className="grid gap-2">
                                                                     <Label htmlFor={`subject-${q.id}`}>Subject</Label>
-                                                                    <select id={`subject-${q.id}`} value={q.subject} onChange={(e) => handleQuestionChange(q.id, 'subject', e.target.value as 'Bengali' | 'English')} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                                                                        <option value="Bengali">Bengali</option>
-                                                                        <option value="English">English</option>
-                                                                    </select>
+                                                                    <Select value={q.subject} onValueChange={(value) => handleQuestionChange(q.id, 'subject', value as 'Bengali' | 'English')}>
+                                                                        <SelectTrigger id={`subject-${q.id}`}>
+                                                                            <SelectValue placeholder="Select subject" />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            <SelectItem value="Bengali">Bengali</SelectItem>
+                                                                            <SelectItem value="English">English</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
                                                                 </div>
                                                             </div>
                                                         </Card>
