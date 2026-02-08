@@ -1,25 +1,70 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper function to check if a user is an admin by reading their user profile.
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Helper function to check if the user is authenticated.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Secure the user profiles
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+      // Any authenticated user can read profiles (for social features).
+      allow read: if isAuthenticated();
+
+      // A user can create their own profile, but cannot set themselves as an admin.
+      allow create: if request.auth.uid == userId && request.resource.data.isAdmin == false;
+
+      // A user can update their own profile, but cannot change their admin status.
+      allow update: if request.auth.uid == userId && request.resource.data.isAdmin == get(/databases/$(database)/documents/users/$(userId)).data.isAdmin;
     }
+
+    // Secure book orders
     match /orders/{orderId} {
-      allow read, list: if true;
-      allow create: if request.resource.data.userId is string;
-      allow update: if true;
+      // Only admins can list all orders.
+      allow list: if isAdmin();
+      
+      // A user can read their own orders. An admin can read any order.
+      allow read: if (request.auth.uid == resource.data.userId) || isAdmin();
+
+      // An authenticated user can create an order for themselves.
+      allow create: if request.auth.uid == request.resource.data.userId;
+
+      // Only admins can update an order (e.g., change its status).
+      allow update: if isAdmin();
+      
+      // Deleting orders is disallowed to maintain records.
+      allow delete: if false;
     }
+
+    // Secure syllabi
     match /syllabi/{level} {
-      allow read: if true;
-      allow write: if true; // In a real app, you'd restrict this to admins
+      // Any authenticated user can read syllabi.
+      allow read: if isAuthenticated();
+      // Only admins can create or update syllabi.
+      allow write: if isAdmin();
     }
+
+    // Secure books
     match /books/{bookId} {
-      allow read: if true;
-      allow write: if true; // In a real app, you'd restrict this to admins
+      // Any authenticated user can read the book list.
+      allow read: if isAuthenticated();
+      // Only admins can create or update books.
+      allow write: if isAdmin();
     }
+
+    // Secure exam questions
     match /questions/{questionId} {
-      allow read: if true;
-      allow write: if true; // In a real app, you'd restrict this to admins
+      // Any authenticated user can read questions (necessary for taking an exam).
+      allow read: if isAuthenticated();
+      // Only admins can create or update questions.
+      allow write: if isAdmin();
     }
   }
 }
