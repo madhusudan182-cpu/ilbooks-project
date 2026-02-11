@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, BarChart2, TrendingUp, DollarSign, UserCheck } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { mockSignUpData, mockTopUsers, mockTopPatrons } from '@/lib/data';
 import type { SignUpData, TopUser, TopPatron } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -118,14 +118,31 @@ export default function AnalyticsPage() {
                     </CardHeader>
                     <CardContent className="pl-2">
                          <ResponsiveContainer width="100%" height={350}>
-                            <BarChart data={mockSignUpData[period]}>
+                            <AreaChart data={mockSignUpData[period]}
+                                margin={{
+                                    top: 10,
+                                    right: 30,
+                                    left: 0,
+                                    bottom: 0,
+                                }}>
+                                <defs>
+                                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
-                                <Tooltip />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'hsl(var(--background))',
+                                        border: '1px solid hsl(var(--border))'
+                                    }}
+                                />
                                 <Legend />
-                                <Bar dataKey="total" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="Sign Ups" />
-                            </BarChart>
+                                <Area type="monotone" dataKey="total" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorTotal)" strokeWidth={2} name="Sign Ups" />
+                            </AreaChart>
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
