@@ -5,4 +5,4 @@ import type { User } from './types';
 // mockUsers[0] is an admin.
 // mockUsers[1], mockUsers[2], mockUsers[3] are regular users.
 // mockUsers[4] is Paban Alam.
-export const currentUser: User = mockUsers[4];
+export const currentUser: User = mockUsers[0];
