@@ -48,7 +48,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'user-5',
-    name: 'Paban Bangali',
+    name: 'Paban Alam',
     avatarUrl: 'https://picsum.photos/seed/av5/100/100',
     level: 0.0,
     institution: 'New Learner',
@@ -181,7 +181,7 @@ export const mockExamResults: ExamResult[] = [
   {
     id: 'result-6',
     userId: 'user-5',
-    userName: 'Paban Bangali',
+    userName: 'Paban Alam',
     userAvatarUrl: 'https://picsum.photos/seed/av5/100/100',
     level: '0.0',
     totalMarks: 60,
