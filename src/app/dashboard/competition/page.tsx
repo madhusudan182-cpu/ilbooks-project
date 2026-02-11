@@ -68,9 +68,22 @@ export default function CompetitionPage() {
     const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
-    const examFee = 20;
 
     const [userLevel, setUserLevel] = useState(currentUser.level.toFixed(1));
+    
+    const getExamFee = (levelString: string): number => {
+        const [major] = levelString.split('.').map(Number);
+        if (major >= 0 && major < 1) return 20;
+        if (major >= 1 && major < 2) return 25;
+        if (major >= 2 && major < 3) return 30;
+        if (major >= 3 && major < 4) return 35;
+        if (major >= 4 && major < 5) return 40;
+        if (major >= 5 && major <= 19) return 50;
+        return 20; // Default
+    };
+    
+    const examFee = getExamFee(userLevel);
+    
     const [isRegistered, setIsRegistered] = useState(false);
     const [isExamTime, setIsExamTime] = useState(false);
     const firestore = useFirestore();
