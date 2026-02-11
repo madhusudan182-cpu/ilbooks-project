@@ -160,14 +160,14 @@ function BooksPageContent() {
         editedBooks.forEach(book => {
             const docRef = doc(firestore, "books", book.id);
             
-            const dataToSave: Partial<BookType> = {
+            const dataToSave: { [key: string]: any } = {
                 title: book.title,
                 author: book.author,
                 price: book.price,
                 coverUrl: book.coverUrl,
                 level: book.level,
             };
-
+    
             if (book.category) {
                 dataToSave.category = book.category;
             }
@@ -207,6 +207,15 @@ function BooksPageContent() {
     const handleFileChange = (bookId: string, fileType: 'cover' | 'pdf', event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+             if (file.size > 700 * 1024 && fileType === 'pdf') { // 700KB limit for PDFs
+                toast({
+                    title: "File is too large",
+                    description: "Please upload a PDF smaller than 700KB.",
+                    variant: "destructive",
+                });
+                return; 
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 const url = e.target?.result as string;
