@@ -139,38 +139,43 @@ function BooksPageContent() {
     const handleSaveClick = async () => {
         if (!editingMode || !firestore) return;
 
-        let originalBooks: BookType[] = [];
-        if (editingMode.type === 'levels') {
-            originalBooks = books?.filter(book => book.level === editingMode.identifier) || [];
-        } else if (editingMode.type === 'vocab') {
-            originalBooks = books?.filter(b => b.category === 'vocab_grammar') || [];
-        } else { // 'popular'
-            originalBooks = books?.filter(b => b.category === 'popular') || [];
-        }
-        
         const batch = writeBatch(firestore);
+
+        const originalBooks: BookType[] = (
+            editingMode.type === 'levels' ? books?.filter(book => book.level === editingMode.identifier) :
+            editingMode.type === 'vocab' ? books?.filter(b => b.category === 'vocab_grammar') :
+            books?.filter(b => b.category === 'popular')
+        ) || [];
+
+        const editedBookIds = new Set(editedBooks.map(b => b.id));
 
         // Books to delete
         originalBooks.forEach(ogBook => {
-            if (!editedBooks.find(edBook => edBook.id === ogBook.id)) {
+            if (!editedBookIds.has(ogBook.id)) {
                 batch.delete(doc(firestore, "books", ogBook.id));
             }
         });
 
         // Books to add or update
         editedBooks.forEach(book => {
-            const { id, ...bookData } = book;
+            const docRef = doc(firestore, "books", book.id);
+            
+            const dataToSave: Partial<BookType> = {
+                title: book.title,
+                author: book.author,
+                price: book.price,
+                coverUrl: book.coverUrl,
+                level: book.level,
+            };
 
-            // Create a clean object to save, removing any keys with undefined values.
-            const cleanBookData = Object.entries(bookData).reduce((acc, [key, value]) => {
-                if (value !== undefined) {
-                    (acc as any)[key] = value;
-                }
-                return acc;
-            }, {} as Partial<BookType>);
+            if (book.category) {
+                dataToSave.category = book.category;
+            }
+            if (book.pdfUrl) {
+                dataToSave.pdfUrl = book.pdfUrl;
+            }
 
-            const docRef = doc(firestore, "books", id);
-            batch.set(docRef, cleanBookData, { merge: true });
+            batch.set(docRef, dataToSave, { merge: true });
         });
 
         try {
@@ -403,3 +408,5 @@ export default function AllBooksPage() {
         </Suspense>
     );
 }
+
+    
