@@ -1,4 +1,4 @@
-import type { User, Post, Book, ExamResult, Transaction, PrizeWinner } from './types';
+import type { User, Post, Book, ExamResult, Transaction, PrizeWinner, SignUpData, TopUser, TopPatron } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -255,4 +255,43 @@ export const mockPrizeWinners: PrizeWinner[] = [
     status: 'Awarded',
     dateAwarded: '2024-07-23'
   },
+];
+
+export const mockSignUpData: Record<'day' | 'week' | 'month' | 'lifetime', SignUpData[]> = {
+  day: [{ name: 'Today', total: 15 }],
+  week: [
+    { name: 'Mon', total: 5 },
+    { name: 'Tue', total: 8 },
+    { name: 'Wed', total: 12 },
+    { name: 'Thu', total: 7 },
+    { name: 'Fri', total: 15 },
+    { name: 'Sat', total: 25 },
+    { name: 'Sun', total: 20 },
+  ],
+  month: [
+    { name: 'Week 1', total: 50 },
+    { name: 'Week 2', total: 75 },
+    { name: 'Week 3', total: 60 },
+    { name: 'Week 4', total: 90 },
+  ],
+  lifetime: [
+     { name: 'Jan', total: 120 },
+     { name: 'Feb', total: 200 },
+     { name: 'Mar', total: 150 },
+     { name: 'Apr', total: 250 },
+     { name: 'May', total: 300 },
+     { name: 'Jun', total: 450 },
+  ]
+};
+
+export const mockTopUsers: TopUser[] = [
+    { id: 'user-3', name: 'Cathy Liu', avatarUrl: 'https://picsum.photos/seed/av3/100/100', level: 3.0, progress: 5 },
+    { id: 'user-1', name: 'Alia Rahman', avatarUrl: 'https://picsum.photos/seed/av1/100/100', level: 2.1, progress: 3 },
+    { id: 'user-2', name: 'Ben Carter', avatarUrl: 'https://picsum.photos/seed/av2/100/100', level: 1.5, progress: 2 },
+    { id: 'user-4', name: 'David Hasan', avatarUrl: 'https://picsum.photos/seed/av4/100/100', level: 0.5, progress: 1 },
+];
+
+export const mockTopPatrons: TopPatron[] = [
+    { id: 'user-1', name: 'Alia Rahman', avatarUrl: 'https://picsum.photos/seed/av1/100/100', totalDonation: 1000, donationCount: 1 },
+    { id: 'user-2', name: 'Ben Carter', avatarUrl: 'https://picsum.photos/seed/av2/100/100', totalDonation: 500, donationCount: 3 },
 ];

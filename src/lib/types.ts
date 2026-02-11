@@ -131,3 +131,24 @@ export type PrizeWinner = {
   status: 'Pending' | 'Awarded';
   dateAwarded?: string;
 };
+
+export type SignUpData = {
+  name: string;
+  total: number;
+};
+
+export type TopUser = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  level: number;
+  progress: number;
+};
+
+export type TopPatron = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  totalDonation: number;
+  donationCount: number;
+};
