@@ -29,11 +29,15 @@ function ExamContent() {
     return query(collection(firestore, 'questions'), where('level', '==', level));
   }, [firestore, level]);
 
-  const { data: questions, loading: questionsLoading } = useCollection<Question>(questionsQuery);
+  // All available questions for the level
+  const { data: allQuestions, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
+  // The randomly selected subset of questions for this specific exam instance
+  const [examQuestions, setExamQuestions] = useState<Question[] | null>(null);
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_PER_QUESTION);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const [syllabusQuery, setSyllabusQuery] = useState<any>(null);
@@ -47,17 +51,55 @@ function ExamContent() {
   const syllabus = userSyllabusArr?.[0];
 
   useEffect(() => {
-    if (questions) {
-      setUserAnswers(Array(questions.length).fill(null));
+    // This effect runs once when all questions and syllabus are loaded.
+    // It selects a random subset of questions for the exam.
+    if (allQuestions && syllabus && allQuestions.length > 0) {
+      
+      const shuffleArray = (array: any[]) => {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      };
+
+      const selectedQuestions: Question[] = [];
+      
+      // For each subject in the syllabus, select a random set of questions
+      for (const subjectName in syllabus.subjects) {
+        const subjectSyllabus = syllabus.subjects[subjectName];
+        const questionsForSubject = allQuestions.filter(q => q.subject === subjectName);
+        
+        const shuffled = shuffleArray([...questionsForSubject]);
+        
+        // The number of questions to take is the 'marks' for that subject from the syllabus
+        const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
+        
+        selectedQuestions.push(...shuffled.slice(0, questionsToTake));
+      }
+
+      // Shuffle the final list so questions from different subjects are mixed
+      setExamQuestions(shuffleArray(selectedQuestions));
+    } else if (allQuestions) {
+        // If there are no questions but the query has finished, set an empty array
+        setExamQuestions([]);
+    }
+  }, [allQuestions, syllabus]);
+
+
+  useEffect(() => {
+    // This effect initializes the exam state once the examQuestions are selected
+    if (examQuestions) {
+      setUserAnswers(Array(examQuestions.length).fill(null));
       setCurrentQuestionIndex(0);
-      setTimeLeft(TOTAL_TIME_PER_QUESTION);
+      setTimeLeft(examQuestions.length > 0 ? TOTAL_TIME_PER_QUESTION : 0);
       setSelectedOption(null);
     }
-  }, [questions]);
+  }, [examQuestions]);
   
   const handleFinishExam = useCallback(() => {
-    if (!syllabus || !questions) {
-      console.error("Syllabus or questions not found for level:", level);
+    if (!syllabus || !examQuestions) {
+      console.error("Syllabus or exam questions not ready for level:", level);
       router.push('/dashboard/competition/exam/result');
       return;
     }
@@ -68,18 +110,19 @@ function ExamContent() {
 
     for (const subjectName in syllabus.subjects) {
       const subjectSyllabus = syllabus.subjects[subjectName];
-      const subjectQuestions = questions.filter(q => q.subject === subjectName);
+      // These are the questions from the current exam session for this subject
+      const subjectQuestionsInExam = examQuestions.filter(q => q.subject === subjectName);
       
-      if (subjectQuestions.length === 0) continue;
+      if (subjectQuestionsInExam.length === 0) continue;
 
-      const marksPerQuestion = subjectSyllabus.marks / subjectQuestions.length;
       let correctAnswers = 0;
       let incorrectAnswers = 0;
 
-      subjectQuestions.forEach(q => {
-        const questionIndex = questions.findIndex(ques => ques.id === q.id);
+      subjectQuestionsInExam.forEach(q => {
+        // Find the index of this question in the full examQuestions list to get the user's answer
+        const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
         const userAnswer = userAnswers[questionIndex];
-        if (userAnswer) {
+        if (userAnswer) { // if answered
             const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
             if (userAnswer === correctAnswerText) {
                 correctAnswers++;
@@ -89,7 +132,8 @@ function ExamContent() {
         }
       });
       
-      const obtainedMarks = (correctAnswers * marksPerQuestion) - (incorrectAnswers * 0.5);
+      // Each question is worth 1 mark, with a 0.5 deduction for wrong answers.
+      const obtainedMarks = (correctAnswers * 1) - (incorrectAnswers * 0.5);
       const obtainedMarksClamped = Math.max(0, obtainedMarks);
       const percentage = (obtainedMarksClamped / subjectSyllabus.marks) * 100;
       
@@ -146,23 +190,23 @@ function ExamContent() {
 
     router.push('/dashboard/competition/exam/result');
 
-  }, [level, questions, userAnswers, router, syllabus]);
+  }, [level, examQuestions, userAnswers, router, syllabus]);
 
   const handleNext = useCallback(() => {
-    if (!questions) return;
+    if (!examQuestions) return;
     setSelectedOption(null);
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < examQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setTimeLeft(TOTAL_TIME_PER_QUESTION);
     } else {
       handleFinishExam();
     }
-  }, [currentQuestionIndex, questions, handleFinishExam]);
+  }, [currentQuestionIndex, examQuestions, handleFinishExam]);
 
-  const currentQuestion = questions ? questions[currentQuestionIndex] : null;
+  const currentQuestion = examQuestions ? examQuestions[currentQuestionIndex] : null;
 
   useEffect(() => {
-    if (!questions || questions.length === 0) return;
+    if (!examQuestions || examQuestions.length === 0 || !currentQuestion) return;
 
     if (timeLeft === 0) {
       handleNext();
@@ -174,7 +218,7 @@ function ExamContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, questions, handleNext]);
+  }, [timeLeft, examQuestions, handleNext, currentQuestion]);
 
 
   const handleAnswerSelect = (answer: string) => {
@@ -184,12 +228,12 @@ function ExamContent() {
     setSelectedOption(answer);
   };
   
-  if (questionsLoading || !questions) {
+  if (questionsLoading || !examQuestions) {
     return (
        <main className="flex items-center justify-center min-h-screen bg-background p-4">
         <Card className="w-full max-w-2xl text-center">
             <CardHeader>
-                <CardTitle>Loading Exam...</CardTitle>
+                <CardTitle>Preparing Your Exam...</CardTitle>
             </CardHeader>
             <CardContent>
                  <Skeleton className="h-4 w-3/4 mx-auto" />
@@ -203,7 +247,7 @@ function ExamContent() {
     )
   }
 
-  if (questions.length === 0) {
+  if (examQuestions.length === 0) {
     const majorLevel = Math.floor(parseFloat(level));
     const examSchedules: { [key: number]: string } = {
         1: "Your exam will take place on Friday: 9 a.m. to 10 a.m.",
@@ -266,7 +310,7 @@ function ExamContent() {
           <CardTitle className="font-headline text-center">Level: {level} Exam</CardTitle>
           <div className="flex items-center gap-4 pt-2">
             <span className="text-sm font-mono whitespace-nowrap">
-              {currentQuestionIndex + 1} / {questions.length}
+              {currentQuestionIndex + 1} / {examQuestions.length}
             </span>
             <Progress value={(timeLeft / TOTAL_TIME_PER_QUESTION) * 100} className="w-full" />
             <span className="text-sm font-mono font-bold w-12 text-right">{timeLeft}s</span>
@@ -304,7 +348,7 @@ function ExamContent() {
               Skip
             </Button>
             <Button onClick={handleNext} disabled={!userAnswers[currentQuestionIndex]}>
-              {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Finish Exam'}
+              {currentQuestionIndex < examQuestions.length - 1 ? 'Next Question' : 'Finish Exam'}
             </Button>
           </div>
         </CardContent>
