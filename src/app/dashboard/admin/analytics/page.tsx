@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,11 +11,17 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { mockSignUpData, mockTopUsers, mockTopPatrons } from '@/lib/data';
 import type { SignUpData, TopUser, TopPatron } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Period = 'day' | 'week' | 'month' | 'lifetime';
 
 export default function AnalyticsPage() {
     const [period, setPeriod] = useState<Period>('week');
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
     
     const totalSignUps = {
         day: 15,
@@ -59,17 +65,21 @@ export default function AnalyticsPage() {
                         <p className="text-xs text-muted-foreground">
                             {period.charAt(0).toUpperCase() + period.slice(1)}
                         </p>
-                        <Select value={period} onValueChange={(value: Period) => setPeriod(value)}>
-                            <SelectTrigger className="text-xs mt-2 h-8">
-                                <SelectValue placeholder="Select period" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="day">Day</SelectItem>
-                                <SelectItem value="week">Week</SelectItem>
-                                <SelectItem value="month">Month</SelectItem>
-                                <SelectItem value="lifetime">Lifetime</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        {isClient ? (
+                            <Select value={period} onValueChange={(value: Period) => setPeriod(value)}>
+                                <SelectTrigger className="text-xs mt-2 h-8">
+                                    <SelectValue placeholder="Select period" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="day">Day</SelectItem>
+                                    <SelectItem value="week">Week</SelectItem>
+                                    <SelectItem value="month">Month</SelectItem>
+                                    <SelectItem value="lifetime">Lifetime</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <Skeleton className="h-8 w-full mt-2" />
+                        )}
                     </CardContent>
                 </Card>
                 <Card>
