@@ -196,7 +196,7 @@ function BooksPageContent() {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const url = e.target?.result as string;
-                handleBookChange(bookId, fileType === 'cover' ? 'coverUrl' : 'pdfUrl', fileType === 'cover' ? url : file.name);
+                handleBookChange(bookId, fileType === 'cover' ? 'coverUrl' : 'pdfUrl', url);
             };
             reader.readAsDataURL(file);
             toast({title: `${file.name} ready for upload.`});
