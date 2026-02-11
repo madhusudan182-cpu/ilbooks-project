@@ -77,7 +77,7 @@ const EditableBookGrid = ({
                             <Upload className="mr-2 h-4 w-4" /> PDF
                         </Button>
                     </div>
-                    {book.pdfUrl && <p className="text-xs text-muted-foreground truncate">PDF: {book.pdfUrl}</p>}
+                    {book.pdfUrl && <p className="text-xs text-green-600 font-medium truncate">PDF uploaded. Ready to save.</p>}
                 </Card>
             ))}
         </div>
@@ -160,8 +160,17 @@ function BooksPageContent() {
         // Books to add or update
         editedBooks.forEach(book => {
             const { id, ...bookData } = book;
+
+            // Create a clean object to save, removing any keys with undefined values.
+            const cleanBookData = Object.entries(bookData).reduce((acc, [key, value]) => {
+                if (value !== undefined) {
+                    (acc as any)[key] = value;
+                }
+                return acc;
+            }, {} as Partial<BookType>);
+
             const docRef = doc(firestore, "books", id);
-            batch.set(docRef, bookData);
+            batch.set(docRef, cleanBookData, { merge: true });
         });
 
         try {
