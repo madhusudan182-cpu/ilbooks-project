@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockUsers } from "@/lib/data";
 import type { User } from "@/lib/types";
-import { MessageCircle, UserCheck, UserPlus, Users } from "lucide-react";
+import { MessageCircle, UserCheck, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { currentUser } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -64,6 +64,17 @@ const UserList = ({ users }: { users: User[] }) => (
   </div>
 );
 
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+
 export default function SocialPage() {
   const [isClient, setIsClient] = useState(false);
 
@@ -71,21 +82,31 @@ export default function SocialPage() {
     setIsClient(true);
   }, []);
   
+  const handleInvite = () => {
+    const appUrl = window.location.origin;
+    const quote = "Join me on ILBooks, a network for book lovers!";
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}&quote=${encodeURIComponent(quote)}`, '_blank', 'noopener,noreferrer');
+  }
+
   const following = mockUsers.filter(u => u.isFollowing);
   const followers = [...mockUsers.filter(u => u.isMutual), mockUsers[2]];
-  const mutual = mockUsers.filter(u => u.isMutual);
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <h1 className="text-2xl font-bold font-headline text-center mb-4">Social Circle</h1>
       {isClient ? (
         <Tabs defaultValue="search">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
-            <TabsTrigger value="search" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs">Search</TabsTrigger>
-            <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-auto text-xs"><UserCheck className="w-4 h-4 mr-1" />Following</TabsTrigger>
-            <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
-            <TabsTrigger value="mutual" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-auto text-xs"><Users className="w-4 h-4 mr-1" />Mutual</TabsTrigger>
-          </TabsList>
+          <div className="grid w-full grid-cols-4 bg-transparent p-0 gap-1">
+            <TabsList className="col-span-3 grid w-full grid-cols-3 bg-transparent p-0 gap-1">
+                <TabsTrigger value="search" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs">Search</TabsTrigger>
+                <TabsTrigger value="following" className="bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-auto text-xs"><UserCheck className="w-4 h-4 mr-1" />Following</TabsTrigger>
+                <TabsTrigger value="followers" className="bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-auto text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
+            </TabsList>
+            <Button onClick={handleInvite} className="bg-green-500 hover:bg-green-600 text-white px-1 py-1 h-auto text-xs">
+                <FacebookIcon className="w-4 h-4 mr-1" />
+                Invite
+            </Button>
+          </div>
           <TabsContent value="search" className="mt-2">
             <UserList users={mockUsers} />
           </TabsContent>
@@ -94,9 +115,6 @@ export default function SocialPage() {
           </TabsContent>
           <TabsContent value="followers" className="mt-2">
             <UserList users={followers} />
-          </TabsContent>
-          <TabsContent value="mutual" className="mt-2">
-            <UserList users={mutual} />
           </TabsContent>
         </Tabs>
       ) : null}
