@@ -45,9 +45,10 @@ export default function HomePage() {
             <div className="w-full">
               <form>
                 <Textarea
+                  rows={1}
                   className={cn(
-                    "text-sm transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none",
-                     isPosting ? "min-h-[36px]" : "h-7"
+                    "text-sm transition-all duration-200 ease-in-out p-1 border-0 focus-visible:ring-0 resize-none h-auto min-h-0",
+                    isPosting ? "min-h-[36px]" : ""
                   )}
                   placeholder="What's on your mind, bookworm?"
                   onFocus={() => setIsPosting(true)}
