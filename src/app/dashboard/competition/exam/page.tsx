@@ -52,53 +52,57 @@ function ExamContent() {
   const { data: userSyllabusArr } = useCollection<Syllabus>(syllabusQuery);
   const syllabus = userSyllabusArr?.[0];
 
-  useEffect(() => {
-    if (questionsLoading) return; // Don't run until Firestore query is complete
+ useEffect(() => {
+    if (questionsLoading) {
+      return; // Wait for Firestore query to complete
+    }
 
     const shuffleArray = (array: any[]) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
     };
 
-    let questionsToUse: Question[] = allQuestions || [];
-    let finalQuestions: Question[] = [];
+    let potentialQuestions: Question[] = [];
+    const hasFirestoreQuestions = allQuestions && allQuestions.length > 0;
 
-    // If Firestore returns no questions and it's level 0.0, use the local fallback questions.
-    // This is the highest priority fallback and bypasses syllabus filtering.
-    if (level === '0.0' && (!allQuestions || allQuestions.length === 0)) {
-        const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
-        const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
-        finalQuestions = [...localBengali, ...localEnglish];
-    } 
-    // Otherwise, if we have questions (from Firestore), process them.
-    else if (questionsToUse.length > 0) {
-      if (syllabus && Object.keys(syllabus.subjects).length > 0) {
-        // We have a syllabus, so select questions based on it.
+    // Step 1: Determine the source of questions
+    if (level === '0.0' && !hasFirestoreQuestions) {
+      // Fallback for Level 0.0 if Firestore is empty
+      const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
+      const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
+      potentialQuestions = [...localBengali, ...localEnglish];
+    } else if (hasFirestoreQuestions) {
+      // Use questions from Firestore for all other cases
+      potentialQuestions = allQuestions;
+    }
+
+    // Step 2: If we have potential questions, filter them by syllabus (if applicable)
+    let finalQuestions: Question[] = [];
+    const hasSyllabus = syllabus && Object.keys(syllabus.subjects).length > 0;
+
+    if (potentialQuestions.length > 0) {
+      if (hasSyllabus) {
+        // Filter by syllabus
         let selectedQuestions: Question[] = [];
         for (const subjectName in syllabus.subjects) {
           const subjectSyllabus = syllabus.subjects[subjectName];
-          const questionsForSubject = questionsToUse.filter(q => q.subject === subjectName);
+          const questionsForSubject = potentialQuestions.filter(q => q.subject === subjectName);
           const shuffled = shuffleArray([...questionsForSubject]);
           const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
           selectedQuestions.push(...shuffled.slice(0, questionsToTake));
         }
         finalQuestions = selectedQuestions;
       } else {
-        // No syllabus, so use all available questions from Firestore.
-        finalQuestions = questionsToUse;
+        // No syllabus, so just use all the potential questions
+        finalQuestions = potentialQuestions;
       }
     }
-    
-    // If after all logic, we still have no questions, set to empty array.
-    // Otherwise, shuffle the final list.
-    if (finalQuestions.length > 0) {
-        setExamQuestions(shuffleArray(finalQuestions));
-    } else {
-        setExamQuestions([]);
-    }
+
+    // Step 3: Set the state
+    setExamQuestions(shuffleArray(finalQuestions));
   }, [allQuestions, syllabus, level, questionsLoading]);
 
 
