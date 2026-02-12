@@ -283,7 +283,7 @@ export default function BookShopPage() {
                                     </Link>
                                 </Button>
                                 <Button size="icon" variant="secondary" asChild>
-                                    <Link href={book.pdfUrl} download>
+                                    <Link href={book.pdfUrl} target="_blank" rel="noopener noreferrer">
                                         <Download className="h-4 w-4" />
                                     </Link>
                                 </Button>
