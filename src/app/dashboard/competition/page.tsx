@@ -69,6 +69,7 @@ export default function CompetitionPage() {
     const { toast } = useToast();
 
     const [userLevel, setUserLevel] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
     
     const getExamFee = (levelString: string): number => {
         const [major] = levelString.split('.').map(Number);
@@ -88,6 +89,7 @@ export default function CompetitionPage() {
     const firestore = useFirestore();
 
     useEffect(() => {
+        setIsClient(true);
         const savedLevel = sessionStorage.getItem('currentUserLevel');
         if (savedLevel) {
             setUserLevel(savedLevel);
@@ -97,14 +99,13 @@ export default function CompetitionPage() {
     }, []);
 
     const competitionLevel = useMemo(() => {
-        const level = userLevel || '0.0';
-        return level.startsWith('0.') ? '0.0' : level;
+        return userLevel || '0.0';
     }, [userLevel]);
 
     
     const [syllabusQuery, setSyllabusQuery] = useState<any>(null);
     useEffect(() => {
-        if(firestore) {
+        if(firestore && competitionLevel) {
             setSyllabusQuery(query(collection(firestore, 'syllabi'), where('level', '==', competitionLevel)));
         }
     }, [firestore, competitionLevel]);
@@ -113,18 +114,21 @@ export default function CompetitionPage() {
     const userSyllabus = userSyllabusArr?.[0];
 
     const questionsQuery = useMemo(() => {
-        if (!firestore) return null;
+        if (!firestore || !competitionLevel) return null;
         return query(collection(firestore, 'questions'), where('level', '==', competitionLevel));
     }, [firestore, competitionLevel]);
 
     const { data: questionsForLevel } = useCollection<Question>(questionsQuery);
 
     useEffect(() => {
+        if (!competitionLevel) return;
         const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
         setIsRegistered(registrationStatus === 'true');
     }, [competitionLevel]);
 
     useEffect(() => {
+        if (!competitionLevel) return;
+
         const checkTimeAndRegistration = () => {
             // Check for expired registration
             const expiryTimestamp = sessionStorage.getItem(`examRegistrationExpiry_${competitionLevel}`);
@@ -198,6 +202,7 @@ export default function CompetitionPage() {
 
 
     const handlePaymentSuccess = () => {
+        if (!competitionLevel) return;
         const [majorLevel] = competitionLevel.split('.').map(Number);
         if (majorLevel < 1) {
              console.log("Payment successful, starting exam for level 0...");
@@ -232,6 +237,7 @@ export default function CompetitionPage() {
     };
     
     const handleStartExamClick = () => {
+        if (!competitionLevel) return;
         // For level 0.0, always allow proceeding.
         // The exam page has local fallback questions.
         if (competitionLevel === '0.0') {
@@ -284,7 +290,7 @@ export default function CompetitionPage() {
                     <h1 className="text-4xl font-bold font-headline">Competition</h1>
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
                     <div className="flex flex-col justify-center items-center gap-2 mt-4">
-                        {userLevel ? (
+                        {isClient && userLevel ? (
                             <Badge className="text-base bg-red-100 text-red-800">Your Current Level: {userLevel}</Badge>
                         ) : (
                             <Skeleton className="h-7 w-48" />
