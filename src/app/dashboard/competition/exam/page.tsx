@@ -38,16 +38,16 @@ function ExamContent() {
   const isLevelZero = level === '0.0';
 
   const questionsQuery = useMemo(() => {
-    if (!firestore) return null; // Always create a query
+    if (!firestore || isLevelZero) return null; // Don't fetch for level 0
     return query(collection(firestore, 'questions'), where('level', '==', level));
-  }, [firestore, level]);
+  }, [firestore, level, isLevelZero]);
 
   const { data: allQuestionsFromDB, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
   const syllabusQuery = useMemo(() => {
-      if (!firestore) return null;
+      if (!firestore || isLevelZero) return null;
       return query(collection(firestore, 'syllabi'), where('level', '==', level));
-  }, [firestore, level]);
+  }, [firestore, level, isLevelZero]);
 
   const { data: userSyllabusArr, loading: syllabusLoading } = useCollection<Syllabus>(syllabusQuery);
   const syllabus = userSyllabusArr?.[0];
@@ -59,7 +59,6 @@ function ExamContent() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
-    // This effect determines the source of questions (DB vs local) and selects them.
     if (isLevelZero) {
         // --- PATH A: Special logic for Level 0.0 ---
         const bengali = shuffleArray([...newBengaliLevel0Questions]).slice(0, 10).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` }));
@@ -79,19 +78,45 @@ function ExamContent() {
             const syllabusToUse = syllabus && Object.keys(syllabus.subjects).length > 0 ? syllabus : null;
 
             if (syllabusToUse) {
-                // A syllabus exists, so we MUST follow it.
+                // A syllabus IS defined, so we must follow it strictly.
+                let canBuildExam = true;
+                const tempFinalQuestions: Question[] = [];
+
                 for (const subjectName in syllabusToUse.subjects) {
                     const subjectSyllabus = syllabusToUse.subjects[subjectName];
                     const questionsForSubject = questionPool.filter(q => q.subject === subjectName);
+                    
+                    if (questionsForSubject.length < subjectSyllabus.marks) {
+                        console.error(`Cannot build exam for level ${level}: Not enough questions for subject "${subjectName}". Required by syllabus: ${subjectSyllabus.marks}, Available in DB: ${questionsForSubject.length}`);
+                        canBuildExam = false;
+                        break; 
+                    }
+
                     const shuffled = shuffleArray([...questionsForSubject]);
-                    // We take the number of questions specified in the syllabus, but not more than are available.
-                    const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
-                    finalQuestions.push(...shuffled.slice(0, questionsToTake));
+                    tempFinalQuestions.push(...shuffled.slice(0, subjectSyllabus.marks));
+                }
+
+                if (canBuildExam) {
+                    finalQuestions = tempFinalQuestions;
                 }
             } else {
-                // No syllabus found. For levels > 0.0, a syllabus is required to structure the exam.
-                // We will result in an empty finalQuestions array, which the UI correctly handles by showing "Exam Not Ready".
-                console.warn(`No syllabus found for level ${level}. Cannot prepare exam.`);
+                // NO syllabus is defined, but questions EXIST. Build a default exam.
+                console.warn(`No syllabus found for level ${level}. Building a default exam with available questions.`);
+                const questionsBySubject: Record<string, Question[]> = {};
+                
+                questionPool.forEach(q => {
+                    if (!questionsBySubject[q.subject]) {
+                        questionsBySubject[q.subject] = [];
+                    }
+                    questionsBySubject[q.subject].push(q);
+                });
+
+                // Create a default exam with up to 10 questions per subject
+                for (const subjectName in questionsBySubject) {
+                    const shuffled = shuffleArray(questionsBySubject[subjectName]);
+                    const questionsToTake = Math.min(10, shuffled.length);
+                    finalQuestions.push(...shuffled.slice(0, questionsToTake));
+                }
             }
         }
         
@@ -119,44 +144,31 @@ function ExamContent() {
 
     let finalSyllabusForResults: Syllabus | (Syllabus & { id: string; }) | undefined;
 
-    // 1. For Level 0.0, always create a default syllabus for result calculation
-    if (level === '0.0') {
-        const bengaliQuestionsCount = examQuestions.filter(q => q.subject === 'Bengali').length;
-        const englishQuestionsCount = examQuestions.filter(q => q.subject === 'English').length;
-        finalSyllabusForResults = {
-            level: '0.0',
-            subjects: {
-                'Bengali': { marks: bengaliQuestionsCount > 0 ? bengaliQuestionsCount : 10, topics: [] },
-                'English': { marks: englishQuestionsCount > 0 ? englishQuestionsCount: 10, topics: [] }
-            }
-        };
-    }
-    // 2. For other levels, prioritize the syllabus from the database
-    else if (syllabus && Object.keys(syllabus.subjects).length > 0) {
+    const subjectsInExam: { [subjectName: string]: SyllabusTopic } = {};
+    const questionsBySubject: { [subjectName: string]: Question[] } = {};
+
+    examQuestions.forEach(q => {
+        if (!questionsBySubject[q.subject]) {
+            questionsBySubject[q.subject] = [];
+        }
+        questionsBySubject[q.subject].push(q);
+    });
+
+    // 1. If a database syllabus was used to build the exam, use it for results.
+    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
       finalSyllabusForResults = syllabus;
     } 
-    // 3. Fallback for other levels if no syllabus is found in the database.
+    // 2. Otherwise, construct a syllabus based on the actual questions in the exam.
     else {
-        const subjects: { [subjectName: string]: SyllabusTopic } = {};
-        const questionsBySubject: { [subjectName: string]: Question[] } = {};
-
-        examQuestions.forEach(q => {
-            if (!questionsBySubject[q.subject]) {
-                questionsBySubject[q.subject] = [];
-            }
-            questionsBySubject[q.subject].push(q);
-        });
-
         for (const subjectName in questionsBySubject) {
-            subjects[subjectName] = {
+            subjectsInExam[subjectName] = {
                 marks: questionsBySubject[subjectName].length,
                 topics: []
             };
         }
-        
         finalSyllabusForResults = {
             level: level,
-            subjects: subjects
+            subjects: subjectsInExam
         };
     }
 
