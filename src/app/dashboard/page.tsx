@@ -38,7 +38,7 @@ export default function HomePage() {
       <Card id="post">
         <CardContent className="p-1">
           <div className="flex items-center gap-2">
-            <Avatar className="h-7 w-7">
+            <Avatar className="h-9 w-9">
               <AvatarImage src={currentUser.avatarUrl} alt="User" />
               <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
@@ -93,7 +93,7 @@ export default function HomePage() {
             <Card key={post.id} className="overflow-hidden">
               <CardHeader className="flex flex-row items-center gap-2 p-2">
                 <Link href={profileUrl}>
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10">
                     <AvatarImage
                       src={post.author.avatarUrl}
                       alt={post.author.name}
