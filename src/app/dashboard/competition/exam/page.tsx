@@ -57,7 +57,6 @@ function ExamContent() {
     };
 
     // --- Special, Isolated Logic for Level 0.0 ---
-    // This block is self-contained and has no dependency on the Firestore syllabus for Level 0.0.
     if (level === '0.0') {
       const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
       const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
@@ -121,9 +120,22 @@ function ExamContent() {
       return;
     }
 
-    let finalSyllabus = syllabus;
-    // If syllabus doesn't exist, create a temporary one based on the questions in the exam
-    if (!finalSyllabus || Object.keys(finalSyllabus.subjects).length === 0) {
+    let finalSyllabus: Syllabus | (Syllabus & { id: string; }) | undefined;
+
+    // Special, isolated syllabus logic for Level 0.0
+    if (level === '0.0') {
+        const bengaliQuestionsCount = examQuestions.filter(q => q.subject === 'Bengali').length;
+        const englishQuestionsCount = examQuestions.filter(q => q.subject === 'English').length;
+        finalSyllabus = {
+            level: '0.0',
+            subjects: {
+                'Bengali': { marks: bengaliQuestionsCount, topics: [] },
+                'English': { marks: englishQuestionsCount, topics: [] }
+            }
+        };
+    } 
+    // Fallback for other levels if no syllabus is found in the database.
+    else if (!syllabus || Object.keys(syllabus.subjects).length === 0) {
         const subjects: { [subjectName: string]: SyllabusTopic } = {};
         const questionsBySubject: { [subjectName: string]: Question[] } = {};
 
@@ -136,62 +148,65 @@ function ExamContent() {
 
         for (const subjectName in questionsBySubject) {
             subjects[subjectName] = {
-                marks: questionsBySubject[subjectName].length, // Total marks is number of questions
+                marks: questionsBySubject[subjectName].length,
                 topics: []
             };
         }
         
         finalSyllabus = {
-            id: `temp-syllabus-${level}`,
             level: level,
             subjects: subjects
         };
+    }
+    // Use the syllabus from the database if it exists.
+    else {
+      finalSyllabus = syllabus;
     }
 
     const subjectResults: SubjectResult[] = [];
     let totalObtainedMarks = 0;
     let totalMarks = 0;
 
-    for (const subjectName in finalSyllabus.subjects) {
-      const subjectQuestionsInExam = examQuestions.filter(q => q.subject === subjectName);
-      
-      if (subjectQuestionsInExam.length === 0) continue;
+    if (finalSyllabus && finalSyllabus.subjects) {
+      for (const subjectName in finalSyllabus.subjects) {
+        const subjectQuestionsInExam = examQuestions.filter(q => q.subject === subjectName);
+        
+        if (subjectQuestionsInExam.length === 0) continue;
 
-      let correctAnswers = 0;
-      let incorrectAnswers = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
 
-      subjectQuestionsInExam.forEach(q => {
-        // Find the index of this question in the full examQuestions list to get the user's answer
-        const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
-        const userAnswer = userAnswers[questionIndex];
-        if (userAnswer) { // if answered
-            const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
-            if (userAnswer === correctAnswerText) {
-                correctAnswers++;
-            } else {
-                incorrectAnswers++;
-            }
-        }
-      });
-      
-      // Each question is worth 1 mark, with a 0.5 deduction for wrong answers.
-      // Total marks for the subject is the number of questions for that subject in the exam.
-      const subjectTotalMarks = subjectQuestionsInExam.length;
-      const obtainedMarks = (correctAnswers * 1) - (incorrectAnswers * 0.5);
-      const obtainedMarksClamped = Math.max(0, obtainedMarks);
-      const percentage = subjectTotalMarks > 0 ? (obtainedMarksClamped / subjectTotalMarks) * 100 : 0;
-      
-      subjectResults.push({
-        subject: subjectName,
-        totalMarks: subjectTotalMarks,
-        obtainedMarks: parseFloat(obtainedMarksClamped.toFixed(2)),
-        percentage: parseFloat(percentage.toFixed(2)),
-        status: percentage >= 60 ? 'Passed' : 'Failed'
-      });
+        subjectQuestionsInExam.forEach(q => {
+          const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
+          const userAnswer = userAnswers[questionIndex];
+          if (userAnswer) {
+              const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
+              if (userAnswer === correctAnswerText) {
+                  correctAnswers++;
+              } else {
+                  incorrectAnswers++;
+              }
+          }
+        });
+        
+        const subjectTotalMarks = subjectQuestionsInExam.length;
+        const obtainedMarks = (correctAnswers * 1) - (incorrectAnswers * 0.5);
+        const obtainedMarksClamped = Math.max(0, obtainedMarks);
+        const percentage = subjectTotalMarks > 0 ? (obtainedMarksClamped / subjectTotalMarks) * 100 : 0;
+        
+        subjectResults.push({
+          subject: subjectName,
+          totalMarks: subjectTotalMarks,
+          obtainedMarks: parseFloat(obtainedMarksClamped.toFixed(2)),
+          percentage: parseFloat(percentage.toFixed(2)),
+          status: percentage >= 60 ? 'Passed' : 'Failed'
+        });
 
-      totalObtainedMarks += obtainedMarksClamped;
-      totalMarks += subjectTotalMarks;
+        totalObtainedMarks += obtainedMarksClamped;
+        totalMarks += subjectTotalMarks;
+      }
     }
+
 
     const overallStatus = subjectResults.length > 0 && subjectResults.every(r => r.status === 'Passed') ? 'Passed' : 'Failed';
     const totalPercentage = totalMarks > 0 ? (totalObtainedMarks / totalMarks) * 100 : 0;
@@ -212,7 +227,6 @@ function ExamContent() {
 
     sessionStorage.setItem('lastExamResult', JSON.stringify(newResult));
 
-    // Clear registration status on exam completion
     sessionStorage.removeItem(`examRegistered_${level}`);
     sessionStorage.removeItem(`examRegistrationExpiry_${level}`);
     sessionStorage.removeItem(`notificationSent_${level}`);
@@ -224,7 +238,7 @@ function ExamContent() {
         if (nextMinor > 9) {
             nextMinor = 0;
             nextMajor = major + 1;
-            if (nextMajor === 1) { // Skip level 1.x
+            if (nextMajor === 1) {
                 nextMajor = 2;
             }
         }
@@ -421,5 +435,3 @@ export default function ExamPage() {
     </Suspense>
   );
 }
-
-    
