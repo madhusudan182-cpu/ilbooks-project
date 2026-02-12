@@ -27,7 +27,6 @@ function ExamContent() {
   const firestore = useFirestore();
 
   const questionsQuery = useMemo(() => {
-    // For level 0.0, we use local questions, so no need to query Firestore.
     if (!firestore || level === '0.0') return null;
     return query(collection(firestore, 'questions'), where('level', '==', level));
   }, [firestore, level]);
@@ -35,7 +34,6 @@ function ExamContent() {
   const { data: allQuestions, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
   const [examQuestions, setExamQuestions] = useState<Question[] | null>(null);
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -58,24 +56,28 @@ function ExamContent() {
       return array;
     };
 
-    // Wait for data to load for levels other than 0.0
-    if (level !== '0.0' && (questionsLoading || syllabusLoading)) {
+    // --- Special, Isolated Logic for Level 0.0 ---
+    // This block is self-contained and has no dependency on the Firestore syllabus for Level 0.0.
+    if (level === '0.0') {
+      const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
+      const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
+      
+      const shuffledBengali = shuffleArray(localBengali).slice(0, 10);
+      const shuffledEnglish = shuffleArray(localEnglish).slice(0, 10);
+
+      const finalQuestions = shuffleArray([...shuffledBengali, ...shuffledEnglish]);
+      setExamQuestions(finalQuestions);
+      return; // Exit early to prevent database-dependent logic from running for Level 0.0
+    }
+    
+    // --- Logic for all other levels (dependent on Firestore) ---
+    if (questionsLoading || syllabusLoading) {
       return;
     }
 
-    let potentialQuestions: Question[] = [];
-    if (level === '0.0') {
-        // For Level 0.0, we use the local files as the question pool
-        const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
-        const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
-        potentialQuestions = [...localBengali, ...localEnglish];
-    } else if (allQuestions) {
-        // For other levels, use questions from Firestore
-        potentialQuestions = allQuestions;
-    }
+    const potentialQuestions: Question[] = allQuestions || [];
     
-    // If there are no questions from any source (and we're not loading), we can't proceed.
-    if (potentialQuestions.length === 0 && !questionsLoading) {
+    if (potentialQuestions.length === 0) {
       setExamQuestions([]);
       return;
     }
@@ -89,18 +91,15 @@ function ExamContent() {
         const subjectSyllabus = syllabus.subjects[subjectName];
         const questionsForSubject = potentialQuestions.filter(q => q.subject === subjectName);
         
-        // Shuffle and take the number of questions specified by 'marks' in the syllabus
         const shuffled = shuffleArray([...questionsForSubject]);
         const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
         selectedQuestions.push(...shuffled.slice(0, questionsToTake));
       }
       finalQuestions = selectedQuestions;
     } else {
-      // Fallback if no syllabus: use all available questions for that level.
       finalQuestions = potentialQuestions;
     }
     
-    // Shuffle the final list of questions to mix subjects together
     setExamQuestions(shuffleArray(finalQuestions));
   }, [allQuestions, userSyllabusArr, level, questionsLoading, syllabusLoading, syllabus]);
 
@@ -422,3 +421,5 @@ export default function ExamPage() {
     </Suspense>
   );
 }
+
+    
