@@ -45,9 +45,16 @@ export default function AllQuestionsPage() {
     }, {} as Record<string, Question[]>) || {}, [questions]);
     
     const handleEditClick = (level: string) => {
-        const questionsToEdit = questionsByLevel[level] || [];
+        const questionsToEdit = JSON.parse(JSON.stringify(questionsByLevel[level] || []));
+        
+        questionsToEdit.forEach((q: Question) => {
+            while (q.answers.length < 4) {
+                q.answers.push({ text: 'New Answer', isCorrect: false });
+            }
+        });
+
         setEditingLevel(level);
-        setEditedQuestions(JSON.parse(JSON.stringify(questionsToEdit)));
+        setEditedQuestions(questionsToEdit);
     };
 
     const handleCancelClick = () => {
@@ -124,7 +131,7 @@ export default function AllQuestionsPage() {
 
     const handleRemoveAnswer = (qId: string, ansIndex: number) => {
         setEditedQuestions(current => current.map(q => {
-            if (q.id === qId && q.answers.length > 2) {
+            if (q.id === qId && q.answers.length > 4) {
                 let newAnswers = q.answers.filter((_, idx) => idx !== ansIndex);
                  if (!newAnswers.some(a => a.isCorrect) && newAnswers.length > 0) {
                     newAnswers[0].isCorrect = true;
@@ -154,7 +161,9 @@ export default function AllQuestionsPage() {
             questionText: 'New Question Text',
             answers: [
                 { text: 'Correct Answer', isCorrect: true },
-                { text: 'Incorrect Answer', isCorrect: false },
+                { text: 'Incorrect Answer 1', isCorrect: false },
+                { text: 'Incorrect Answer 2', isCorrect: false },
+                { text: 'Incorrect Answer 3', isCorrect: false },
             ],
         };
         setEditedQuestions(current => [...current, newQuestion]);
@@ -234,7 +243,7 @@ export default function AllQuestionsPage() {
                                                                             <div key={ansIndex} className="flex items-center gap-2">
                                                                                 <RadioGroupItem value={ansIndex.toString()} id={`q-${q.id}-ans-${ansIndex}`} />
                                                                                 <Input value={ans.text} onChange={(e) => handleAnswerTextChange(q.id, ansIndex, e.target.value)} />
-                                                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveAnswer(q.id, ansIndex)} disabled={q.answers.length <= 2}>
+                                                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveAnswer(q.id, ansIndex)} disabled={q.answers.length <= 4}>
                                                                                     <Trash2 className="h-4 w-4 text-destructive"/>
                                                                                 </Button>
                                                                             </div>
