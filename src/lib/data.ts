@@ -5,7 +5,7 @@ export const mockUsers: User[] = [
     id: 'user-1',
     name: 'Alia Rahman',
     avatarUrl: 'https://picsum.photos/seed/av1/100/100',
-    level: 0.0,
+    level: 0.2,
     institution: 'University of Dhaka',
     location: 'Dhaka, Bangladesh',
     hobbies: ['Classic Literature', 'Poetry', 'History'],
