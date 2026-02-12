@@ -42,12 +42,6 @@ function ExamContent() {
 
   const { data: allQuestionsFromDB, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
-  const [examQuestions, setExamQuestions] = useState<Question[] | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
   const syllabusQuery = useMemo(() => {
       if (!firestore) return null;
       return query(collection(firestore, 'syllabi'), where('level', '==', level));
@@ -55,6 +49,12 @@ function ExamContent() {
 
   const { data: userSyllabusArr, loading: syllabusLoading } = useCollection<Syllabus>(syllabusQuery);
   const syllabus = userSyllabusArr?.[0];
+  
+  const [examQuestions, setExamQuestions] = useState<Question[] | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
     if (questionsLoading || syllabusLoading) {
@@ -62,55 +62,52 @@ function ExamContent() {
     }
 
     // --- STAGE 1: Determine the source pool of questions ---
-    let questionSource: Question[] = [];
+    let questionPool: Question[] = [];
     const hasDbQuestions = allQuestionsFromDB && allQuestionsFromDB.length > 0;
 
     if (hasDbQuestions) {
-      // If questions exist in the DB for this level, they are the source of truth.
-      questionSource = allQuestionsFromDB;
+      questionPool = allQuestionsFromDB;
     } else if (level === '0.0') {
-      // If no DB questions, and it's level 0.0, use the local fallback files.
-      questionSource = [
+      questionPool = [
         ...newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` })),
         ...newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }))
       ];
     }
-    // If not level 0.0 and no DB questions, questionSource remains [], which is the correct "Not Ready" state.
+    
+    // --- STAGE 2: Determine the syllabus to use ---
+    let syllabusToUse: Syllabus | null = null;
+    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
+      syllabusToUse = syllabus;
+    } else if (level === '0.0') {
+      // Create a default syllabus for level 0.0 if none is found in DB or if it's empty
+      syllabusToUse = {
+        level: '0.0',
+        subjects: {
+          'Bengali': { marks: 10, topics: [] },
+          'English': { marks: 10, topics: [] }
+        }
+      };
+    }
 
-    // --- STAGE 2: Select the final questions for the exam from the source pool ---
+    // --- STAGE 3: Select the final questions for the exam ---
     let finalQuestions: Question[] = [];
-    if (questionSource.length > 0) {
-      const dbSyllabus = syllabus;
-      const hasDbSyllabus = dbSyllabus && Object.keys(dbSyllabus.subjects).length > 0;
-
-      if (hasDbSyllabus) {
-        // A syllabus exists, so select questions based on its rules.
-        let selectedQuestions: Question[] = [];
-        for (const subjectName in dbSyllabus.subjects) {
-          const subjectSyllabus = dbSyllabus.subjects[subjectName];
-          const questionsForSubject = questionSource.filter(q => q.subject === subjectName);
-          const shuffled = shuffleArray([...questionsForSubject]);
-          const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
-          selectedQuestions.push(...shuffled.slice(0, questionsToTake));
-        }
-        finalQuestions = selectedQuestions;
-      } else {
-        // No syllabus exists. Use default selection logic.
-        if (level === '0.0') {
-          // For level 0.0, default to 10 Bengali and 10 English.
-          const shuffledBengali = shuffleArray(questionSource.filter(q => q.subject === 'Bengali')).slice(0, 10);
-          const shuffledEnglish = shuffleArray(questionSource.filter(q => q.subject === 'English')).slice(0, 10);
-          finalQuestions = [...shuffledBengali, ...shuffledEnglish];
-        } else {
-          // For other levels without a syllabus, just use all available questions from the source.
-          finalQuestions = questionSource;
-        }
+    if (syllabusToUse) {
+      for (const subjectName in syllabusToUse.subjects) {
+        const subjectSyllabus = syllabusToUse.subjects[subjectName];
+        const questionsForSubject = questionPool.filter(q => q.subject === subjectName);
+        const shuffled = shuffleArray([...questionsForSubject]);
+        const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
+        finalQuestions.push(...shuffled.slice(0, questionsToTake));
       }
+    } else {
+      // This case is for levels > 0.0 without a defined syllabus.
+      // Just use all available questions for that level.
+      finalQuestions = questionPool;
     }
 
     setExamQuestions(shuffleArray(finalQuestions));
 
-  }, [allQuestionsFromDB, userSyllabusArr, level, questionsLoading, syllabusLoading, syllabus]);
+  }, [allQuestionsFromDB, syllabus, level, questionsLoading, syllabusLoading]);
 
 
   useEffect(() => {
