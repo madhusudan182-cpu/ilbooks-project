@@ -74,7 +74,6 @@ export type Question = {
   subject: 'Bengali' | 'English';
   questionText: string;
   answers: Answer[];
-  explanation: string;
 };
 
 export type SyllabusTopic = {

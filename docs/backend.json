@@ -107,10 +107,9 @@
         "answers": {
           "type": "array",
           "items": { "$ref": "#/backend/entities/Answer" }
-        },
-        "explanation": { "type": "string" }
+        }
       },
-      "required": ["level", "subject", "questionText", "answers", "explanation"]
+      "required": ["level", "subject", "questionText", "answers"]
     }
   },
   "auth": {

@@ -97,7 +97,7 @@ export default function AllQuestionsPage() {
         }
     };
 
-    const handleQuestionChange = (qId: string, field: 'questionText' | 'explanation' | 'subject', value: string) => {
+    const handleQuestionChange = (qId: string, field: 'questionText' | 'subject', value: string) => {
         setEditedQuestions(current => current.map(q => q.id === qId ? { ...q, [field]: value } : q));
     };
 
@@ -156,7 +156,6 @@ export default function AllQuestionsPage() {
                 { text: 'Correct Answer', isCorrect: true },
                 { text: 'Incorrect Answer', isCorrect: false },
             ],
-            explanation: 'New explanation.'
         };
         setEditedQuestions(current => [...current, newQuestion]);
     };
@@ -245,10 +244,6 @@ export default function AllQuestionsPage() {
                                                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Answer
                                                                     </Button>
                                                                 </div>
-                                                                <div className="grid gap-2">
-                                                                    <Label htmlFor={`exp-${q.id}`}>Explanation</Label>
-                                                                    <Textarea id={`exp-${q.id}`} value={q.explanation} onChange={(e) => handleQuestionChange(q.id, 'explanation', e.target.value)} />
-                                                                </div>
                                                                  <div className="grid gap-2">
                                                                     <Label htmlFor={`subject-${q.id}`}>Subject</Label>
                                                                     <Select value={q.subject} onValueChange={(value) => handleQuestionChange(q.id, 'subject', value as 'Bengali' | 'English')}>
@@ -287,7 +282,6 @@ export default function AllQuestionsPage() {
                                                                     </li>
                                                                 ))}
                                                             </ul>
-                                                            <p className="mt-2 pt-2 border-t text-sm text-muted-foreground"><span className="font-semibold">Explanation:</span> {q.explanation}</p>
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 ))}
