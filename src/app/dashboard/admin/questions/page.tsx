@@ -20,6 +20,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { Skeleton } from '@/components/ui/skeleton';
 import { newBengaliLevel0Questions } from "@/lib/level-0-bengali-questions";
 import { newEnglishLevel0Questions } from "@/lib/level-0-english-questions";
+import { newBengaliLevel1Questions } from "@/lib/level-0-1-bengali-questions";
 
 export default function AllQuestionsPage() {
     const firestore = useFirestore();
@@ -68,6 +69,15 @@ export default function AllQuestionsPage() {
                     id: `new-english-question-${Date.now()}-${index}`
                 }));
             questionsToEdit.push(...englishQuestionsToAdd);
+        } else if (level === '0.1') {
+            const existingBengaliTexts = new Set(questionsToEdit.filter((q: Question) => q.subject === 'Bengali').map((q: Question) => q.questionText));
+            const bengaliQuestionsToAdd = newBengaliLevel1Questions
+                .filter(newQ => !existingBengaliTexts.has(newQ.questionText))
+                .map((q, index) => ({
+                    ...q,
+                    id: `new-bengali-question-0-1-${Date.now()}-${index}`
+                }));
+            questionsToEdit.push(...bengaliQuestionsToAdd);
         }
 
         questionsToEdit.forEach((q: Question) => {
