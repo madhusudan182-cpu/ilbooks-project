@@ -40,7 +40,7 @@ const EditableBookGrid = ({
 }: {
     booksToEdit: BookType[];
     onBookChange: (bookId: string, field: keyof BookType, value: string | number) => void;
-    onFileChange: (bookId: string, fileType: 'cover' | 'pdf', event: React.ChangeEvent<HTMLInputElement>) => void;
+    onFileChange: (bookId: string, fileType: 'cover', event: React.ChangeEvent<HTMLInputElement>) => void;
     onRemoveBook: (bookId: string) => void;
 }) => {
     const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -66,18 +66,18 @@ const EditableBookGrid = ({
                         <Label htmlFor={`price-${book.id}`}>Price</Label>
                         <Input id={`price-${book.id}`} type="number" value={book.price} onChange={(e) => onBookChange(book.id, 'price', e.target.valueAsNumber || 0)} />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                     <div className="grid gap-2">
+                        <Label htmlFor={`pdfUrl-${book.id}`}>PDF URL</Label>
+                        <Input id={`pdfUrl-${book.id}`} placeholder="https://example.com/book.pdf" value={book.pdfUrl || ''} onChange={(e) => onBookChange(book.id, 'pdfUrl', e.target.value)} />
+                         <p className="text-xs text-muted-foreground">Upload PDF to a service (e.g. Google Drive) and paste the public link here.</p>
+                    </div>
+                     <div className="grid gap-2">
+                        <Label>Cover Image</Label>
                         <input type="file" accept="image/*" className="hidden" ref={el => fileInputRefs.current[`cover-${book.id}`] = el} onChange={(e) => onFileChange(book.id, 'cover', e)} />
                         <Button variant="outline" size="sm" onClick={() => fileInputRefs.current[`cover-${book.id}`]?.click()}>
-                            <Upload className="mr-2 h-4 w-4" /> Cover
-                        </Button>
-                        
-                        <input type="file" accept=".pdf" className="hidden" ref={el => fileInputRefs.current[`pdf-${book.id}`] = el} onChange={(e) => onFileChange(book.id, 'pdf', e)} />
-                        <Button variant="outline" size="sm" onClick={() => fileInputRefs.current[`pdf-${book.id}`]?.click()}>
-                            <Upload className="mr-2 h-4 w-4" /> PDF
+                            <Upload className="mr-2 h-4 w-4" /> Upload New Cover
                         </Button>
                     </div>
-                    {book.pdfUrl && <p className="text-xs text-green-600 font-medium truncate">PDF uploaded. Ready to save.</p>}
                 </Card>
             ))}
         </div>
@@ -173,6 +173,8 @@ function BooksPageContent() {
             }
             if (book.pdfUrl) {
                 dataToSave.pdfUrl = book.pdfUrl;
+            } else {
+                dataToSave.pdfUrl = ''; // Explicitly clear if empty
             }
 
             batch.set(docRef, dataToSave, { merge: true });
@@ -204,25 +206,16 @@ function BooksPageContent() {
         setEditedBooks(current => current.map(b => b.id === bookId ? { ...b, [field]: value } : b));
     };
 
-    const handleFileChange = (bookId: string, fileType: 'cover' | 'pdf', event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (bookId: string, fileType: 'cover', event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-             if (file.size > 700 * 1024 && fileType === 'pdf') { // 700KB limit for PDFs
-                toast({
-                    title: "File is too large",
-                    description: "Please upload a PDF smaller than 700KB.",
-                    variant: "destructive",
-                });
-                return; 
-            }
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 const url = e.target?.result as string;
-                handleBookChange(bookId, fileType === 'cover' ? 'coverUrl' : 'pdfUrl', url);
+                handleBookChange(bookId, 'coverUrl', url);
             };
             reader.readAsDataURL(file);
-            toast({title: `${file.name} ready for upload.`});
+            toast({title: `New cover "${file.name}" ready for upload.`});
         }
     };
     
@@ -236,6 +229,7 @@ function BooksPageContent() {
             price: 0,
             coverUrl: `https://picsum.photos/seed/new-${Date.now()}/400/600`,
             level: editingMode.type === 'levels' ? editingMode.identifier : 'all',
+            pdfUrl: '',
         };
 
         if (editingMode.type === 'vocab') {
