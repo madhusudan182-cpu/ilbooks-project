@@ -103,7 +103,7 @@ export default function SocialPage() {
                 <TabsTrigger value="followers" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
             </TabsList>
             <Button onClick={handleInvite} className="rounded-md bg-red-300 hover:bg-red-400 text-red-800 px-1 py-1 h-8 text-xs">
-                <FacebookIcon className="w-4 h-4 mr-1" />
+                <FacebookIcon className="w-4 h-4 mr-1 text-blue-600" />
                 Invite
             </Button>
           </div>
