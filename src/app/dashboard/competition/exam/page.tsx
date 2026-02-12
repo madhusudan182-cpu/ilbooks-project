@@ -35,20 +35,19 @@ function ExamContent() {
   const level = searchParams.get('level') || '0.0';
   const firestore = useFirestore();
 
-  // Only fetch data from the database if the level is NOT 0.0
-  const shouldFetchFromDB = level !== '0.0';
+  const isLevelZero = level === '0.0';
 
   const questionsQuery = useMemo(() => {
-    if (!firestore || !shouldFetchFromDB) return null;
+    if (!firestore || isLevelZero) return null;
     return query(collection(firestore, 'questions'), where('level', '==', level));
-  }, [firestore, level, shouldFetchFromDB]);
+  }, [firestore, level, isLevelZero]);
 
   const { data: allQuestionsFromDB, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
   const syllabusQuery = useMemo(() => {
-      if (!firestore || !shouldFetchFromDB) return null;
+      if (!firestore || isLevelZero) return null;
       return query(collection(firestore, 'syllabi'), where('level', '==', level));
-  }, [firestore, level, shouldFetchFromDB]);
+  }, [firestore, level, isLevelZero]);
 
   const { data: userSyllabusArr, loading: syllabusLoading } = useCollection<Syllabus>(syllabusQuery);
   const syllabus = userSyllabusArr?.[0];
@@ -61,17 +60,20 @@ function ExamContent() {
 
   useEffect(() => {
     // --- PATH A: Special, isolated logic for Level 0.0 ---
-    // This path has NO dependency on the database or loading states.
-    if (level === '0.0') {
+    if (isLevelZero) {
       const bengali = shuffleArray([...newBengaliLevel0Questions]).slice(0, 10).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` }));
       const english = shuffleArray([...newEnglishLevel0Questions]).slice(0, 10).map((q, i) => ({ ...q, id: `e-local-${Date.now()}-${i}` }));
       const finalQuestions = shuffleArray([...bengali, ...english]);
+      
+      if (finalQuestions.length === 0) {
+        console.error("Local fallback questions for Level 0.0 are empty!");
+      }
+
       setExamQuestions(finalQuestions);
       return; // IMPORTANT: Exit the effect here for Level 0.0
     }
 
     // --- PATH B: Logic for all other levels (> 0.0) ---
-    // This part of the effect will only run if level is not '0.0'.
     if (questionsLoading || syllabusLoading) {
       return; // Wait for DB data to be loaded
     }
@@ -90,15 +92,18 @@ function ExamContent() {
                 const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
                 finalQuestions.push(...shuffled.slice(0, questionsToTake));
             }
-        } else {
-            // If no syllabus exists, just use all questions from the database for this level
+        }
+        
+        // Fallback: If syllabus filtering yields no questions, but a pool exists, use the pool.
+        if (finalQuestions.length === 0) {
+            console.warn("Syllabus filtering yielded no questions or no syllabus was found. Falling back to use all available questions for this level.");
             finalQuestions = questionPool;
         }
     }
     
     setExamQuestions(shuffleArray(finalQuestions));
 
-  }, [level, allQuestionsFromDB, syllabus, questionsLoading, syllabusLoading, shouldFetchFromDB]);
+  }, [isLevelZero, allQuestionsFromDB, syllabus, questionsLoading, syllabusLoading]);
 
 
   useEffect(() => {
