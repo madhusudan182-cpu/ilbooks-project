@@ -72,7 +72,7 @@ export default function AllSyllabiPage() {
         const subjectNames = new Set<string>();
 
         for (const subject of editedSubjects) {
-            const trimmedName = subject.name.trim();
+            const trimmedName = subject.name.trim().replace(/:$/, '').trim();
             if (!trimmedName) continue; 
 
             if (subjectNames.has(trimmedName)) {
