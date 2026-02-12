@@ -35,17 +35,20 @@ function ExamContent() {
   const level = searchParams.get('level') || '0.0';
   const firestore = useFirestore();
 
+  // Only fetch data from the database if the level is NOT 0.0
+  const shouldFetchFromDB = level !== '0.0';
+
   const questionsQuery = useMemo(() => {
-    if (!firestore || level === '0.0') return null; // Don't fetch for level 0.0 initially
+    if (!firestore || !shouldFetchFromDB) return null;
     return query(collection(firestore, 'questions'), where('level', '==', level));
-  }, [firestore, level]);
+  }, [firestore, level, shouldFetchFromDB]);
 
   const { data: allQuestionsFromDB, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
   const syllabusQuery = useMemo(() => {
-      if (!firestore) return null;
+      if (!firestore || !shouldFetchFromDB) return null;
       return query(collection(firestore, 'syllabi'), where('level', '==', level));
-  }, [firestore, level]);
+  }, [firestore, level, shouldFetchFromDB]);
 
   const { data: userSyllabusArr, loading: syllabusLoading } = useCollection<Syllabus>(syllabusQuery);
   const syllabus = userSyllabusArr?.[0];
@@ -57,63 +60,45 @@ function ExamContent() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
-    // --- STAGE 1: Determine the question pool ---
-    let questionPool: Question[] = [];
-    const hasDbQuestions = allQuestionsFromDB && allQuestionsFromDB.length > 0;
-
-    // Special, isolated logic for Level 0.0
+    // --- PATH A: Special, isolated logic for Level 0.0 ---
+    // This path has NO dependency on the database or loading states.
     if (level === '0.0') {
-      if (hasDbQuestions) {
-        // If admin has added questions for 0.0, use them.
-        questionPool = allQuestionsFromDB;
-      } else {
-        // Otherwise, always use the local fallback.
-        questionPool = [
-          ...newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` })),
-          ...newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }))
-        ];
-      }
-    } else {
-      // For all other levels, only use DB questions.
-      if (questionsLoading) return; // Wait for DB questions to load
-      questionPool = allQuestionsFromDB || [];
+      const bengali = shuffleArray([...newBengaliLevel0Questions]).slice(0, 10).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` }));
+      const english = shuffleArray([...newEnglishLevel0Questions]).slice(0, 10).map((q, i) => ({ ...q, id: `e-local-${Date.now()}-${i}` }));
+      const finalQuestions = shuffleArray([...bengali, ...english]);
+      setExamQuestions(finalQuestions);
+      return; // IMPORTANT: Exit the effect here for Level 0.0
     }
 
-    // --- STAGE 2: Determine syllabus and select final questions ---
+    // --- PATH B: Logic for all other levels (> 0.0) ---
+    // This part of the effect will only run if level is not '0.0'.
+    if (questionsLoading || syllabusLoading) {
+      return; // Wait for DB data to be loaded
+    }
+    
+    const questionPool: Question[] = allQuestionsFromDB || [];
     let finalQuestions: Question[] = [];
-    
-    // Wait for syllabus for levels > 0.0
-    if (level !== '0.0' && syllabusLoading) return;
 
-    let syllabusToUse = syllabus && Object.keys(syllabus.subjects).length > 0 ? syllabus : null;
-
-    // Create a default syllabus for Level 0.0 if none is defined in the DB
-    if (level === '0.0' && !syllabusToUse) {
-      syllabusToUse = {
-        level: '0.0',
-        subjects: {
-          'Bengali': { marks: 10, topics: [] },
-          'English': { marks: 10, topics: [] }
+    if (questionPool.length > 0) {
+        const syllabusToUse = syllabus && Object.keys(syllabus.subjects).length > 0 ? syllabus : null;
+        if (syllabusToUse) {
+            // Select questions from the pool based on the syllabus marks
+            for (const subjectName in syllabusToUse.subjects) {
+                const subjectSyllabus = syllabusToUse.subjects[subjectName];
+                const questionsForSubject = questionPool.filter(q => q.subject === subjectName);
+                const shuffled = shuffleArray([...questionsForSubject]);
+                const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
+                finalQuestions.push(...shuffled.slice(0, questionsToTake));
+            }
+        } else {
+            // If no syllabus exists, just use all questions from the database for this level
+            finalQuestions = questionPool;
         }
-      };
     }
     
-    if (syllabusToUse) {
-      for (const subjectName in syllabusToUse.subjects) {
-        const subjectSyllabus = syllabusToUse.subjects[subjectName];
-        const questionsForSubject = questionPool.filter(q => q.subject === subjectName);
-        const shuffled = shuffleArray([...questionsForSubject]);
-        const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
-        finalQuestions.push(...shuffled.slice(0, questionsToTake));
-      }
-    } else {
-      // Fallback for levels > 0.0 if no syllabus is defined
-      finalQuestions = questionPool;
-    }
-
     setExamQuestions(shuffleArray(finalQuestions));
 
-  }, [allQuestionsFromDB, syllabus, level, questionsLoading, syllabusLoading]);
+  }, [level, allQuestionsFromDB, syllabus, questionsLoading, syllabusLoading, shouldFetchFromDB]);
 
 
   useEffect(() => {
@@ -135,12 +120,8 @@ function ExamContent() {
 
     let finalSyllabusForResults: Syllabus | (Syllabus & { id: string; }) | undefined;
 
-    // 1. Prioritize the syllabus fetched from the database
-    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
-      finalSyllabusForResults = syllabus;
-    } 
-    // 2. If no DB syllabus, create a default one for Level 0.0 based on questions in the exam
-    else if (level === '0.0') {
+    // 1. For Level 0.0, always create a default syllabus for result calculation
+    if (level === '0.0') {
         const bengaliQuestionsCount = examQuestions.filter(q => q.subject === 'Bengali').length;
         const englishQuestionsCount = examQuestions.filter(q => q.subject === 'English').length;
         finalSyllabusForResults = {
@@ -151,6 +132,10 @@ function ExamContent() {
             }
         };
     }
+    // 2. For other levels, prioritize the syllabus from the database
+    else if (syllabus && Object.keys(syllabus.subjects).length > 0) {
+      finalSyllabusForResults = syllabus;
+    } 
     // 3. Fallback for other levels if no syllabus is found in the database.
     else {
         const subjects: { [subjectName: string]: SyllabusTopic } = {};
@@ -309,7 +294,8 @@ function ExamContent() {
   };
   const fontSizeClass = getFontSizeClass(currentQuestion?.questionText || '');
 
-  if (questionsLoading || syllabusLoading || !examQuestions) {
+  // The initial loading state. `examQuestions` is null until the effect runs.
+  if (examQuestions === null) {
     return (
        <main className="flex items-center justify-center min-h-screen bg-background p-4">
         <Card className="w-full max-w-2xl text-center">
@@ -328,6 +314,7 @@ function ExamContent() {
     )
   }
 
+  // This state is hit when the effect has run but found no questions for levels > 0.0
   if (examQuestions.length === 0) {
     const majorLevel = Math.floor(parseFloat(level));
     const examSchedules: { [key: number]: string } = {
@@ -384,6 +371,7 @@ function ExamContent() {
     );
   }
 
+  // This is the main exam UI, rendered when examQuestions has items.
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-2xl">
