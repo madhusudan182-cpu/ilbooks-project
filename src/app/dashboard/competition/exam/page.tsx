@@ -27,7 +27,7 @@ function ExamContent() {
   const firestore = useFirestore();
 
   const questionsQuery = useMemo(() => {
-    if (!firestore || level === '0.0') return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'questions'), where('level', '==', level));
   }, [firestore, level]);
 
@@ -56,50 +56,57 @@ function ExamContent() {
       return array;
     };
 
-    // --- Special, Isolated Logic for Level 0.0 ---
-    if (level === '0.0') {
-      const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
-      const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
-      
-      const shuffledBengali = shuffleArray(localBengali).slice(0, 10);
-      const shuffledEnglish = shuffleArray(localEnglish).slice(0, 10);
-
-      const finalQuestions = shuffleArray([...shuffledBengali, ...shuffledEnglish]);
-      setExamQuestions(finalQuestions);
-      return; // Exit early to prevent database-dependent logic from running for Level 0.0
-    }
-    
-    // --- Logic for all other levels (dependent on Firestore) ---
     if (questionsLoading || syllabusLoading) {
-      return;
+      return; // Wait for all data to load
     }
 
-    const potentialQuestions: Question[] = allQuestions || [];
+    let potentialQuestions: Question[] = [];
+
+    // Prioritize Firestore questions. If empty, use local fallback ONLY for level 0.0.
+    if (allQuestions && allQuestions.length > 0) {
+        potentialQuestions = allQuestions;
+    } else if (level === '0.0') {
+        const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
+        const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
+        potentialQuestions = [...localBengali, ...localEnglish];
+    }
     
     if (potentialQuestions.length === 0) {
-      setExamQuestions([]);
+      setExamQuestions([]); // Will trigger "Exam not ready" screen
       return;
     }
 
+    // Now, apply syllabus logic to the `potentialQuestions`
     let finalQuestions: Question[] = [];
     const hasSyllabus = syllabus && Object.keys(syllabus.subjects).length > 0;
 
-    if (hasSyllabus) {
+    // Special case for level 0.0 when no syllabus is found in DB, we create a default one to select 10+10 questions
+    if (level === '0.0' && !hasSyllabus) {
+        const shuffledBengali = shuffleArray(potentialQuestions.filter(q => q.subject === 'Bengali')).slice(0, 10);
+        const shuffledEnglish = shuffleArray(potentialQuestions.filter(q => q.subject === 'English')).slice(0, 10);
+        finalQuestions = shuffleArray([...shuffledBengali, ...shuffledEnglish]);
+    } 
+    // Generic case for all levels that HAVE a syllabus in the DB
+    else if (hasSyllabus) {
       let selectedQuestions: Question[] = [];
       for (const subjectName in syllabus.subjects) {
         const subjectSyllabus = syllabus.subjects[subjectName];
         const questionsForSubject = potentialQuestions.filter(q => q.subject === subjectName);
         
         const shuffled = shuffleArray([...questionsForSubject]);
+        // The number of questions to take is the number of marks for that subject
         const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
         selectedQuestions.push(...shuffled.slice(0, questionsToTake));
       }
       finalQuestions = selectedQuestions;
-    } else {
+    } 
+    // Fallback for levels > 0.0 if no syllabus is defined (take all questions)
+    else {
       finalQuestions = potentialQuestions;
     }
     
     setExamQuestions(shuffleArray(finalQuestions));
+
   }, [allQuestions, userSyllabusArr, level, questionsLoading, syllabusLoading, syllabus]);
 
 
@@ -120,22 +127,26 @@ function ExamContent() {
       return;
     }
 
-    let finalSyllabus: Syllabus | (Syllabus & { id: string; }) | undefined;
+    let finalSyllabusForResults: Syllabus | (Syllabus & { id: string; }) | undefined;
 
-    // Special, isolated syllabus logic for Level 0.0
-    if (level === '0.0') {
+    // 1. Prioritize the syllabus fetched from the database
+    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
+      finalSyllabusForResults = syllabus;
+    } 
+    // 2. If no DB syllabus, create a default one for Level 0.0 based on questions in the exam
+    else if (level === '0.0') {
         const bengaliQuestionsCount = examQuestions.filter(q => q.subject === 'Bengali').length;
         const englishQuestionsCount = examQuestions.filter(q => q.subject === 'English').length;
-        finalSyllabus = {
+        finalSyllabusForResults = {
             level: '0.0',
             subjects: {
                 'Bengali': { marks: bengaliQuestionsCount, topics: [] },
                 'English': { marks: englishQuestionsCount, topics: [] }
             }
         };
-    } 
-    // Fallback for other levels if no syllabus is found in the database.
-    else if (!syllabus || Object.keys(syllabus.subjects).length === 0) {
+    }
+    // 3. Fallback for other levels if no syllabus is found in the database.
+    else {
         const subjects: { [subjectName: string]: SyllabusTopic } = {};
         const questionsBySubject: { [subjectName: string]: Question[] } = {};
 
@@ -153,22 +164,19 @@ function ExamContent() {
             };
         }
         
-        finalSyllabus = {
+        finalSyllabusForResults = {
             level: level,
             subjects: subjects
         };
     }
-    // Use the syllabus from the database if it exists.
-    else {
-      finalSyllabus = syllabus;
-    }
+
 
     const subjectResults: SubjectResult[] = [];
     let totalObtainedMarks = 0;
     let totalMarks = 0;
 
-    if (finalSyllabus && finalSyllabus.subjects) {
-      for (const subjectName in finalSyllabus.subjects) {
+    if (finalSyllabusForResults && finalSyllabusForResults.subjects) {
+      for (const subjectName in finalSyllabusForResults.subjects) {
         const subjectQuestionsInExam = examQuestions.filter(q => q.subject === subjectName);
         
         if (subjectQuestionsInExam.length === 0) continue;
@@ -295,7 +303,7 @@ function ExamContent() {
   };
   const fontSizeClass = getFontSizeClass(currentQuestion?.questionText || '');
 
-  if ((level !== '0.0' && (questionsLoading || syllabusLoading)) || !examQuestions) {
+  if (questionsLoading || syllabusLoading || !examQuestions) {
     return (
        <main className="flex items-center justify-center min-h-screen bg-background p-4">
         <Card className="w-full max-w-2xl text-center">
