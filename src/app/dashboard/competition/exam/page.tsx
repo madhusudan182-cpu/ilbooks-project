@@ -36,7 +36,7 @@ function ExamContent() {
   const firestore = useFirestore();
 
   const questionsQuery = useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore || level === '0.0') return null; // Don't fetch for level 0.0 initially
     return query(collection(firestore, 'questions'), where('level', '==', level));
   }, [firestore, level]);
 
@@ -57,29 +57,38 @@ function ExamContent() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
-    if (questionsLoading || syllabusLoading) {
-      return; // Wait for all data to load before doing anything
-    }
-
-    // --- STAGE 1: Determine the source pool of questions ---
+    // --- STAGE 1: Determine the question pool ---
     let questionPool: Question[] = [];
     const hasDbQuestions = allQuestionsFromDB && allQuestionsFromDB.length > 0;
 
-    if (hasDbQuestions) {
-      questionPool = allQuestionsFromDB;
-    } else if (level === '0.0') {
-      questionPool = [
-        ...newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` })),
-        ...newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }))
-      ];
+    // Special, isolated logic for Level 0.0
+    if (level === '0.0') {
+      if (hasDbQuestions) {
+        // If admin has added questions for 0.0, use them.
+        questionPool = allQuestionsFromDB;
+      } else {
+        // Otherwise, always use the local fallback.
+        questionPool = [
+          ...newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` })),
+          ...newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }))
+        ];
+      }
+    } else {
+      // For all other levels, only use DB questions.
+      if (questionsLoading) return; // Wait for DB questions to load
+      questionPool = allQuestionsFromDB || [];
     }
+
+    // --- STAGE 2: Determine syllabus and select final questions ---
+    let finalQuestions: Question[] = [];
     
-    // --- STAGE 2: Determine the syllabus to use ---
-    let syllabusToUse: Syllabus | null = null;
-    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
-      syllabusToUse = syllabus;
-    } else if (level === '0.0') {
-      // Create a default syllabus for level 0.0 if none is found in DB or if it's empty
+    // Wait for syllabus for levels > 0.0
+    if (level !== '0.0' && syllabusLoading) return;
+
+    let syllabusToUse = syllabus && Object.keys(syllabus.subjects).length > 0 ? syllabus : null;
+
+    // Create a default syllabus for Level 0.0 if none is defined in the DB
+    if (level === '0.0' && !syllabusToUse) {
       syllabusToUse = {
         level: '0.0',
         subjects: {
@@ -88,9 +97,7 @@ function ExamContent() {
         }
       };
     }
-
-    // --- STAGE 3: Select the final questions for the exam ---
-    let finalQuestions: Question[] = [];
+    
     if (syllabusToUse) {
       for (const subjectName in syllabusToUse.subjects) {
         const subjectSyllabus = syllabusToUse.subjects[subjectName];
@@ -100,8 +107,7 @@ function ExamContent() {
         finalQuestions.push(...shuffled.slice(0, questionsToTake));
       }
     } else {
-      // This case is for levels > 0.0 without a defined syllabus.
-      // Just use all available questions for that level.
+      // Fallback for levels > 0.0 if no syllabus is defined
       finalQuestions = questionPool;
     }
 
@@ -140,8 +146,8 @@ function ExamContent() {
         finalSyllabusForResults = {
             level: '0.0',
             subjects: {
-                'Bengali': { marks: bengaliQuestionsCount, topics: [] },
-                'English': { marks: englishQuestionsCount, topics: [] }
+                'Bengali': { marks: bengaliQuestionsCount > 0 ? bengaliQuestionsCount : 10, topics: [] },
+                'English': { marks: englishQuestionsCount > 0 ? englishQuestionsCount: 10, topics: [] }
             }
         };
     }
