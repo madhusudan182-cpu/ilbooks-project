@@ -65,7 +65,10 @@ function ExamContent() {
     if (isLevelZero) {
         const bengali = shuffleArray([...newBengaliLevel0Questions]).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` })).slice(0, 10);
         const english = shuffleArray([...newEnglishLevel0Questions]).map((q, i) => ({ ...q, id: `e-local-${Date.now()}-${i}` })).slice(0, 10);
-        const finalQuestions = shuffleArray([...bengali, ...english]);
+        const finalQuestions = shuffleArray([...bengali, ...english]).map(q => ({
+          ...q,
+          answers: shuffleArray([...q.answers])
+        }));
         setExamQuestions(finalQuestions);
         return; // Exit early
     }
@@ -124,7 +127,12 @@ function ExamContent() {
       }
     }
   
-    setExamQuestions(shuffleArray(finalQuestions));
+    const questionsWithShuffledAnswers = shuffleArray(finalQuestions).map(q => ({
+        ...q,
+        answers: shuffleArray([...q.answers])
+    }));
+
+    setExamQuestions(questionsWithShuffledAnswers);
   
   }, [isLevelZero, allQuestionsFromDB, syllabus, questionsLoading, syllabusLoading, level]);
 
@@ -141,12 +149,10 @@ function ExamContent() {
   
   const handleFinishExam = useCallback(() => {
     if (!examQuestions || examQuestions.length === 0) {
-      console.error("handleFinishExam called with no questions. Aborting.");
       router.push('/dashboard/competition/exam/result');
       return;
     }
 
-    // Group the questions that were actually in the exam by subject.
     const questionsBySubject: Record<string, Question[]> = {};
     examQuestions.forEach(q => {
         if (!questionsBySubject[q.subject]) {
@@ -159,7 +165,6 @@ function ExamContent() {
     let totalObtainedMarks = 0;
     let totalMarks = 0;
 
-    // Calculate results based *only* on the questions that were in the exam.
     for (const subjectName in questionsBySubject) {
         const subjectQuestionsInExam = questionsBySubject[subjectName];
         
@@ -168,11 +173,12 @@ function ExamContent() {
 
         subjectQuestionsInExam.forEach(q => {
             const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
-            if (questionIndex === -1) return; // Should not happen
+            if (questionIndex === -1) return;
 
             const userAnswer = userAnswers[questionIndex];
+            const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
+
             if (userAnswer) {
-                const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
                 if (userAnswer === correctAnswerText) {
                     correctAnswers++;
                 } else {
