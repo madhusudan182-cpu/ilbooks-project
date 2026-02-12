@@ -68,7 +68,7 @@ export default function CompetitionPage() {
     const router = useRouter();
     const { toast } = useToast();
 
-    const [userLevel, setUserLevel] = useState(currentUser.level.toFixed(1));
+    const [userLevel, setUserLevel] = useState<string | null>(null);
     
     const getExamFee = (levelString: string): number => {
         const [major] = levelString.split('.').map(Number);
@@ -81,7 +81,7 @@ export default function CompetitionPage() {
         return 20; // Default
     };
     
-    const examFee = getExamFee(userLevel);
+    const examFee = getExamFee(userLevel || '0.0');
     
     const [isRegistered, setIsRegistered] = useState(false);
     const [isExamTime, setIsExamTime] = useState(false);
@@ -91,10 +91,16 @@ export default function CompetitionPage() {
         const savedLevel = sessionStorage.getItem('currentUserLevel');
         if (savedLevel) {
             setUserLevel(savedLevel);
+        } else {
+            setUserLevel(currentUser.level.toFixed(1));
         }
     }, []);
 
-    const competitionLevel = userLevel.startsWith('0.') ? '0.0' : userLevel;
+    const competitionLevel = useMemo(() => {
+        const level = userLevel || '0.0';
+        return level.startsWith('0.') ? '0.0' : level;
+    }, [userLevel]);
+
     
     const [syllabusQuery, setSyllabusQuery] = useState<any>(null);
     useEffect(() => {
@@ -247,7 +253,7 @@ export default function CompetitionPage() {
         }
     }
 
-    const [majorLevel] = userLevel.split('.').map(Number);
+    const [majorLevel] = (userLevel || '0.0').split('.').map(Number);
     const buttonText = majorLevel < 1 ? "Proceed to Payment & Start Exam" : "Register for the Exam";
     const scheduleMessage = examScheduleMessages[majorLevel];
 
@@ -278,7 +284,11 @@ export default function CompetitionPage() {
                     <h1 className="text-4xl font-bold font-headline">Competition</h1>
                     <p className="text-muted-foreground mt-2">Test your knowledge, level up, and win prizes!</p>
                     <div className="flex flex-col justify-center items-center gap-2 mt-4">
-                        <Badge className="text-base bg-red-100 text-red-800">Your Current Level: {userLevel}</Badge>
+                        {userLevel ? (
+                            <Badge className="text-base bg-red-100 text-red-800">Your Current Level: {userLevel}</Badge>
+                        ) : (
+                            <Skeleton className="h-7 w-48" />
+                        )}
                          <div className="flex gap-2">
                             <Button asChild variant="outline" size="sm" className="bg-blue-800 text-blue-100 border-blue-900 hover:bg-blue-900 hover:text-blue-50">
                                 <Link href="/dashboard/competition/history">
