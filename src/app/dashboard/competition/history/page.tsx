@@ -60,7 +60,7 @@ const DetailedResultTable = ({ result }: { result: ExamResult }) => (
 function ExamHistoryContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [activeView, setActiveView] = useState<'last' | 'previous' | null>(null);
+    const [activeView, setActiveView] = useState<'recent' | 'previous' | null>(null);
 
     const [userExamHistory, setUserExamHistory] = useState<ExamResult[]>(() => 
         mockExamResults.filter(result => result.userId === currentUser.id)
@@ -72,27 +72,25 @@ function ExamHistoryContent() {
         if (lastResultString) {
             try {
                 const lastResult = JSON.parse(lastResultString);
-                setUserExamHistory(prev => {
-                    // Check for duplicates against the *previous* state
-                    if (prev.some(r => r.id === lastResult.id)) {
-                        return prev; // If it's already there, do nothing
+                 setUserExamHistory(prev => {
+                    const isAlreadyAdded = prev.some(r => r.id === lastResult.id);
+                    if (!isAlreadyAdded) {
+                        return [lastResult, ...prev].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
                     }
-                    // Otherwise, add it and re-sort
-                    return [lastResult, ...prev].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
+                    return prev;
                 });
             } catch (e) {
                 console.error("Failed to parse last exam result from session storage", e);
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
 
     const lastResult = userExamHistory.length > 0 ? userExamHistory[0] : null;
 
     useEffect(() => {
         const viewParam = searchParams.get('view');
-        if (viewParam === 'last') {
-            setActiveView('last');
+        if (viewParam === 'recent') {
+            setActiveView('recent');
         }
     }, [searchParams]);
 
@@ -123,11 +121,11 @@ function ExamHistoryContent() {
                         Your Exam Result
                     </CardTitle>
                     <CardDescription>
-                        Here is a list of your past exam attempts.
+                        Here is a list of your recent exam attempts.
                     </CardDescription>
                     <div className="pt-4 flex flex-wrap justify-center gap-2">
-                        <Button size="sm" onClick={() => setActiveView('last')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
-                            Last Exam Result
+                        <Button size="sm" onClick={() => setActiveView('recent')} disabled={!lastResult} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
+                            Recent Exam Result
                         </Button>
                         <Button size="sm" onClick={() => setActiveView('previous')} disabled={userExamHistory.length === 0} className="bg-primary/80 hover:bg-primary/90 h-auto px-3 py-1.5 text-xs">
                             Previous Results
@@ -139,7 +137,7 @@ function ExamHistoryContent() {
                          <p className="text-muted-foreground text-center py-8">You have no exam history yet.</p>
                     )}
                     
-                    {activeView === 'last' && lastResult && <DetailedResultTable result={lastResult} />}
+                    {activeView === 'recent' && lastResult && <DetailedResultTable result={lastResult} />}
 
                     {activeView === 'previous' && userExamHistory.length > 0 && (
                         <div className="overflow-x-auto mt-4 animate-fade-in-up">
