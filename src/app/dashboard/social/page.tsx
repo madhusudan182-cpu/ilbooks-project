@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockUsers } from "@/lib/data";
 import type { User } from "@/lib/types";
-import { MessageCircle, UserCheck, UserPlus } from "lucide-react";
+import { MessageCircle, UserCheck, UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { currentUser } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -75,49 +75,104 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
   );
 
+// Mock data for Facebook friends
+const mockFacebookFriends = [
+  { id: 'fb-1', name: 'Zayn Malik', avatarUrl: 'https://picsum.photos/seed/fb1/100/100' },
+  { id: 'fb-2', name: 'Liam Payne', avatarUrl: 'https://picsum.photos/seed/fb2/100/100' },
+  { id: 'fb-3', name: 'Harry Styles', avatarUrl: 'https://picsum.photos/seed/fb3/100/100' },
+  { id: 'fb-4', name: 'Niall Horan', avatarUrl: 'https://picsum.photos/seed/fb4/100/100' },
+  { id: 'fb-5', name: 'Louis Tomlinson', avatarUrl: 'https://picsum.photos/seed/fb5/100/100' },
+  { id: 'fb-6', name: 'Taylor Swift', avatarUrl: 'https://picsum.photos/seed/fb6/100/100' },
+  { id: 'fb-7', name: 'Selena Gomez', avatarUrl: 'https://picsum.photos/seed/fb7/100/100' },
+  { id: 'fb-8', name: 'Justin Bieber', avatarUrl: 'https://picsum.photos/seed/fb8/100/100' },
+  { id: 'fb-9', name: 'Ariana Grande', avatarUrl: 'https://picsum.photos/seed/fb9/100/100' },
+];
+
 export default function SocialPage() {
   const [isClient, setIsClient] = useState(false);
+  const [view, setView] = useState<'tabs' | 'invite'>('tabs');
+  const [invitedFriends, setInvitedFriends] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setIsClient(true);
   }, []);
   
-  const handleInvite = () => {
-    const appUrl = window.location.origin;
-    const quote = "Join me on ILBooks, a network for book lovers!";
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}&quote=${encodeURIComponent(quote)}`, '_blank', 'noopener,noreferrer');
-  }
+  const handleInviteFriend = (friendId: string) => {
+    setInvitedFriends(prev => new Set(prev).add(friendId));
+  };
 
   const following = mockUsers.filter(u => u.isFollowing);
   const followers = [...mockUsers.filter(u => u.isMutual), mockUsers[2]];
 
+  if (!isClient) {
+    return null;
+  }
+
+  if (view === 'invite') {
+    return (
+      <div className="p-4 md:p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold font-headline">Invite Friends</h1>
+          <Button variant="ghost" onClick={() => setView('tabs')}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="p-2 space-y-2">
+            {mockFacebookFriends.map(friend => {
+              const isInvited = invitedFriends.has(friend.id);
+              return (
+                <Card key={friend.id}>
+                  <CardContent className="p-2 flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={friend.avatarUrl} alt={friend.name} />
+                      <AvatarFallback>{friend.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <p className="flex-1 font-semibold">{friend.name}</p>
+                    <Button
+                      size="sm"
+                      onClick={() => handleInviteFriend(friend.id)}
+                      disabled={isInvited}
+                      className={cn(isInvited && "bg-green-500 hover:bg-green-600")}
+                    >
+                      {isInvited ? 'Invited' : 'Invite'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <h1 className="text-2xl font-bold font-headline text-center mb-4">Social Circle</h1>
-      {isClient ? (
-        <Tabs defaultValue="search">
-          <div className="grid w-full grid-cols-4 items-center bg-transparent p-0 gap-1">
-            <TabsList className="col-span-3 grid w-full grid-cols-3 bg-transparent p-0 gap-1">
-                <TabsTrigger value="search" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs">Search</TabsTrigger>
-                <TabsTrigger value="following" className="rounded-md bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-8 text-xs"><UserCheck className="w-4 h-4 mr-1" />Following</TabsTrigger>
-                <TabsTrigger value="followers" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
-            </TabsList>
-            <Button onClick={handleInvite} className="rounded-md bg-red-300 hover:bg-red-400 text-red-800 px-1 py-1 h-8 text-xs">
-                <FacebookIcon className="w-4 h-4 mr-1 text-blue-600" />
-                Invite
-            </Button>
-          </div>
-          <TabsContent value="search" className="mt-2">
-            <UserList users={mockUsers} />
-          </TabsContent>
-          <TabsContent value="following" className="mt-2">
-            <UserList users={following} />
-          </TabsContent>
-          <TabsContent value="followers" className="mt-2">
-            <UserList users={followers} />
-          </TabsContent>
-        </Tabs>
-      ) : null}
+      <Tabs defaultValue="search">
+        <div className="grid w-full grid-cols-4 items-center bg-transparent p-0 gap-1">
+          <TabsList className="col-span-3 grid w-full grid-cols-3 bg-transparent p-0 gap-1">
+              <TabsTrigger value="search" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs">Search</TabsTrigger>
+              <TabsTrigger value="following" className="rounded-md bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-8 text-xs"><UserCheck className="w-4 h-4 mr-1" />Following</TabsTrigger>
+              <TabsTrigger value="followers" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs"><UserPlus className="w-4 h-4 mr-1" />Followers</TabsTrigger>
+          </TabsList>
+          <Button onClick={() => setView('invite')} className="rounded-md bg-red-300 hover:bg-red-400 text-red-800 px-1 py-1 h-8 text-xs">
+              <FacebookIcon className="w-4 h-4 mr-1 text-blue-600" />
+              Invite
+          </Button>
+        </div>
+        <TabsContent value="search" className="mt-2">
+          <UserList users={mockUsers} />
+        </TabsContent>
+        <TabsContent value="following" className="mt-2">
+          <UserList users={following} />
+        </TabsContent>
+        <TabsContent value="followers" className="mt-2">
+          <UserList users={followers} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
