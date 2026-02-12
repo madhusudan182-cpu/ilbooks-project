@@ -60,50 +60,44 @@ function ExamContent() {
       return; // Wait for all data to load
     }
 
-    let potentialQuestions: Question[] = [];
+    let finalQuestions: Question[] = [];
+    const dbQuestions = allQuestions;
+    const dbSyllabus = syllabus;
+    const hasDbQuestions = dbQuestions && dbQuestions.length > 0;
+    const hasDbSyllabus = dbSyllabus && Object.keys(dbSyllabus.subjects).length > 0;
 
-    // Prioritize Firestore questions. If empty, use local fallback ONLY for level 0.0.
-    if (allQuestions && allQuestions.length > 0) {
-        potentialQuestions = allQuestions;
+    if (hasDbQuestions) {
+        // DB is the source of truth
+        let selectedQuestions: Question[] = [];
+        if (hasDbSyllabus) {
+            // Select based on DB syllabus
+            for (const subjectName in dbSyllabus.subjects) {
+                const subjectSyllabus = dbSyllabus.subjects[subjectName];
+                const questionsForSubject = dbQuestions.filter(q => q.subject === subjectName);
+                const shuffled = shuffleArray([...questionsForSubject]);
+                const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
+                selectedQuestions.push(...shuffled.slice(0, questionsToTake));
+            }
+        } else if (level === '0.0') {
+            // Fallback for Level 0.0 if there are questions but no syllabus
+            const shuffledBengali = shuffleArray(dbQuestions.filter(q => q.subject === 'Bengali')).slice(0, 10);
+            const shuffledEnglish = shuffleArray(dbQuestions.filter(q => q.subject === 'English')).slice(0, 10);
+            selectedQuestions = [...shuffledBengali, ...shuffledEnglish];
+        } else {
+            // Fallback for other levels: use all questions
+            selectedQuestions = dbQuestions;
+        }
+        finalQuestions = selectedQuestions;
     } else if (level === '0.0') {
+        // No DB questions for Level 0.0, use local fallback
         const localBengali = newBengaliLevel0Questions.map((q, i) => ({ ...q, id: `local-beng-${i}` }));
         const localEnglish = newEnglishLevel0Questions.map((q, i) => ({ ...q, id: `local-eng-${i}` }));
-        potentialQuestions = [...localBengali, ...localEnglish];
+        const shuffledBengali = shuffleArray(localBengali).slice(0, 10);
+        const shuffledEnglish = shuffleArray(localEnglish).slice(0, 10);
+        finalQuestions = [...shuffledBengali, ...shuffledEnglish];
     }
     
-    if (potentialQuestions.length === 0) {
-      setExamQuestions([]); // Will trigger "Exam not ready" screen
-      return;
-    }
-
-    // Now, apply syllabus logic to the `potentialQuestions`
-    let finalQuestions: Question[] = [];
-    const hasSyllabus = syllabus && Object.keys(syllabus.subjects).length > 0;
-
-    // Special case for level 0.0 when no syllabus is found in DB, we create a default one to select 10+10 questions
-    if (level === '0.0' && !hasSyllabus) {
-        const shuffledBengali = shuffleArray(potentialQuestions.filter(q => q.subject === 'Bengali')).slice(0, 10);
-        const shuffledEnglish = shuffleArray(potentialQuestions.filter(q => q.subject === 'English')).slice(0, 10);
-        finalQuestions = shuffleArray([...shuffledBengali, ...shuffledEnglish]);
-    } 
-    // Generic case for all levels that HAVE a syllabus in the DB
-    else if (hasSyllabus) {
-      let selectedQuestions: Question[] = [];
-      for (const subjectName in syllabus.subjects) {
-        const subjectSyllabus = syllabus.subjects[subjectName];
-        const questionsForSubject = potentialQuestions.filter(q => q.subject === subjectName);
-        
-        const shuffled = shuffleArray([...questionsForSubject]);
-        // The number of questions to take is the number of marks for that subject
-        const questionsToTake = Math.min(subjectSyllabus.marks, shuffled.length);
-        selectedQuestions.push(...shuffled.slice(0, questionsToTake));
-      }
-      finalQuestions = selectedQuestions;
-    } 
-    // Fallback for levels > 0.0 if no syllabus is defined (take all questions)
-    else {
-      finalQuestions = potentialQuestions;
-    }
+    // For levels > 0.0 with no DB questions, finalQuestions remains []
     
     setExamQuestions(shuffleArray(finalQuestions));
 
