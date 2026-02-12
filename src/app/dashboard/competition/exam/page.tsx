@@ -16,6 +16,8 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { newBengaliLevel0Questions } from '@/lib/level-0-bengali-questions';
 import { newEnglishLevel0Questions } from '@/lib/level-0-english-questions';
+import { newBengaliLevel1Questions } from '@/lib/level-0-1-bengali-questions';
+import { newEnglishLevel1Questions } from '@/lib/level-0-1-english-questions';
 
 
 const TOTAL_TIME_PER_QUESTION = 15; // seconds
@@ -38,9 +40,9 @@ function ExamContent() {
   const isLevelZero = level === '0.0';
 
   const questionsQuery = useMemo(() => {
-    if (!firestore || isLevelZero) return null; // Don't fetch for level 0 initially
+    if (!firestore) return null;
     return query(collection(firestore, 'questions'), where('level', '==', level));
-  }, [firestore, level, isLevelZero]);
+  }, [firestore, level]);
 
   const { data: allQuestionsFromDB, loading: questionsLoading } = useCollection<Question>(questionsQuery);
   
@@ -59,38 +61,30 @@ function ExamContent() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
+    // This is the special path for Level 0.0, which is always self-contained.
+    if (isLevelZero) {
+        const bengali = shuffleArray([...newBengaliLevel0Questions]).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` })).slice(0, 10);
+        const english = shuffleArray([...newEnglishLevel0Questions]).map((q, i) => ({ ...q, id: `e-local-${Date.now()}-${i}` })).slice(0, 10);
+        const finalQuestions = shuffleArray([...bengali, ...english]);
+        setExamQuestions(finalQuestions);
+        return; // Exit early
+    }
+
+    // For any other level, wait for data to load
     if (questionsLoading || syllabusLoading) {
-      return; // Wait for all DB data to be loaded
+      return; 
     }
   
-    // --- Determine the source of questions ---
     let questionPool: Question[] | null = null;
-    let usingDB = false;
   
-    if (!isLevelZero) {
-      // For levels > 0.0, always try to use the database
-      if (allQuestionsFromDB && allQuestionsFromDB.length > 0) {
-        questionPool = allQuestionsFromDB;
-        usingDB = true;
-      }
+    // Use DB questions if they exist. For non-0.0 levels, this is the only source.
+    if (allQuestionsFromDB && allQuestionsFromDB.length > 0) {
+      questionPool = allQuestionsFromDB;
     } else {
-      // For level 0.0, use DB if available, otherwise fall back
-      if (allQuestionsFromDB && allQuestionsFromDB.length > 0) {
-        questionPool = allQuestionsFromDB;
-        usingDB = true;
-      } else {
-        const bengali = shuffleArray([...newBengaliLevel0Questions]).map((q, i) => ({ ...q, id: `b-local-${Date.now()}-${i}` }));
-        const english = shuffleArray([...newEnglishLevel0Questions]).map((q, i) => ({ ...q, id: `e-local-${Date.now()}-${i}` }));
-        questionPool = [...bengali, ...english];
-      }
-    }
-  
-    if (!questionPool || questionPool.length === 0) {
-      setExamQuestions([]);
+      setExamQuestions([]); // No questions found in DB for this level
       return;
     }
   
-    // --- Select questions for the exam from the determined source ---
     let finalQuestions: Question[] = [];
     const syllabusToUse = syllabus && Object.keys(syllabus.subjects).length > 0 ? syllabus : null;
   
@@ -101,6 +95,8 @@ function ExamContent() {
         const subjectSyllabus = syllabusToUse.subjects[subjectNameWithColon];
         const subjectName = subjectNameWithColon.trim().replace(/:$/, '').trim();
         const questionsForSubject = questionPool.filter(q => q.subject === subjectName);
+        
+        // Use available questions, even if fewer than the syllabus requires
         const questionsToTake = Math.min(questionsForSubject.length, subjectSyllabus.marks);
   
         if (questionsToTake < subjectSyllabus.marks) {
@@ -113,7 +109,7 @@ function ExamContent() {
         }
       }
       finalQuestions = tempFinalQuestions;
-    } else {
+    } else if (questionPool && questionPool.length > 0) {
       // NO syllabus is defined, but questions EXIST. Build a default exam.
       const questionsBySubject: Record<string, Question[]> = {};
       questionPool.forEach(q => {
@@ -144,17 +140,14 @@ function ExamContent() {
   }, [examQuestions]);
   
   const handleFinishExam = useCallback(() => {
-    if (!examQuestions) {
-      console.error("Exam questions not ready for level:", level);
+    if (!examQuestions || examQuestions.length === 0) {
+      console.error("handleFinishExam called with no questions. Aborting.");
       router.push('/dashboard/competition/exam/result');
       return;
     }
 
-    let finalSyllabusForResults: Syllabus | (Syllabus & { id: string; }) | undefined;
-
-    const subjectsInExam: { [subjectName: string]: SyllabusTopic } = {};
-    const questionsBySubject: { [subjectName: string]: Question[] } = {};
-
+    // Group the questions that were actually in the exam by subject.
+    const questionsBySubject: Record<string, Question[]> = {};
     examQuestions.forEach(q => {
         if (!questionsBySubject[q.subject]) {
             questionsBySubject[q.subject] = [];
@@ -162,49 +155,30 @@ function ExamContent() {
         questionsBySubject[q.subject].push(q);
     });
 
-    // 1. If a database syllabus was used to build the exam, use it for results.
-    if (syllabus && Object.keys(syllabus.subjects).length > 0) {
-      finalSyllabusForResults = syllabus;
-    } 
-    // 2. Otherwise, construct a syllabus based on the actual questions in the exam.
-    else {
-        for (const subjectName in questionsBySubject) {
-            subjectsInExam[subjectName] = {
-                marks: questionsBySubject[subjectName].length,
-                topics: []
-            };
-        }
-        finalSyllabusForResults = {
-            level: level,
-            subjects: subjectsInExam
-        };
-    }
-
-
     const subjectResults: SubjectResult[] = [];
     let totalObtainedMarks = 0;
     let totalMarks = 0;
 
-    if (finalSyllabusForResults && finalSyllabusForResults.subjects) {
-      for (const subjectName in finalSyllabusForResults.subjects) {
-        const subjectQuestionsInExam = examQuestions.filter(q => q.subject === subjectName);
+    // Calculate results based *only* on the questions that were in the exam.
+    for (const subjectName in questionsBySubject) {
+        const subjectQuestionsInExam = questionsBySubject[subjectName];
         
-        if (subjectQuestionsInExam.length === 0) continue;
-
         let correctAnswers = 0;
         let incorrectAnswers = 0;
 
         subjectQuestionsInExam.forEach(q => {
-          const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
-          const userAnswer = userAnswers[questionIndex];
-          if (userAnswer) {
-              const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
-              if (userAnswer === correctAnswerText) {
-                  correctAnswers++;
-              } else {
-                  incorrectAnswers++;
-              }
-          }
+            const questionIndex = examQuestions.findIndex(examQ => examQ.id === q.id);
+            if (questionIndex === -1) return; // Should not happen
+
+            const userAnswer = userAnswers[questionIndex];
+            if (userAnswer) {
+                const correctAnswerText = q.answers.find(a => a.isCorrect)?.text;
+                if (userAnswer === correctAnswerText) {
+                    correctAnswers++;
+                } else {
+                    incorrectAnswers++;
+                }
+            }
         });
         
         const subjectTotalMarks = subjectQuestionsInExam.length;
@@ -222,9 +196,7 @@ function ExamContent() {
 
         totalObtainedMarks += obtainedMarksClamped;
         totalMarks += subjectTotalMarks;
-      }
     }
-
 
     const overallStatus = subjectResults.length > 0 && subjectResults.every(r => r.status === 'Passed') ? 'Passed' : 'Failed';
     const totalPercentage = totalMarks > 0 ? (totalObtainedMarks / totalMarks) * 100 : 0;
@@ -266,7 +238,7 @@ function ExamContent() {
 
     router.push('/dashboard/competition/exam/result');
 
-  }, [level, examQuestions, userAnswers, router, syllabus]);
+  }, [level, examQuestions, userAnswers, router]);
 
   const handleNext = useCallback(() => {
     if (!examQuestions) return;
