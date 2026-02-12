@@ -90,11 +90,20 @@ export default function CompetitionPage() {
 
     useEffect(() => {
         setIsClient(true);
-        const savedLevel = sessionStorage.getItem('currentUserLevel');
-        if (savedLevel) {
-            setUserLevel(savedLevel);
+        const baseLevel = currentUser.level;
+        const savedLevelString = sessionStorage.getItem('currentUserLevel');
+
+        if (savedLevelString) {
+            const savedLevel = parseFloat(savedLevelString);
+            // The effective level is the higher of the base level and the session level.
+            const effectiveLevel = Math.max(baseLevel, savedLevel);
+            setUserLevel(effectiveLevel.toFixed(1));
+            // Update session storage to the effective level to maintain consistency.
+            sessionStorage.setItem('currentUserLevel', effectiveLevel.toFixed(1));
         } else {
-            setUserLevel(currentUser.level.toFixed(1));
+            // No session level, so use the base level.
+            setUserLevel(baseLevel.toFixed(1));
+            sessionStorage.setItem('currentUserLevel', baseLevel.toFixed(1));
         }
     }, []);
 
