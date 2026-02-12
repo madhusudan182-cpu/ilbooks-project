@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { mockPosts } from "@/lib/data";
-import { MessageCircle, Heart, Share2, Image as ImageIcon, Video } from "lucide-react";
+import { MessageCircle, Heart, Share2, Image as ImageIcon, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { currentUser } from "@/lib/auth";
 
@@ -69,7 +69,7 @@ export default function HomePage() {
                     <span className="sr-only">Add image</span>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={handleVideoClick}>
-                    <Video className="h-5 w-5 text-muted-foreground" />
+                    <Film className="h-5 w-5 text-muted-foreground" />
                     <span className="sr-only">Add video</span>
                 </Button>
             </div>
