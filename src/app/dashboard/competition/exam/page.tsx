@@ -326,7 +326,7 @@ function ExamContent() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-36 flex items-center justify-center text-center p-2 mb-4 border-b">
+          <div className="h-36 flex items-center justify-start text-left p-2 mb-4 border-b">
             <p className={cn("font-medium", fontSizeClass)}>{currentQuestion?.questionText}</p>
           </div>
           <RadioGroup 
