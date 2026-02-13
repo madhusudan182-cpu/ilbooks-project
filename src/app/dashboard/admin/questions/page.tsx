@@ -26,6 +26,7 @@ import { newBengaliLevel2Questions } from "@/lib/level-0-2-bengali-questions";
 import { newEnglishLevel2Questions } from "@/lib/level-0-2-english-questions";
 import { newBengaliLevel3Questions } from "@/lib/level-0-3-bengali-questions";
 import { newEnglishLevel3Questions } from "@/lib/level-0-3-english-questions";
+import { newBengaliLevel4Questions } from "@/lib/level-0-4-bengali-questions";
 
 export default function AllQuestionsPage() {
     const firestore = useFirestore();
@@ -128,6 +129,15 @@ export default function AllQuestionsPage() {
                     id: `new-english-question-0-3-${Date.now()}-${index}`
                 }));
             questionsToEdit.push(...englishQuestionsToAdd);
+        } else if (level === '0.4') {
+            const existingBengaliTexts = new Set(questionsToEdit.filter((q: Question) => q.subject === 'Bengali').map((q: Question) => q.questionText));
+            const bengaliQuestionsToAdd = newBengaliLevel4Questions
+                .filter(newQ => !existingBengaliTexts.has(newQ.questionText))
+                .map((q, index) => ({
+                    ...q,
+                    id: `new-bengali-question-0-4-${Date.now()}-${index}`
+                }));
+            questionsToEdit.push(...bengaliQuestionsToAdd);
         }
 
         questionsToEdit.forEach((q: Question) => {
