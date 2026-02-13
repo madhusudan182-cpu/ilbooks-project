@@ -29,6 +29,7 @@ import { currentUser } from '@/lib/auth';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type CartItem = Book & { quantity: number };
+const DELIVERY_CHARGE = 50;
 
 export default function BookShopPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -60,7 +61,8 @@ export default function BookShopPage() {
     }
   }, [books, activeCategory, userLevel]);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cart.length > 0 ? subtotal + DELIVERY_CHARGE : 0;
 
   const handleAddToCart = (book: Book) => {
     setCart((prevCart) => {
@@ -344,6 +346,17 @@ export default function BookShopPage() {
                       ))}
                     </div>
                     <Separator className="my-4" />
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span>Tk {subtotal}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Delivery Charge</span>
+                        <span>Tk {DELIVERY_CHARGE}</span>
+                      </div>
+                    </div>
+                    <Separator className="my-2" />
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
                       <span>Tk {total}</span>
