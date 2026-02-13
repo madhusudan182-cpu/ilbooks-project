@@ -35,6 +35,7 @@ import { newEnglishLevel6Questions } from "@/lib/level-0-6-english-questions";
 import { newBengaliLevel7Questions } from "@/lib/level-0-7-bengali-questions";
 import { newEnglishLevel7Questions } from "@/lib/level-0-7-english-questions";
 import { newBengaliLevel8Questions } from "@/lib/level-0-8-bengali-questions";
+import { newEnglishLevel8Questions } from "@/lib/level-0-8-english-questions";
 import { newBengaliLevel9Questions } from "@/lib/level-0-9-bengali-questions";
 
 export default function AllQuestionsPage() {
@@ -208,6 +209,14 @@ export default function AllQuestionsPage() {
                     id: `new-bengali-question-0-8-${Date.now()}-${index}`
                 }));
             questionsToEdit.push(...bengaliQuestionsToAdd);
+             const existingEnglishTexts = new Set(questionsToEdit.filter((q: Question) => q.subject === 'English').map((q: Question) => q.questionText));
+            const englishQuestionsToAdd = newEnglishLevel8Questions
+                .filter(newQ => !existingEnglishTexts.has(newQ.questionText))
+                .map((q, index) => ({
+                    ...q,
+                    id: `new-english-question-0-8-${Date.now()}-${index}`
+                }));
+            questionsToEdit.push(...englishQuestionsToAdd);
         } else if (level === '0.9') {
             const existingBengaliTexts = new Set(questionsToEdit.filter((q: Question) => q.subject === 'Bengali').map((q: Question) => q.questionText));
             const bengaliQuestionsToAdd = newBengaliLevel9Questions
