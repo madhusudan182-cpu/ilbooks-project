@@ -22,8 +22,8 @@ service cloud.firestore {
 
     // Secure book orders
     match /orders/{orderId} {
-      // Allow any authenticated user to list and read orders to restore admin panel functionality.
-      allow read, list: if isAuthenticated();
+      // Only admins should be able to list all orders.
+      allow read: if isAdmin();
       
       // An authenticated user can create an order for themselves.
       allow create: if request.auth.uid == request.resource.data.userId;
@@ -37,24 +37,24 @@ service cloud.firestore {
 
     // Secure syllabi
     match /syllabi/{level} {
-      // Allow any authenticated user to read and list syllabi.
-      allow read, list: if isAuthenticated();
+      // Any authenticated user can read syllabi. Admins can list all.
+      allow read: if isAuthenticated();
       // Only admins can create or update syllabi.
       allow write: if isAdmin();
     }
 
     // Secure books
     match /books/{bookId} {
-      // Allow any authenticated user to read and list books.
-      allow read, list: if isAuthenticated();
+      // Any authenticated user can read books. Admins can list all.
+      allow read: if isAuthenticated();
       // Only admins can create or update books.
       allow write: if isAdmin();
     }
 
     // Secure exam questions
     match /questions/{questionId} {
-      // Allow any authenticated user to read and list questions.
-      allow read, list: if isAuthenticated();
+      // Any authenticated user can read questions. Admins can list all.
+      allow read: if isAuthenticated();
       // Only admins can create or update questions.
       allow write: if isAdmin();
     }
