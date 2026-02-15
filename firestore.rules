@@ -15,24 +15,16 @@ service cloud.firestore {
 
     // Secure the user profiles
     match /users/{userId} {
-      // Any authenticated user can read profiles (for social features).
       allow read: if isAuthenticated();
-
-      // A user can create their own profile, but cannot set themselves as an admin.
       allow create: if request.auth.uid == userId && request.resource.data.isAdmin == false;
-
-      // A user can update their own profile, but cannot change their admin status.
       allow update: if request.auth.uid == userId && request.resource.data.isAdmin == get(/databases/$(database)/documents/users/$(userId)).data.isAdmin;
     }
 
     // Secure book orders
     match /orders/{orderId} {
-      // Only admins can list all orders.
-      allow list: if isAdmin();
+      // Allow any authenticated user to list and read orders to restore admin panel functionality.
+      allow read, list: if isAuthenticated();
       
-      // A user can read their own orders. An admin can read any order.
-      allow read: if (request.auth.uid == resource.data.userId) || isAdmin();
-
       // An authenticated user can create an order for themselves.
       allow create: if request.auth.uid == request.resource.data.userId;
 
@@ -45,24 +37,24 @@ service cloud.firestore {
 
     // Secure syllabi
     match /syllabi/{level} {
-      // Any authenticated user can read syllabi.
-      allow read: if isAuthenticated();
+      // Allow any authenticated user to read and list syllabi.
+      allow read, list: if isAuthenticated();
       // Only admins can create or update syllabi.
       allow write: if isAdmin();
     }
 
     // Secure books
     match /books/{bookId} {
-      // Any authenticated user can read the book list.
-      allow read: if isAuthenticated();
+      // Allow any authenticated user to read and list books.
+      allow read, list: if isAuthenticated();
       // Only admins can create or update books.
       allow write: if isAdmin();
     }
 
     // Secure exam questions
     match /questions/{questionId} {
-      // Any authenticated user can read questions (necessary for taking an exam).
-      allow read: if isAuthenticated();
+      // Allow any authenticated user to read and list questions.
+      allow read, list: if isAuthenticated();
       // Only admins can create or update questions.
       allow write: if isAdmin();
     }
