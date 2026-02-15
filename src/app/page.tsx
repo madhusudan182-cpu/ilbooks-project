@@ -24,6 +24,11 @@ export default function Home() {
             <Link href="/login">Sign In</Link>
           </Button>
         </div>
+        <div className="absolute bottom-4">
+            <p className="text-sm text-muted-foreground">
+                Made with ❤️ by ILBooks Team
+            </p>
+        </div>
       </div>
     </main>
   );
