@@ -5,17 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Server, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Server, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const mockDeployments = [
     {
-        id: 'deploy-1',
+        id: 'deploy-0',
         date: new Date().toISOString(),
-        status: 'Success',
-        commit: 'e9f0a1b - Final SEO and config cleanup',
-        url: 'https://ilbooks-app.web.app'
+        status: 'In Progress',
+        commit: 'Forcing new deployment to fix URL.',
+        url: 'Pending...'
+    },
+    {
+        id: 'deploy-1',
+        date: new Date(new Date().getTime() - 5 * 60000).toISOString(),
+        status: 'Failed',
+        commit: 'Final SEO and config cleanup',
+        url: null
     },
     {
         id: 'deploy-2',
@@ -53,6 +60,11 @@ export default function AdminDeploymentsPage() {
                 return {
                     badgeClass: 'bg-red-100 text-red-800',
                     icon: <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                };
+            case 'In Progress':
+                return {
+                    badgeClass: 'bg-yellow-100 text-yellow-800',
+                    icon: <Loader2 className="mr-2 h-4 w-4 text-yellow-600 animate-spin" />
                 };
             default:
                  return {
@@ -107,11 +119,15 @@ export default function AdminDeploymentsPage() {
                                     <TableCell>{deployment.commit}</TableCell>
                                     <TableCell className="text-right">
                                         {deployment.url ? (
-                                            <Button asChild variant="link" size="sm">
-                                                <a href={deployment.url} target="_blank" rel="noopener noreferrer">
-                                                    {deployment.url.replace('https://', '')}
-                                                </a>
-                                            </Button>
+                                            deployment.url.startsWith('http') ? (
+                                                <Button asChild variant="link" size="sm">
+                                                    <a href={deployment.url} target="_blank" rel="noopener noreferrer">
+                                                        {deployment.url.replace('https://', '')}
+                                                    </a>
+                                                </Button>
+                                            ) : (
+                                                <span className="text-muted-foreground">{deployment.url}</span>
+                                            )
                                         ) : (
                                             <span className="text-muted-foreground">--</span>
                                         )}
