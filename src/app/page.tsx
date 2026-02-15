@@ -2,7 +2,22 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AnimatedLogo } from "@/components/animated-logo";
 
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="w-5 h-5"
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+
 export default function Home() {
+  const appUrl = "https://ilbooks-app.web.app";
+  const shareText = "I just discovered ILBooks, a social network for book lovers! Join me to connect, compete, and discover new books.";
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
       <div className="flex flex-col items-center justify-center text-center">
@@ -22,6 +37,12 @@ export default function Home() {
           </Button>
           <Button asChild size="lg" className="font-headline bg-orange-500 text-white hover:bg-orange-600">
             <Link href="/login">Sign In</Link>
+          </Button>
+           <Button asChild size="lg" className="font-headline bg-blue-600 text-white hover:bg-blue-700">
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}&quote=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
+                <FacebookIcon />
+                Share
+            </a>
           </Button>
         </div>
         <div className="absolute bottom-4">
