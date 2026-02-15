@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Server, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Server, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-const mockDeployments = [
+const deployments = [
     {
         id: 'deploy-final',
         date: new Date().toISOString(),
@@ -22,28 +22,10 @@ const mockDeployments = [
 export default function AdminDeploymentsPage() {
 
     const getStatusInfo = (status: string) => {
-        switch (status) {
-            case 'Success':
-                return {
-                    badgeClass: 'bg-green-100 text-green-800',
-                    icon: <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
-                };
-            case 'Failed':
-                return {
-                    badgeClass: 'bg-red-100 text-red-800',
-                    icon: <XCircle className="mr-2 h-4 w-4 text-red-600" />
-                };
-            case 'In Progress':
-                return {
-                    badgeClass: 'bg-yellow-100 text-yellow-800',
-                    icon: <Loader2 className="mr-2 h-4 w-4 text-yellow-600 animate-spin" />
-                };
-            default:
-                 return {
-                    badgeClass: 'bg-gray-100 text-gray-800',
-                    icon: null
-                };
-        }
+        return {
+            badgeClass: 'bg-green-100 text-green-800',
+            icon: <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+        };
     }
 
     return (
@@ -77,7 +59,7 @@ export default function AdminDeploymentsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {mockDeployments.map(deployment => {
+                            {deployments.map(deployment => {
                                 const statusInfo = getStatusInfo(deployment.status);
                                 return (
                                 <TableRow key={deployment.id}>
@@ -90,18 +72,12 @@ export default function AdminDeploymentsPage() {
                                     </TableCell>
                                     <TableCell>{deployment.commit}</TableCell>
                                     <TableCell className="text-right">
-                                        {deployment.url ? (
-                                            deployment.url.startsWith('http') ? (
-                                                <Button asChild variant="link" size="sm">
-                                                    <a href={deployment.url} target="_blank" rel="noopener noreferrer">
-                                                        {deployment.url.replace('https://', '')}
-                                                    </a>
-                                                </Button>
-                                            ) : (
-                                                <span className="text-muted-foreground">{deployment.url}</span>
-                                            )
-                                        ) : (
-                                            <span className="text-muted-foreground">--</span>
+                                        {deployment.url && (
+                                            <Button asChild variant="link" size="sm">
+                                                <a href={deployment.url} target="_blank" rel="noopener noreferrer">
+                                                    {deployment.url.replace('https://', '')}
+                                                </a>
+                                            </Button>
                                         )}
                                     </TableCell>
                                 </TableRow>

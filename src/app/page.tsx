@@ -15,7 +15,7 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   );
 
 export default function Home() {
-  const appUrl = "https://ilbooks-app.web.app";
+  const appUrl = "https://ilbooks-app-prev.web.app";
   const shareText = "I just discovered ILBooks, a social network for book lovers! Join me to connect, compete, and discover new books.";
 
   return (
