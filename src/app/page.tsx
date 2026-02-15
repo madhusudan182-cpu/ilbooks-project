@@ -1,50 +1,77 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AnimatedLogo } from "@/components/animated-logo";
-
-const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="w-5 h-5"
-    >
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  );
+import { Users, Trophy, BookOpen } from "lucide-react";
 
 export default function Home() {
-  const appUrl = "https://ilbooks-app-prev.web.app";
-  const shareText = "I just discovered ILBooks, a social network for book lovers! Join me to connect, compete, and discover new books.";
-
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
-      <div className="flex flex-col items-center justify-center text-center">
-        <AnimatedLogo />
-        <h1 className="font-headline text-5xl md:text-7xl font-bold text-pink-500 mt-6">
-          ILBooks
-        </h1>
-        <p className="mt-2 text-xl text-red-800 font-headline tracking-wider">
-          [ I Love Books ]
+    <div className="flex flex-col min-h-screen bg-background">
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="flex flex-col items-center justify-center text-center py-20 px-4">
+          <AnimatedLogo />
+          <h1 className="font-headline text-5xl md:text-7xl font-bold text-pink-500 mt-6">
+            ILBooks
+          </h1>
+          <p className="mt-2 text-xl text-red-800 font-headline tracking-wider">
+            [ I Love Books ]
+          </p>
+          <p className="mt-12 text-2xl md:text-3xl font-headline text-foreground max-w-2xl">
+            Welcome to the Bookworm Network, a place for readers to connect, compete, and discover.
+          </p>
+          <div className="mt-12 flex flex-col sm:flex-row items-center gap-4">
+            <Button asChild size="lg" className="font-headline">
+              <Link href="/signup">Get Started</Link>
+            </Button>
+            <Button asChild size="lg" className="font-headline bg-orange-500 text-white hover:bg-orange-600">
+              <Link href="/login">Sign In</Link>
+            </Button>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-20 bg-muted/50 px-4">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12 font-headline">What We Offer</h2>
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 p-4 rounded-full mb-4">
+                  <Users className="h-10 w-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold font-headline mb-2">Connect with Readers</h3>
+                <p className="text-muted-foreground">
+                  Join a vibrant community. Follow fellow bookworms, share your thoughts on the latest reads, and build your social circle.
+                </p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 p-4 rounded-full mb-4">
+                  <Trophy className="h-10 w-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold font-headline mb-2">Compete and Win</h3>
+                <p className="text-muted-foreground">
+                  Test your knowledge in literary competitions. Progress through levels, earn badges, and win exciting prizes.
+                </p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 p-4 rounded-full mb-4">
+                  <BookOpen className="h-10 w-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold font-headline mb-2">Discover New Books</h3>
+                <p className="text-muted-foreground">
+                  Explore our curated book shop, get personalized recommendations from our AI, and find your next favorite book.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      {/* Footer */}
+      <footer className="py-6 bg-background text-center">
+        <p className="text-sm text-muted-foreground">
+            Made with ❤️ by ILBooks Team
         </p>
-        <p className="mt-12 text-2xl md:text-3xl font-headline text-foreground max-w-2xl">
-          Welcome to the Bookworm Network, a place for readers to connect, compete, and discover.
-        </p>
-        <div className="mt-12 flex flex-col sm:flex-row items-center gap-4">
-          <Button asChild size="lg" className="font-headline">
-            <Link href="/signup">Get Started</Link>
-          </Button>
-          <Button asChild size="lg" className="font-headline bg-orange-500 text-white hover:bg-orange-600">
-            <Link href="/login">Sign In</Link>
-          </Button>
-        </div>
-        <div className="absolute bottom-4">
-            <p className="text-sm text-muted-foreground">
-                Made with ❤️ by ILBooks Team
-            </p>
-        </div>
-      </div>
-    </main>
+      </footer>
+    </div>
   );
 }
