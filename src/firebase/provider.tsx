@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { FirebaseApp } from 'firebase/app';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
@@ -11,40 +11,30 @@ import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { firebaseConfig } from './config';
 
 export interface FirebaseContextValue {
-  app: FirebaseApp | null;
-  auth: Auth | null;
-  firestore: Firestore | null;
+  app: FirebaseApp;
+  auth: Auth;
+  firestore: Firestore;
 }
 
-export const FirebaseContext = createContext<FirebaseContextValue>({
-  app: null,
-  auth: null,
-  firestore: null,
-});
+// Initialize Firebase on the client, and only once.
+// This module is marked with 'use client', so this code will not run on the server.
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+const firebaseInstances = { app, auth, firestore };
+
+// We can safely assert the type as we know it's initialized.
+export const FirebaseContext = createContext<FirebaseContextValue>(firebaseInstances as FirebaseContextValue);
 
 export function FirebaseProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-    const [instances, setInstances] = useState<FirebaseContextValue>({
-        app: null,
-        auth: null,
-        firestore: null,
-    });
-
-    useEffect(() => {
-        const apps = getApps();
-        const app = apps.length > 0 ? getApp() : initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const firestore = getFirestore(app);
-        setInstances({ app, auth, firestore });
-    }, []);
-
   return (
-    <FirebaseContext.Provider value={instances}>
+    <FirebaseContext.Provider value={firebaseInstances}>
       {children}
-      {instances.app && <FirebaseErrorListener />}
+      <FirebaseErrorListener />
     </FirebaseContext.Provider>
   );
 }
