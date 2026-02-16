@@ -9,14 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { mockUsers, mockPosts } from "@/lib/data";
 import { MapPin, UserPlus, MessageCircle, Heart, Share2, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.id as string;
+  const { toast } = useToast();
 
   const user = mockUsers.find(u => u.id === userId);
   const posts = mockPosts.filter(p => p.author.id === userId);
+
+  const handleFollow = () => {
+    toast({ title: user?.isFollowing ? `Unfollowed ${user.name}` : `Following ${user.name}`, duration: 2000 });
+    // In a real app, you would update the state here
+  };
+  
+  const handleLike = () => {
+    toast({ title: "Liked post!", duration: 2000 });
+  };
+
+  const handleShare = () => {
+    toast({ title: "Sharing options coming soon!", duration: 2000 });
+  };
 
   if (!user) {
     return (
@@ -50,7 +65,7 @@ export default function UserProfilePage() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-2 self-start md:self-center">
-            <Button>
+            <Button onClick={handleFollow}>
               <UserPlus className="mr-2 h-4 w-4" />
               {user.isFollowing ? 'Unfollow' : 'Follow'}
             </Button>
@@ -100,7 +115,7 @@ export default function UserProfilePage() {
               </CardContent>
               <CardFooter className="flex justify-between p-1 pt-0">
                 <div className="flex">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={handleLike}>
                     <Heart className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.likes}</span>
                   </Button>
@@ -108,7 +123,7 @@ export default function UserProfilePage() {
                     <MessageCircle className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.comments}</span>
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={handleShare}>
                     <Share2 className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.shares}</span>
                   </Button>

@@ -12,6 +12,7 @@ import { mockPosts } from "@/lib/data";
 import { MessageCircle, Heart, Share2, Image as ImageIcon, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { currentUser } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HomePage() {
   const [postContent, setPostContent] = useState("");
@@ -19,6 +20,7 @@ export default function HomePage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [commentingOn, setCommentingOn] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleCancel = () => {
     setPostContent("");
@@ -31,6 +33,14 @@ export default function HomePage() {
 
   const handleVideoClick = () => {
     videoInputRef.current?.click();
+  };
+
+  const handleLike = () => {
+    toast({ title: "Liked post!", duration: 2000 });
+  };
+
+  const handleShare = () => {
+    toast({ title: "Sharing options coming soon!", duration: 2000 });
   };
 
   return (
@@ -134,7 +144,7 @@ export default function HomePage() {
               </CardContent>
               <CardFooter className="flex justify-between p-0">
                 <div className="flex">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={handleLike}>
                     <Heart className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.likes}</span>
                   </Button>
@@ -142,7 +152,7 @@ export default function HomePage() {
                     <MessageCircle className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.comments}</span>
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={handleShare}>
                     <Share2 className="w-4 h-4 mr-1" />
                     <span className="text-xs">{post.shares}</span>
                   </Button>

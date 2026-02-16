@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,10 +26,23 @@ export default function CreateProfilePage() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [thanas, setThanas] = useState<string[]>([]);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
     setThanas(thanasByDistrict[district] || []);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        setAvatarUrl(loadEvent.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -37,13 +50,14 @@ export default function CreateProfilePage() {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="items-center text-center">
           <div className="relative mb-4">
+            <input type="file" accept="image/*" className="hidden" ref={avatarInputRef} onChange={handleAvatarChange} />
             <Avatar className="h-24 w-24 border-4 border-muted">
-              <AvatarImage src="" alt="Profile picture" />
+              <AvatarImage src={avatarUrl} alt="Profile picture" />
               <AvatarFallback className="text-muted-foreground">
                 <Camera className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
-            <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full">
+            <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" onClick={() => avatarInputRef.current?.click()}>
               <Camera className="h-4 w-4" />
               <span className="sr-only">Upload Picture</span>
             </Button>

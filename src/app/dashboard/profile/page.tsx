@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,33 +24,41 @@ const hobbiesList = [
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  // Using currentUser as the initial state for the editable profile
   const [userProfile, setUserProfile] = useState<User>(currentUser);
   
-  // State for location dropdowns
   const initialDistrict = userProfile.location.split(', ')[1] === 'Bangladesh' ? userProfile.location.split(', ')[0] : "";
   const [selectedDistrict, setSelectedDistrict] = useState(initialDistrict);
   const [thanas, setThanas] = useState<string[]>(thanasByDistrict[initialDistrict] || []);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
     setThanas(thanasByDistrict[district] || []);
-    // In a real app, you might auto-update a part of the location or handle it on save
   };
 
   const handleProfileChange = (field: keyof User, value: any) => {
     setUserProfile(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        handleProfileChange('avatarUrl', loadEvent.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = () => {
-    // In a real app, you would save this to a database.
-    // For now, we just exit editing mode.
     console.log("Saving profile:", userProfile);
     setIsEditing(false);
+    // Here you would also update the original currentUser mock or call an API
+    // For this demo, we can just log it.
   };
 
   const handleCancel = () => {
-    // Reset changes to the original state
     setUserProfile(currentUser);
     setIsEditing(false);
   };
@@ -64,11 +72,12 @@ export default function ProfilePage() {
             <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
               <div className="flex flex-col md:flex-row items-start gap-6">
                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <input type="file" accept="image/*" className="hidden" ref={avatarInputRef} onChange={handleAvatarChange} />
                     <Avatar className="w-24 h-24 border-4 border-card">
                         <AvatarImage src={userProfile.avatarUrl} />
                         <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <Button size="icon" variant="outline" className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full">
+                    <Button type="button" size="icon" variant="outline" className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full" onClick={() => avatarInputRef.current?.click()}>
                         <Camera className="h-4 w-4" />
                         <span className="sr-only">Upload Picture</span>
                     </Button>
