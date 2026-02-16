@@ -121,7 +121,7 @@ export default function MessagesPage() {
   const isFeatureLocked = currentUser.level < 0.3 && !isAdmin;
 
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const truncateMessage = (message: string, maxLength = 20): string => {
@@ -141,7 +141,6 @@ export default function MessagesPage() {
             videoRef.current.srcObject = stream;
           }
         } catch (error) {
-          console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
           toast({
             variant: 'destructive',
@@ -158,6 +157,7 @@ export default function MessagesPage() {
         stream.getTracks().forEach(track => track.stop());
         videoRef.current.srcObject = null;
       }
+      setHasCameraPermission(null);
     }
   }, [isCameraDialogOpen, toast]);
 
@@ -288,11 +288,11 @@ export default function MessagesPage() {
         </DialogHeader>
         <div className="py-4">
           <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted />
-          {!hasCameraPermission && hasCameraPermission !== null && (
+          {hasCameraPermission === false && (
             <Alert variant="destructive" className="mt-4">
-              <AlertTitle>Camera Access Denied</AlertTitle>
+              <AlertTitle>Camera Access Required</AlertTitle>
               <AlertDescription>
-                Please enable camera permissions in your browser settings.
+                Please allow camera access to use this feature.
               </AlertDescription>
             </Alert>
           )}
