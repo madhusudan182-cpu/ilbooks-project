@@ -6,13 +6,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockUsers } from "@/lib/data";
 import type { User } from "@/lib/types";
-import { MessageCircle, UserPlus, ArrowLeft, Search, Users, Share2 } from "lucide-react";
+import { MessageCircle, UserPlus, ArrowLeft, Search, Users, Share2, Copy } from "lucide-react";
 import Link from "next/link";
 import { currentUser } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+
 
 const UserCard = ({ user }: { user: User }) => {
   const isCurrentUser = user.id === currentUser.id;
@@ -77,6 +79,15 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
   );
 
+const TwitterIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props} fill="currentColor"><title>X</title><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.931ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+);
+
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props} fill="currentColor"><title>WhatsApp</title><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.06 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM9.53 8.51c.24-.12.55-.27.8-.39.25-.12.42-.18.58-.18.16 0 .31.06.43.18.12.12.18.27.18.42s-.06.3-.18.42c-.12.12-.27.18-.42.18h-.12c-.15 0-.3-.03-.45-.09-.52-.22-.98-.56-1.38-1.01-.41-.46-.61-.98-.61-1.56 0-.58.2-1.09.61-1.56s.9-.73 1.48-.84c.58-.11 1.15-.05 1.7.18.55.23.99.58 1.32 1.05.33.47.49 1.01.49 1.61 0 .6-.16 1.14-.49 1.61-.33.47-.77.82-1.32 1.05-.25.11-.5.19-.75.24-.25.06-.5.09-.75.09-.33 0-.65-.06-.96-.18l-3.3 1.1.84-3.21c-.48-.6-.73-1.28-.73-2.01 0-.73.25-1.41.73-2.01.49-.6 1.1-.94 1.8-.94.7 0 1.35.34 1.8.94.49.6.73 1.28.73 2.01 0 .73-.25 1.41-.73 2.01z"/></svg>
+);
+
+
 // Mock data for Facebook friends
 const mockFacebookFriends = [
   { id: 'fb-1', name: 'Zayn Malik', avatarUrl: 'https://picsum.photos/seed/fb1/100/100' },
@@ -109,38 +120,42 @@ export default function SocialPage() {
     });
   };
 
-  const handleShare = async () => {
-    const shareData = {
-        title: 'ILBooks - The Social Network for Book Lovers',
-        text: 'Join ILBooks, a vibrant community for readers. Connect with fellow bookworms, compete in literary challenges, discover new books, and share your passion for reading.',
-        url: 'https://ilbooks-app-prev.web.app'
-    };
-    try {
-        if (navigator.share) {
-            await navigator.share(shareData);
-            toast({
-                title: 'Shared successfully!',
+  const urlToShare = 'https://ilbooks-app-prev.web.app';
+  const shareText = 'Join ILBooks, a vibrant community for readers. Connect with fellow bookworms, compete in literary challenges, discover new books, and share your passion for reading.';
+
+  const handleShare = (platform: 'facebook' | 'twitter' | 'whatsapp' | 'copy') => {
+    let shareUrl = '';
+    switch (platform) {
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlToShare)}`;
+            window.open(shareUrl, '_blank', 'noopener,noreferrer');
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(urlToShare)}&text=${encodeURIComponent(shareText)}`;
+            window.open(shareUrl, '_blank', 'noopener,noreferrer');
+            break;
+        case 'whatsapp':
+            shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + urlToShare)}`;
+            window.open(shareUrl, '_blank', 'noopener,noreferrer');
+            break;
+        case 'copy':
+            navigator.clipboard.writeText(urlToShare).then(() => {
+                toast({
+                    title: 'Link Copied!',
+                    description: 'The app link has been copied to your clipboard.',
+                });
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                toast({
+                    title: 'Failed to copy',
+                    description: 'Could not copy the link to your clipboard.',
+                    variant: 'destructive',
+                });
             });
-        } else {
-            await navigator.clipboard.writeText(shareData.url);
-            toast({
-                title: 'Link Copied!',
-                description: 'The app link has been copied to your clipboard. You can now paste it to share.',
-            });
-        }
-    } catch (error) {
-        if (error instanceof DOMException && error.name === 'NotAllowedError') {
-          // User cancelled the share dialog, do nothing.
-          return;
-        }
-        console.error('Share failed:', error);
-        toast({
-            title: 'Share failed',
-            description: 'Could not share at this moment. Please try again.',
-            variant: 'destructive',
-        });
+            break;
     }
   };
+
 
   const filteredFriendsData = mockFacebookFriends.filter(friend =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -226,10 +241,33 @@ export default function SocialPage() {
               <TabsTrigger value="search" className="rounded-md bg-blue-500 text-white data-[state=active]:bg-blue-600 px-1 py-1 h-8 text-xs">Search</TabsTrigger>
               <TabsTrigger value="friends" className="rounded-md bg-red-300 text-red-800 data-[state=active]:bg-red-400 px-1 py-1 h-8 text-xs"><Users className="w-4 h-4 mr-1" />Friends</TabsTrigger>
           </TabsList>
-           <Button onClick={handleShare} className="rounded-md bg-green-500 hover:bg-green-600 text-white px-1 py-1 h-8 text-xs">
-              <Share2 className="w-4 h-4 mr-1" />
-              Share
-          </Button>
+           <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button className="rounded-md bg-green-500 hover:bg-green-600 text-white px-1 py-1 h-8 text-xs">
+                        <Share2 className="w-4 h-4 mr-1" />
+                        Share
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleShare('facebook')}>
+                        <FacebookIcon className="w-4 h-4 mr-2" />
+                        <span>Facebook</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare('twitter')}>
+                        <TwitterIcon className="w-4 h-4 mr-2" />
+                        <span>Twitter / X</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare('whatsapp')}>
+                        <WhatsAppIcon className="w-4 h-4 mr-2" />
+                        <span>WhatsApp</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleShare('copy')}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        <span>Copy Link</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
           <Button onClick={() => setView('invite')} className="rounded-md bg-red-300 hover:bg-red-400 text-red-800 px-1 py-1 h-8 text-xs">
               <FacebookIcon className="w-4 h-4 mr-1 text-blue-600" />
               Invite
