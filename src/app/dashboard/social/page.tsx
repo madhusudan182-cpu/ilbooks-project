@@ -129,6 +129,10 @@ export default function SocialPage() {
             });
         }
     } catch (error) {
+        if (error instanceof DOMException && error.name === 'NotAllowedError') {
+          // User cancelled the share dialog, do nothing.
+          return;
+        }
         console.error('Share failed:', error);
         toast({
             title: 'Share failed',
