@@ -26,6 +26,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 const allConversations = [
   {
@@ -123,6 +126,25 @@ export default function MessagesPage() {
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
+  const [callType, setCallType] = useState<'Audio' | 'Video' | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      toast({
+        title: "Attachment Ready",
+        description: `File "${file.name}" will be sent with your message. (Feature in development)`,
+      });
+    }
+     // Reset the input value to allow selecting the same file again
+    if(e.target) e.target.value = '';
+  };
+
 
   const truncateMessage = (message: string, maxLength = 20): string => {
     if (message.length <= maxLength) {
@@ -141,6 +163,7 @@ export default function MessagesPage() {
             videoRef.current.srcObject = stream;
           }
         } catch (error) {
+          console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
           toast({
             variant: 'destructive',
@@ -157,7 +180,6 @@ export default function MessagesPage() {
         stream.getTracks().forEach(track => track.stop());
         videoRef.current.srcObject = null;
       }
-      setHasCameraPermission(null);
     }
   }, [isCameraDialogOpen, toast]);
 
@@ -303,6 +325,24 @@ export default function MessagesPage() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    
+    <AlertDialog open={isCallDialogOpen} onOpenChange={setIsCallDialogOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Start {callType} Call?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Are you sure you want to start a {callType?.toLowerCase()} call with {selectedConversation?.user.name}? This feature is currently in development.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>No</AlertDialogCancel>
+                <AlertDialogAction onClick={() => { setIsCallDialogOpen(false); toast({ title: "Calling feature coming soon!" }) }}>Yes, Start Call</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    
+    <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
+    <input type="file" ref={imageInputRef} onChange={handleFileSelect} accept="image/*" className="hidden" />
 
     <div className="flex bg-background h-[calc(100vh-8rem)] md:h-[calc(100vh-5.5rem)]">
       <aside className={cn(
@@ -443,11 +483,11 @@ export default function MessagesPage() {
                 </div>
                 {selectedConversation.user.name !== 'ILBooks' && (
                     <div className="flex items-center flex-shrink-0">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Audio call feature coming soon!" })}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setCallType('Audio'); setIsCallDialogOpen(true); }}>
                             <Phone className="w-4 h-4" />
                             <span className="sr-only">Audio Call</span>
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Video call feature coming soon!" })}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setCallType('Video'); setIsCallDialogOpen(true); }}>
                             <Video className="w-4 h-4" />
                             <span className="sr-only">Video Call</span>
                         </Button>
@@ -521,7 +561,7 @@ export default function MessagesPage() {
             <div className="px-1 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => toast({ title: "File attachment coming soon!" })}>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => fileInputRef.current?.click()}>
                             <Paperclip className="w-5 h-5"/>
                             <span className="sr-only">Attach file</span>
                         </Button>
@@ -529,11 +569,11 @@ export default function MessagesPage() {
                             <Camera className="w-5 h-5"/>
                             <span className="sr-only">Take a photo</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Image attachment coming soon!" })}>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => imageInputRef.current?.click()}>
                             <FileImage className="w-5 h-5"/>
                             <span className="sr-only">Attach an image</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Voice message feature coming soon!" })}>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Voice messaging is coming soon!" })}>
                             <Mic className="w-5 h-5"/>
                             <span className="sr-only">Record a voice message</span>
                         </Button>
@@ -548,10 +588,23 @@ export default function MessagesPage() {
                           onFocus={() => setIsInputFocused(true)}
                           onBlur={() => setIsInputFocused(false)}
                       />
-                      <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => toast({ title: "Emoji picker coming soon!" })}>
-                          <Smile className="w-4 h-4 text-muted-foreground" />
-                          <span className="sr-only">Add emoji</span>
-                      </Button>
+                       <Popover>
+                            <PopoverTrigger asChild>
+                                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                                    <Smile className="w-4 h-4 text-muted-foreground" />
+                                    <span className="sr-only">Add emoji</span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-2">
+                                <div className="flex gap-1">
+                                    {['😊', '👍', '❤️', '😂', '🎉'].map(emoji => (
+                                        <Button key={emoji} variant="ghost" size="icon" className="h-8 w-8" onClick={() => setNewMessage(prev => prev + emoji)}>
+                                            {emoji}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                     <Button type="submit" size="icon" aria-label="Send Message" className="shrink-0 h-9 w-9">
                         <Send className="w-4 h-4"/>
