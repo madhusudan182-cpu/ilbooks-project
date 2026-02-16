@@ -423,21 +423,21 @@ export default function MessagesPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align={msg.sender === currentUser.id ? "end" : "start"}>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => toast({ title: 'Reply feature coming soon!' })}>
                                     <Reply className="mr-2 h-4 w-4" />
                                     <span>Reply</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(msg.text); toast({ title: 'Message copied!' }); }}>
                                     <Copy className="mr-2 h-4 w-4" />
                                     <span>Copy</span>
                                 </DropdownMenuItem>
                                 {msg.sender === currentUser.id ? (
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" onClick={() => toast({ title: 'Message deleted!', variant: 'destructive' })}>
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         <span>Delete</span>
                                     </DropdownMenuItem>
                                 ) : (
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => toast({ title: 'Liked message!' })}>
                                         <ThumbsUp className="mr-2 h-4 w-4" />
                                         <span>Like</span>
                                     </DropdownMenuItem>
