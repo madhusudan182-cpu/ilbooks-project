@@ -18,10 +18,6 @@ import { MoreVertical, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock }
 import { useToast } from '@/hooks/use-toast';
 import { currentUser } from '@/lib/auth';
 
-// In a real app, you'd get the current user from an auth context.
-// To test client view (level > 0.3): you can change user in src/lib/auth.ts
-// To test locked view (level < 0.3): you can change user in src/lib/auth.ts
-
 const allConversations = [
   {
     user: {
@@ -32,8 +28,8 @@ const allConversations = [
       institution: 'Bookworm Network',
       location: 'Digital Space',
       hobbies: [],
-      isFollowing: false,
-      isMutual: false,
+      isFollowing: true,
+      isMutual: true, // Admin is always a friend
       isAdmin: true,
     } as User,
     messages: [
@@ -49,7 +45,7 @@ const allConversations = [
     timestamp: "10:06 AM",
     unread: 0,
   },
-  ...mockUsers.filter(u => u.id !== currentUser.id).map((user, index) => ({
+  ...mockUsers.filter(u => u.id !== currentUser.id && u.isMutual).map((user, index) => ({
     user,
     messages: [
       { id: 1, text: "Hey, how are you?", sender: user.id, timestamp: '9:30 AM'},
@@ -112,6 +108,9 @@ export default function MessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const isAdmin = currentUser.isAdmin || false;
+  const isFeatureLocked = currentUser.level < 0.3 && !isAdmin;
+
   const truncateMessage = (message: string, maxLength = 20): string => {
     if (message.length <= maxLength) {
       return message;
@@ -121,6 +120,25 @@ export default function MessagesPage() {
 
   useEffect(() => {
     setIsClient(true);
+    const chatWithId = searchParams.get('chatWith');
+    if (chatWithId && !isFeatureLocked) {
+      const conversation = allConversations.find(c => c.user.id === chatWithId);
+      if (conversation) {
+        if (conversation.user.isMutual || conversation.user.isAdmin) {
+            setSelectedConversation(conversation);
+        } else {
+            toast({
+                title: "Cannot Chat",
+                description: "You can only chat with mutual friends.",
+                variant: "destructive"
+            });
+            router.push('/dashboard/messages', { scroll: false });
+        }
+      }
+    } else {
+        setSelectedConversation(null);
+    }
+
     const handlePopState = () => {
         if (window.location.search === '') {
             setSelectedConversation(null);
@@ -128,19 +146,7 @@ export default function MessagesPage() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  useEffect(() => {
-    const chatWithId = searchParams.get('chatWith');
-    if (chatWithId) {
-      const conversation = allConversations.find(c => c.user.id === chatWithId);
-      if (conversation) {
-        setSelectedConversation(conversation);
-      }
-    } else {
-        setSelectedConversation(null);
-    }
-  }, [searchParams]);
+  }, [searchParams, isFeatureLocked, router, toast]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -149,8 +155,24 @@ export default function MessagesPage() {
   }, [selectedConversation?.messages]);
 
   const handleSelectConversation = (conv: Conversation) => {
-      setSelectedConversation(conv);
-      router.push(`/dashboard/messages?chatWith=${conv.user.id}`, { scroll: false });
+    if (isFeatureLocked) {
+      toast({
+        title: "Feature Locked",
+        description: "You need to reach Level 0.3 to chat with friends.",
+        variant: "destructive",
+      });
+      return;
+    }
+      if (conv.user.isMutual || conv.user.isAdmin) {
+        setSelectedConversation(conv);
+        router.push(`/dashboard/messages?chatWith=${conv.user.id}`, { scroll: false });
+      } else {
+         toast({
+            title: "Cannot Chat",
+            description: "You can only chat with mutual friends.",
+            variant: "destructive"
+        });
+      }
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -186,8 +208,6 @@ export default function MessagesPage() {
       }
   };
 
-  const isAdmin = currentUser.isAdmin || false;
-
   if (!isClient) {
     return (
       <div className="h-[calc(100vh-8rem)] md:h-[calc(100vh-5.5rem)]">
@@ -196,6 +216,25 @@ export default function MessagesPage() {
     );
   }
   
+  if (isFeatureLocked) {
+    return (
+      <div className="flex h-full items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Lock className="w-6 h-6" /> Chat Feature Locked
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              You need to reach Level 0.3 to unlock the ability to chat with your friends. Keep participating in competitions to level up!
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex bg-background h-[calc(100vh-8rem)] md:h-[calc(100vh-5.5rem)]">
       <aside className={cn(

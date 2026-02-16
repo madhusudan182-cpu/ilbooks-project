@@ -54,12 +54,14 @@ export default function UserProfilePage() {
               <UserPlus className="mr-2 h-4 w-4" />
               {user.isFollowing ? 'Unfollow' : 'Follow'}
             </Button>
-            <Button variant="outline" asChild>
-                <Link href={`/dashboard/messages?chatWith=${user.id}`}>
-                    <MessageCircle className="mr-2 h-4 w-4"/>
-                    Chat
-                </Link>
-            </Button>
+            {user.isMutual && (
+              <Button variant="outline" asChild>
+                  <Link href={`/dashboard/messages?chatWith=${user.id}`}>
+                      <MessageCircle className="mr-2 h-4 w-4"/>
+                      Chat
+                  </Link>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
