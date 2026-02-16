@@ -170,7 +170,7 @@ export default function SocialPage() {
     });
   };
 
-  const friends = mockUsers.filter(u => u.isMutual);
+  const friends = mockUsers.filter(u => u.id !== currentUser.id && u.isMutual);
 
   if (!isClient) {
     return null;

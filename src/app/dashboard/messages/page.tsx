@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
 const allConversations = [
@@ -223,16 +223,22 @@ export default function MessagesPage() {
     if (chatWithId && !isFeatureLocked) {
       const conversation = allConversations.find(c => c.user.id === chatWithId);
       if (conversation) {
-        if (conversation.user.isMutual || conversation.user.isAdmin) {
-            setSelectedConversation(conversation);
-        } else {
+        // The conversation exists, so they are a friend. Select it.
+        setSelectedConversation(conversation);
+      } else {
+        // The conversation doesn't exist in our list of friends.
+        // This means they are not a mutual, or don't exist.
+        const targetUserExists = mockUsers.some(u => u.id === chatWithId);
+        if (targetUserExists) {
             toast({
                 title: "Cannot Chat",
                 description: "You can only chat with mutual friends.",
                 variant: "destructive"
             });
-            router.push('/dashboard/messages', { scroll: false });
         }
+        // Whether they exist or not, if they are not in the conversation list, we can't chat.
+        // Redirect back to the main messages page.
+        router.push('/dashboard/messages', { scroll: false });
       }
     } else {
         setSelectedConversation(null);
@@ -691,8 +697,8 @@ export default function MessagesPage() {
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-2">
                                 <div className="flex gap-1">
-                                    {['😊', '👍', '❤️', '😂', '🎉', '🙏', '😢', '🔥', '😮', '🤔'].map(emoji => (
-                                        <Button key={emoji} variant="ghost" size="icon" className="h-8 w-8" onClick={() => setNewMessage(prev => prev + emoji)}>
+                                    {['😊', '👍', '❤️', '😂', '🎉', '🙏', '😢', '🔥', '😮', '🤔', '😎', '😢'].map((emoji, i) => (
+                                        <Button key={i} variant="ghost" size="icon" className="h-8 w-8" onClick={() => setNewMessage(prev => prev + emoji)}>
                                             {emoji}
                                         </Button>
                                     ))}
