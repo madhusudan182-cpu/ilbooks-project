@@ -91,7 +91,11 @@ export default function AdminSchedulePage() {
                                 return (
                                     <TableRow key={level}>
                                         <TableCell className="font-semibold">Level {level}.x</TableCell>
-                                        <TableCell>{schedule.dayName}, {schedule.start}:00 - {schedule.end}:00</TableCell>
+                                        <TableCell>
+                                            {schedule.dayName},{' '}
+                                            {schedule.start % 12 || 12}:00 {schedule.start < 12 ? 'am' : 'pm'} -{' '}
+                                            {schedule.end % 12 || 12}:00 {schedule.end < 12 ? 'am' : 'pm'}
+                                        </TableCell>
                                         <TableCell>
                                             <Badge variant={isHeld ? 'destructive' : 'default'} className={cn(isHeld ? 'bg-red-500' : 'bg-green-500')}>
                                                 {isHeld ? 'On Hold' : 'Active'}
