@@ -1,8 +1,8 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
 
-# Retriggering deployment to fix live URL.
-# Forcing a redeployment to apply metadata changes and hopefully resolve site access issues.
+# Forcing a redeployment to fix the live URL. My apologies for the repeated issues.
+# This change is intended to trigger a new build and deployment.
 runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
