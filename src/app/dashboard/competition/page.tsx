@@ -16,50 +16,7 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Syllabus, Question } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const examSchedules: { [key: number]: { day: number, start: number, end: number } } = {
-    1: { day: 5, start: 9, end: 10 },    // Fri 9am-10am
-    2: { day: 5, start: 10, end: 11 },   // Fri 10am-11am
-    3: { day: 5, start: 20, end: 21 },   // Fri 8pm-9pm
-    4: { day: 5, start: 21, end: 22 },   // Fri 9pm-10pm
-    5: { day: 6, start: 9, end: 10 },    // Sat 9am-10am
-    6: { day: 6, start: 10, end: 11 },   // Sat 10am-11am
-    7: { day: 6, start: 20, end: 21 },   // Sat 8pm-9pm
-    8: { day: 6, start: 21, end: 22 },   // Sat 9pm-10pm
-    9: { day: 0, start: 20, end: 21 },   // Sun 8pm-9pm
-    10: { day: 0, start: 21, end: 22 },  // Sun 9pm-10pm
-    11: { day: 1, start: 20, end: 21 },  // Mon 8pm-9pm
-    12: { day: 1, start: 21, end: 22 },  // Mon 9pm-10pm
-    13: { day: 2, start: 20, end: 21 },  // Tue 8pm-9pm
-    14: { day: 2, start: 21, end: 22 },  // Tue 9pm-10pm
-    15: { day: 3, start: 20, end: 21 },  // Wed 8pm-9pm
-    16: { day: 3, start: 21, end: 22 },  // Wed 9pm-10pm
-    17: { day: 4, start: 20, end: 21 },  // Thu 8pm-9pm
-    18: { day: 4, start: 21, end: 22 },  // Thu 9pm-10pm
-    19: { day: 4, start: 22, end: 23 },  // Thu 10pm-11pm
-};
-
-const examScheduleMessages: { [key: number]: string } = {
-    1: "The exam of this Level will take place on every Friday from 9 a.m. to 10 a.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    2: "The exam of this Level will take place on Friday from 10 a.m. to 11 a.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    3: "The exam of this Level will take place on Friday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    4: "The exam of this Level will take place on Friday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    5: "The exam of this Level will take place on Saturday from 9 a.m. to 10 a.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    6: "The exam of this Level will take place on Saturday from 10 a.m. to 11 a.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    7: "The exam of this Level will take place on Saturday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    8: "The exam of this Level will take place on Saturday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    9: "The exam of this Level will take place on Sunday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    10: "The exam of this Level will take place on Sunday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    11: "The exam of this Level will take place on Monday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    12: "The exam of this Level will take place on Monday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    13: "The exam of this Level will take place on Tuesday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    14: "The exam of this Level will take place on Tuesday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    15: "The exam of this Level will take place on Wednesday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    16: "The exam of this Level will take place on Wednesday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    17: "The exam of this Level will take place on Thursday from 8 p.m. to 9 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    18: "The exam of this Level will take place on Thursday from 9 p.m. to 10 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-    19: "The exam of this Level will take place on Thursday from 10 p.m. to 11 p.m. So, before you go for registration, take a good look at the Syllabus and prepare yourself for a better result!",
-};
+import { examSchedules, examScheduleMessages, examHolds } from '@/lib/exam-schedule';
 
 
 export default function CompetitionPage() {
@@ -154,7 +111,7 @@ export default function CompetitionPage() {
             const [majorLevel] = competitionLevel.split('.').map(Number);
             const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
             
-            if (registrationStatus !== 'true' || majorLevel < 1) {
+            if (registrationStatus !== 'true' || majorLevel < 1 || examHolds[majorLevel.toString()]) {
                 setIsExamTime(false);
                 return;
             }
@@ -247,6 +204,13 @@ export default function CompetitionPage() {
     
     const handleStartExamClick = () => {
         if (!competitionLevel) return;
+
+        const [majorLevel] = competitionLevel.split('.').map(Number);
+        if (majorLevel > 0 && examHolds[majorLevel.toString()]) {
+            router.push('/dashboard/competition/exam-held');
+            return;
+        }
+
         // For level 0.0, always allow proceeding.
         // The exam page has local fallback questions.
         if (competitionLevel === '0.0') {

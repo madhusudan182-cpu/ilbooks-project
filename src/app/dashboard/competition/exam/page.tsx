@@ -19,6 +19,7 @@ import { newBengaliLevel0Questions } from '@/lib/level-0-bengali-questions';
 import { newEnglishLevel0Questions } from '@/lib/level-0-english-questions';
 import { newBengaliLevel1Questions } from '@/lib/level-0-1-bengali-questions';
 import { newEnglishLevel1Questions } from '@/lib/level-0-1-english-questions';
+import { examSchedules, examHolds } from '@/lib/exam-schedule';
 
 
 const TOTAL_TIME_PER_QUESTION = 15; // seconds
@@ -40,6 +41,12 @@ function ExamContent() {
 
   const isLevelZero = level === '0.0';
   const majorLevel = parseInt(level.split('.')[0], 10);
+
+  useEffect(() => {
+    if (examHolds[majorLevel.toString()]) {
+        router.replace('/dashboard/competition/exam-held');
+    }
+  }, [majorLevel, router]);
 
   const questionsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -315,45 +322,10 @@ function ExamContent() {
 
   // This state is hit when the effect has run but found no questions for the current level.
   if (examQuestions.length === 0) {
-    const majorLevel = Math.floor(parseFloat(level));
-    const examSchedules: { [key: number]: string } = {
-        1: "Your exam will take place on Friday: 9 a.m. to 10 a.m.",
-        2: "Your exam will take place on Friday: 10 a.m. to 11 a.m.",
-        3: "Your exam will take place on Friday: 8 p.m. to 9 p.m.",
-        4: "Your exam will take place on Friday: 9 p.m. to 10 p.m.",
-        5: "Your exam will take place on Saturday: 9 a.m. to 10 a.m.",
-        6: "Your exam will take place on Saturday: 10 a.m. to 11 a.m.",
-        7: "Your exam will take place on Saturday: 8 p.m. to 9 p.m.",
-        8: "Your exam will take place on Saturday: 9 p.m. to 10 p.m.",
-        9: "Your exam will take place on Sunday: 8 p.m. to 9 p.m.",
-        10: "Your exam will take place on Sunday: 9 p.m. to 10 p.m.",
-        11: "Your exam will take place on Monday: 8 p.m. to 9 p.m.",
-        12: "Your exam will take place on Monday: 9 p.m. to 10 p.m.",
-        13: "Your exam will take place on Tuesday: 8 p.m. to 9 p.m.",
-        14: "Your exam will take place on Tuesday: 9 p.m. to 10 p.m.",
-        15: "Your exam will take place on Wednesday: 8 p.m. to 9 p.m.",
-        16: "Your exam will take place on Wednesday: 9 p.m. to 10 p.m.",
-        17: "Your exam will take place on Thursday: 8 p.m. to 9 p.m.",
-        18: "Your exam will take place on Thursday: 9 p.m. to 10 p.m.",
-        19: "Your exam will take place on Thursday: 10 p.m. to 11 p.m.",
-    };
-    const scheduleMessage = examSchedules[majorLevel];
-
-    if (scheduleMessage) {
-        return (
-            <main className="flex items-center justify-center min-h-screen bg-background p-4">
-                <Card className="w-full max-w-2xl text-center">
-                    <CardHeader>
-                        <CardTitle>Exam Schedule</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">{scheduleMessage}</p>
-                        <Button asChild className="mt-4"><Link href="/dashboard/competition">Back to Competition</Link></Button>
-                    </CardContent>
-                </Card>
-            </main>
-        );
-    }
+    const schedule = examSchedules[majorLevel];
+    const scheduleMessage = schedule
+      ? `Your exam will take place on ${schedule.dayName}: ${schedule.start}:00 to ${schedule.end}:00.`
+      : `There are currently no questions available for Level ${level}. Please check back later.`;
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-background p-4">
@@ -362,7 +334,7 @@ function ExamContent() {
                     <CardTitle>Exam Not Ready</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">There are currently no questions available for Level {level}. Please check back later.</p>
+                    <p className="text-muted-foreground">{scheduleMessage}</p>
                     <Button asChild className="mt-4"><Link href="/dashboard/competition">Back to Competition</Link></Button>
                 </CardContent>
             </Card>
