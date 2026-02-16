@@ -43,7 +43,16 @@ export const examScheduleMessages: { [key: number]: string } = {
 };
 
 // Mock state for exam holds. In a real app, this would be in a database.
-// The key is the major level number (string).
+// The key is the specific sub-level string (e.g., "3.1").
 export let examHolds: Record<string, boolean> = {
-    '3': true, // Example: Level 3.x exams are on hold by default
+    '3.0': true,
+    '3.1': true,
+    '3.2': true,
+    '3.3': true,
+    '3.4': true,
+    '3.5': true,
+    '3.6': true,
+    '3.7': true,
+    '3.8': true,
+    '3.9': true,
 };

@@ -43,10 +43,10 @@ function ExamContent() {
   const majorLevel = parseInt(level.split('.')[0], 10);
 
   useEffect(() => {
-    if (examHolds[majorLevel.toString()]) {
+    if (examHolds[level]) {
         router.replace('/dashboard/competition/exam-held');
     }
-  }, [majorLevel, router]);
+  }, [level, router]);
 
   const questionsQuery = useMemo(() => {
     if (!firestore) return null;

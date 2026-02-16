@@ -111,7 +111,7 @@ export default function CompetitionPage() {
             const [majorLevel] = competitionLevel.split('.').map(Number);
             const registrationStatus = sessionStorage.getItem(`examRegistered_${competitionLevel}`);
             
-            if (registrationStatus !== 'true' || majorLevel < 1 || examHolds[majorLevel.toString()]) {
+            if (registrationStatus !== 'true' || majorLevel < 1 || examHolds[competitionLevel]) {
                 setIsExamTime(false);
                 return;
             }
@@ -205,8 +205,7 @@ export default function CompetitionPage() {
     const handleStartExamClick = () => {
         if (!competitionLevel) return;
 
-        const [majorLevel] = competitionLevel.split('.').map(Number);
-        if (majorLevel > 0 && examHolds[majorLevel.toString()]) {
+        if (examHolds[competitionLevel]) {
             router.push('/dashboard/competition/exam-held');
             return;
         }
