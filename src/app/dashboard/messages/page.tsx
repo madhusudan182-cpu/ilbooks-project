@@ -70,6 +70,8 @@ const allConversations = [
 ];
 
 type Conversation = (typeof allConversations)[0];
+type Message = Conversation['messages'][0];
+
 
 const MessagesPageSkeleton = () => (
     <div className="h-full flex bg-background">
@@ -129,16 +131,44 @@ export default function MessagesPage() {
   
   const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
   const [callType, setCallType] = useState<'Audio' | 'Video' | null>(null);
+  const [messageToDelete, setMessageToDelete] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const [isVoiceDialogOpen, setIsVoiceDialogOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime(prevTime => prevTime + 1);
+      }, 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  const handleStartRecording = () => {
+    // In a real app, you'd request microphone permissions here.
+    setIsRecording(true);
+  };
+
+  const handleSendVoiceMessage = () => {
+    setIsRecording(false);
+    setIsVoiceDialogOpen(false);
+    toast({ title: "Voice message sent! (Feature in development)" });
+  };
   
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       toast({
         title: "Attachment Ready",
-        description: `File "${file.name}" will be sent with your message. (Feature in development)`,
+        description: `File "${file.name}" will be sent with your message.`,
       });
     }
      // Reset the input value to allow selecting the same file again
@@ -163,13 +193,17 @@ export default function MessagesPage() {
             videoRef.current.srcObject = stream;
           }
         } catch (error) {
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions in your browser settings.',
-          });
+          if ((error as Error).name === 'NotAllowedError') {
+             setHasCameraPermission(false);
+             toast({
+                variant: 'destructive',
+                title: 'Camera Access Denied',
+                description: 'Please enable camera permissions in your browser settings.',
+              });
+          } else {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+          }
         }
       };
       getCameraPermission();
@@ -243,7 +277,7 @@ export default function MessagesPage() {
   const handleSendMessage = (e: React.FormEvent) => {
       e.preventDefault();
       
-      const newMsg = {
+      const newMsg: Message = {
           id: Date.now(),
           text: newMessage,
           sender: currentUser.id,
@@ -272,6 +306,27 @@ export default function MessagesPage() {
         }
       }
   };
+
+  const handleDeleteMessage = () => {
+    if (!selectedConversation || messageToDelete === null) return;
+
+    const updatedMessages = selectedConversation.messages.filter(m => m.id !== messageToDelete);
+    const updatedConversation = {
+        ...selectedConversation,
+        messages: updatedMessages,
+        lastMessage: updatedMessages.length > 0 ? updatedMessages[updatedMessages.length - 1].text : "Chat cleared",
+    };
+    setSelectedConversation(updatedConversation);
+
+    const convIndex = allConversations.findIndex(c => c.user.id === selectedConversation.user.id);
+    if (convIndex > -1) {
+        allConversations[convIndex] = updatedConversation;
+    }
+
+    toast({ title: 'Message deleted!', variant: 'destructive' });
+    setMessageToDelete(null);
+  };
+
 
   if (!isClient) {
     return (
@@ -340,6 +395,45 @@ export default function MessagesPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+
+    <AlertDialog open={messageToDelete !== null} onOpenChange={(open) => !open && setMessageToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Delete Message?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This will permanently delete this message from your view.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setMessageToDelete(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteMessage} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
+    <Dialog open={isVoiceDialogOpen} onOpenChange={setIsVoiceDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Record Voice Message</DialogTitle>
+                <DialogDescription>
+                    {isRecording ? `Recording... (${recordingTime}s)` : "Click start to begin recording."}
+                </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center items-center h-24">
+                <Mic className={cn("w-12 h-12 text-primary transition-all", isRecording && "animate-pulse scale-110")}/>
+            </div>
+            <DialogFooter>
+                {isRecording ? (
+                    <>
+                        <Button variant="destructive" onClick={() => setIsRecording(false)}>Cancel</Button>
+                        <Button onClick={handleSendVoiceMessage}>Stop & Send</Button>
+                    </>
+                ) : (
+                    <Button onClick={handleStartRecording}>Start Recording</Button>
+                )}
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
     
     <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
     <input type="file" ref={imageInputRef} onChange={handleFileSelect} accept="image/*" className="hidden" />
@@ -540,7 +634,7 @@ export default function MessagesPage() {
                                     <span>Copy</span>
                                 </DropdownMenuItem>
                                 {msg.sender === currentUser.id ? (
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" onClick={() => toast({ title: 'Message deleted!', variant: 'destructive' })}>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" onClick={() => setMessageToDelete(msg.id)}>
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         <span>Delete</span>
                                     </DropdownMenuItem>
@@ -573,7 +667,7 @@ export default function MessagesPage() {
                             <FileImage className="w-5 h-5"/>
                             <span className="sr-only">Attach an image</span>
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => toast({ title: "Voice messaging is coming soon!" })}>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => setIsVoiceDialogOpen(true)}>
                             <Mic className="w-5 h-5"/>
                             <span className="sr-only">Record a voice message</span>
                         </Button>
@@ -606,7 +700,7 @@ export default function MessagesPage() {
                             </PopoverContent>
                         </Popover>
                     </div>
-                    <Button type="submit" size="icon" aria-label="Send Message" className="shrink-0 h-9 w-9">
+                    <Button type="submit" aria-label="Send Message" className="shrink-0 h-9 w-9">
                         <Send className="w-4 h-4"/>
                     </Button>
                 </form>
