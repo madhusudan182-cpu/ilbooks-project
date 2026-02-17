@@ -136,7 +136,7 @@ function BooksPageContent() {
         setEditedBooks([]);
     };
 
-    const handleSaveClick = async () => {
+    const handleSaveClick = () => {
         if (!editingMode || !firestore) return;
 
         const batch = writeBatch(firestore);
@@ -180,26 +180,22 @@ function BooksPageContent() {
             batch.set(docRef, dataToSave, { merge: true });
         });
 
-        try {
-            await batch.commit();
-            toast({ title: "Books saved!", description: "Your changes have been saved permanently." });
-        } catch (serverError) {
-            console.error("Error saving books:", serverError);
-            const permissionError = new FirestorePermissionError({
-                path: 'books',
-                operation: 'write',
-                requestResourceData: editedBooks
+        batch.commit()
+            .then(() => {
+                toast({ title: "Books saved!", description: "Your changes have been saved permanently." });
+            })
+            .catch((serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: 'books',
+                    operation: 'write',
+                    requestResourceData: editedBooks
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            })
+            .finally(() => {
+                setEditingMode(null);
+                setEditedBooks([]);
             });
-            errorEmitter.emit('permission-error', permissionError);
-            toast({
-                title: "Uh oh! Something went wrong.",
-                description: "Could not save books. Please try again.",
-                variant: "destructive",
-            });
-        } finally {
-            setEditingMode(null);
-            setEditedBooks([]);
-        }
     };
 
     const handleBookChange = (bookId: string, field: keyof BookType, value: string | number) => {

@@ -15,6 +15,8 @@ import { mockUsers } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function AdminOrdersPage() {
     const firestore = useFirestore();
@@ -34,19 +36,26 @@ export default function AdminOrdersPage() {
         return acc;
     }, {} as Record<string, User>);
 
-    const handleStatusChange = async (orderId: string, newStatus: 'Shipped' | 'Delivered') => {
+    const handleStatusChange = (orderId: string, newStatus: 'Shipped' | 'Delivered') => {
         if (!firestore) {
             toast({ title: "Database not connected", variant: "destructive" });
             return;
         }
         const orderRef = doc(firestore, 'orders', orderId);
-        try {
-            await updateDoc(orderRef, { status: newStatus });
-            toast({ title: `Order marked as ${newStatus}` });
-        } catch (error) {
-            console.error("Error updating status:", error);
-            toast({ title: "Failed to update status", variant: "destructive" });
-        }
+        const updateData = { status: newStatus };
+        
+        updateDoc(orderRef, updateData)
+            .then(() => {
+                 toast({ title: `Order marked as ${newStatus}` });
+            })
+            .catch((serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: orderRef.path,
+                    operation: 'update',
+                    requestResourceData: updateData,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            });
     };
 
     if (loading) {

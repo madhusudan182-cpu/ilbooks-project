@@ -3,9 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is an admin by reading their user profile.
+    // Helper function to check if a user is an admin.
+    // For this mocked environment, we identify the admin by a specific UID.
+    // In a production app, this would ideally be handled via custom claims on the auth token.
     function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return request.auth.uid == 'user-1';
     }
 
     // Helper function to check if the user is authenticated.

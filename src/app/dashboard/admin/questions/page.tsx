@@ -263,7 +263,7 @@ export default function AllQuestionsPage() {
         setEditedQuestions([]);
     };
 
-    const handleSaveClick = async () => {
+    const handleSaveClick = () => {
         if (!editingLevel || !firestore) return;
 
         const originalQuestions = questions?.filter(q => q.level === editingLevel) || [];
@@ -283,26 +283,22 @@ export default function AllQuestionsPage() {
             batch.set(docRef, questionData);
         });
         
-        try {
-            await batch.commit();
-            toast({ title: "Questions saved!", description: `Changes for Level ${editingLevel} have been saved permanently.` });
-        } catch (serverError) {
-            console.error("Error saving questions:", serverError);
-            const permissionError = new FirestorePermissionError({
-                path: 'questions',
-                operation: 'write',
-                requestResourceData: editedQuestions
+        batch.commit()
+            .then(() => {
+                 toast({ title: "Questions saved!", description: `Changes for Level ${editingLevel} have been saved permanently.` });
+            })
+            .catch((serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: 'questions',
+                    operation: 'write',
+                    requestResourceData: editedQuestions
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            })
+            .finally(() => {
+                setEditingLevel(null);
+                setEditedQuestions([]);
             });
-            errorEmitter.emit('permission-error', permissionError);
-            toast({
-                title: "Uh oh! Something went wrong.",
-                description: "Could not save questions. Please try again.",
-                variant: "destructive",
-            });
-        } finally {
-            setEditingLevel(null);
-            setEditedQuestions([]);
-        }
     };
 
     const handleQuestionChange = (qId: string, field: 'questionText', value: string) => {

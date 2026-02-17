@@ -64,7 +64,7 @@ export default function AllSyllabiPage() {
         setEditedSubjects([]);
     };
 
-    const handleSaveClick = async () => {
+    const handleSaveClick = () => {
         if (!editingLevel || !firestore) return;
 
         const newSubjectsObject: { [subjectName: string]: Omit<SyllabusTopic, 'id' | 'name'> } = {};
@@ -97,27 +97,21 @@ export default function AllSyllabiPage() {
             subjects: newSubjectsObject,
         };
         
-        try {
-            const docRef = doc(firestore, 'syllabi', editingLevel);
-            await setDoc(docRef, finalSyllabus);
-
-            toast({ title: "Syllabus saved!", description: `Changes for Level ${editingLevel} have been saved permanently.` });
-            setEditingLevel(null);
-            setEditedSubjects([]);
-        } catch (serverError) {
-             console.error("Error saving syllabus:", serverError);
-             const permissionError = new FirestorePermissionError({
-                path: `syllabi/${editingLevel}`,
-                operation: 'write',
-                requestResourceData: finalSyllabus
+        const docRef = doc(firestore, 'syllabi', editingLevel);
+        setDoc(docRef, finalSyllabus)
+            .then(() => {
+                toast({ title: "Syllabus saved!", description: `Changes for Level ${editingLevel} have been saved permanently.` });
+                setEditingLevel(null);
+                setEditedSubjects([]);
+            })
+            .catch((serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: `syllabi/${editingLevel}`,
+                    operation: 'write',
+                    requestResourceData: finalSyllabus
+                });
+                errorEmitter.emit('permission-error', permissionError);
             });
-            errorEmitter.emit('permission-error', permissionError);
-            toast({
-                title: "Uh oh! Something went wrong.",
-                description: "Could not save the syllabus. Please try again.",
-                variant: "destructive",
-            });
-        }
     };
     
     const handleEditedSubjectChange = (id: string, field: 'name' | 'marks' | 'topics', value: string | number) => {
