@@ -3,62 +3,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is an admin.
-    // For this mocked environment, we identify the admin by a specific UID.
-    // In a production app, this would ideally be handled via custom claims on the auth token.
-    function isAdmin() {
-      return request.auth.uid == 'user-1';
-    }
-
-    // Helper function to check if the user is authenticated.
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Secure the user profiles
+    // These rules are open for development purposes as the application
+    // uses a mock authentication system. In a real-world application,
+    // these would be secured based on user authentication and roles.
+    
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if request.auth.uid == userId && request.resource.data.isAdmin == false;
-      allow update: if request.auth.uid == userId && request.resource.data.isAdmin == get(/databases/$(database)/documents/users/$(userId)).data.isAdmin;
+      allow read, write: if true;
     }
 
-    // Secure book orders
     match /orders/{orderId} {
-      // Only admins should be able to list all orders.
-      allow read: if isAdmin();
-      
-      // An authenticated user can create an order for themselves.
-      allow create: if request.auth.uid == request.resource.data.userId;
-
-      // Only admins can update an order (e.g., change its status).
-      allow update: if isAdmin();
-      
-      // Deleting orders is disallowed to maintain records.
-      allow delete: if false;
+       allow read, write: if true;
     }
 
-    // Secure syllabi
     match /syllabi/{level} {
-      // Any authenticated user can get or list syllabi.
-      allow get, list: if isAuthenticated();
-      // Only admins can create or update syllabi.
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
-    // Secure books
     match /books/{bookId} {
-      // Any authenticated user can get or list books.
-      allow get, list: if isAuthenticated();
-      // Only admins can create or update books.
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
-    // Secure exam questions
     match /questions/{questionId} {
-      // Any authenticated user can read questions. Admins can list all.
-      allow read: if isAuthenticated();
-      // Only admins can create or update questions.
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
   }
 }

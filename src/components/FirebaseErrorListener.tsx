@@ -10,18 +10,28 @@ export function FirebaseErrorListener() {
 
   useEffect(() => {
     const handleError = (error: FirestorePermissionError) => {
-      console.error(error.message); // Log the detailed message to the console for devs
+      // Log the full error for debugging, but don't throw it to avoid the overlay.
+      console.error("Caught Firestore Permission Error:", error); 
       
-      // Optionally, show a generic toast to the user in production
       if (process.env.NODE_ENV === 'production') {
+        // In production, show a generic toast to the user
         toast({
             variant: "destructive",
             title: "Access Denied",
             description: "You do not have permission to perform this action.",
         });
       } else {
-         // In development, throw it to let Next.js overlay handle it
-         throw error;
+         // In development, show a detailed toast instead of the Next.js error overlay
+         toast({
+            variant: "destructive",
+            title: "Firestore Permission Error",
+            description: (
+              <pre className="mt-2 w-full whitespace-pre-wrap rounded-md bg-slate-950 p-4">
+                <code className="text-white">{error.message}</code>
+              </pre>
+            ),
+            duration: 15000, // Give more time to read the error
+         });
       }
     };
 
