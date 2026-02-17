@@ -61,33 +61,12 @@ export default function DashboardLayout({
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const [isClient, setIsClient] = React.useState(false);
-  const [isMainMenuOpen, setIsMainMenuOpen] = React.useState(false);
   
   const isAdmin = currentUser.isAdmin || false;
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
-
-  React.useEffect(() => {
-    const handleHashChange = () => {
-      setIsMainMenuOpen(window.location.hash === '#main-menu');
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange();
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const handleMainMenuOpenChange = (open: boolean) => {
-    if (open) {
-      router.push(pathname + '#main-menu', { scroll: false });
-      setIsMainMenuOpen(true);
-    } else {
-      if (window.location.hash === '#main-menu') {
-        router.back();
-      }
-    }
-  };
 
   const notifications = [
     {
@@ -177,7 +156,7 @@ export default function DashboardLayout({
                   <span className="font-headline font-semibold">ILBooks</span>
                 </Link>
 
-                <DropdownMenu open={isMainMenuOpen} onOpenChange={handleMainMenuOpenChange}>
+                <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
