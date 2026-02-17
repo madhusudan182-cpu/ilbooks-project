@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type ExamResultWithAttempt = ExamResult & { attemptNumber: number };
+
 export default function AdminResultsPage() {
     const [results] = useState<ExamResult[]>(mockExamResults);
     const [isClient, setIsClient] = useState(false);
@@ -23,7 +25,33 @@ export default function AdminResultsPage() {
         setIsClient(true);
     }, []);
 
-    const sortedResults = [...results].sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
+    const toOrdinal = (n: number) => {
+        if (n % 100 >= 11 && n % 100 <= 13) {
+            return `${n}th`;
+        }
+        switch (n % 10) {
+            case 1: return `${n}st`;
+            case 2: return `${n}nd`;
+            case 3: return `${n}rd`;
+            default: return `${n}th`;
+        }
+    };
+
+    const sortedResults: ExamResultWithAttempt[] = useMemo(() => {
+        const userLevelAttempts: { [key: string]: number } = {};
+
+        // Sort oldest to newest to count attempts correctly
+        const chronoSortedResults = [...results].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
+
+        const resultsWithAttempts = chronoSortedResults.map(result => {
+            const key = `${result.userId}-${result.level}`;
+            userLevelAttempts[key] = (userLevelAttempts[key] || 0) + 1;
+            return { ...result, attemptNumber: userLevelAttempts[key] };
+        });
+
+        // Sort back to newest first for display
+        return resultsWithAttempts.sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
+    }, [results]);
 
     if (!isClient) {
         return (
@@ -85,9 +113,11 @@ export default function AdminResultsPage() {
                                                     </Avatar>
                                                     <div className="grid gap-0">
                                                         <p className="font-semibold">{result.userName}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Level: {result.level}
-                                                        </p>
+                                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                            <span>Level: {result.level}</span>
+                                                            <span className="font-bold text-primary">&bull;</span>
+                                                            <span>{toOrdinal(result.attemptNumber)} time</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
