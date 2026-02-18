@@ -19,11 +19,11 @@ export default function Home() {
           <p className="mt-12 text-2xl md:text-3xl font-headline text-foreground max-w-2xl">
             Welcome to the Bookworm Network, a place for readers to connect, compete, and discover.
           </p>
-          <div className="mt-12 flex flex-col sm:flex-row items-center gap-4">
-            <Button asChild size="lg" className="font-headline">
+          <div className="mt-8 flex flex-row items-center gap-4">
+            <Button asChild className="font-headline">
               <Link href="/signup">Sign Up</Link>
             </Button>
-            <Button asChild size="lg" className="font-headline bg-orange-500 text-white hover:bg-orange-600">
+            <Button asChild className="font-headline bg-orange-500 text-white hover:bg-orange-600">
               <Link href="/login">Sign In</Link>
             </Button>
           </div>
