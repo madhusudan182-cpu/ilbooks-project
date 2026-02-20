@@ -16,8 +16,8 @@ export function AnimatedLogo() {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
+        fill="hsl(var(--destructive))"
+        stroke="hsl(var(--destructive))"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -32,9 +32,9 @@ export function AnimatedLogo() {
         <text
           x="7"
           y="11"
-          fill="hsl(var(--primary))"
+          fill="white"
           textAnchor="middle"
-          fontSize="3"
+          fontSize="2.5"
           className="font-headline"
         >
           I
@@ -42,9 +42,9 @@ export function AnimatedLogo() {
         <text
           x="7"
           y="15"
-          fill="hsl(var(--primary))"
+          fill="white"
           textAnchor="middle"
-          fontSize="3"
+          fontSize="2.5"
           className="font-headline"
         >
           Love
@@ -52,9 +52,9 @@ export function AnimatedLogo() {
         <text
           x="17"
           y="13"
-          fill="hsl(var(--primary))"
+          fill="white"
           textAnchor="middle"
-          fontSize="3"
+          fontSize="2.5"
           className="font-headline"
         >
           Books
