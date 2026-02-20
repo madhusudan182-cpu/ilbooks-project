@@ -9,9 +9,9 @@ export default function Home() {
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center text-center py-20 px-4">
-          <div className="flex items-center justify-center gap-2 md:gap-4">
+          <div className="flex flex-col items-center justify-center gap-2">
             <AnimatedLogo />
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center">
                 <h1 className="font-headline text-5xl md:text-7xl font-bold text-pink-500">
                     ILBooks
                 </h1>
