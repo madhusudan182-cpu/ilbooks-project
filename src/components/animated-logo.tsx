@@ -1,6 +1,6 @@
 "use client"
 
-import { BookOpen, Flame } from "lucide-react";
+import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function AnimatedLogo() {
@@ -13,14 +13,53 @@ export function AnimatedLogo() {
 
   return (
     <div className="relative h-32 w-32">
-      <BookOpen
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         className="absolute inset-0 h-full w-full text-primary transition-all duration-1000"
-        strokeWidth={1.5}
         style={{
           transform: isAnimated ? "scale(1)" : "scale(0.8)",
           opacity: isAnimated ? 1 : 0,
         }}
-      />
+      >
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        <text
+          x="7"
+          y="11"
+          fill="hsl(var(--primary))"
+          textAnchor="middle"
+          fontSize="3"
+          className="font-headline"
+        >
+          I
+        </text>
+        <text
+          x="7"
+          y="15"
+          fill="hsl(var(--primary))"
+          textAnchor="middle"
+          fontSize="3"
+          className="font-headline"
+        >
+          Love
+        </text>
+        <text
+          x="17"
+          y="13"
+          fill="hsl(var(--primary))"
+          textAnchor="middle"
+          fontSize="3"
+          className="font-headline"
+        >
+          Books
+        </text>
+      </svg>
       <Flame
         className="absolute top-[-20px] left-1/2 -translate-x-1/2 h-16 w-16 text-accent transition-all duration-500 delay-500"
         strokeWidth={1.5}
