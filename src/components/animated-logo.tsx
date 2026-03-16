@@ -33,8 +33,9 @@ export function AnimatedLogo() {
           x="7"
           y="15"
           textAnchor="middle"
-          fontSize="4"
-          fontWeight="bold"
+          fontSize="4.5"
+          fontWeight="normal"
+          fontFamily="Times New Roman, serif"
           fill="hsl(var(--destructive))"
         >
           I ❤️
@@ -43,8 +44,9 @@ export function AnimatedLogo() {
           x="17"
           y="15"
           textAnchor="middle"
-          fontSize="4"
-          fontWeight="bold"
+          fontSize="4.5"
+          fontWeight="normal"
+          fontFamily="Times New Roman, serif"
           fill="hsl(var(--destructive))"
         >
           Books
