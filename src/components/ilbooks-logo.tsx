@@ -21,7 +21,6 @@ export function IlbooksLogo({ className }: { className?: string }) {
           y="13.5"
           textAnchor="middle"
           fontSize="3"
-          fontWeight="bold"
           fill="hsl(var(--destructive))"
         >
           I ❤️
@@ -31,7 +30,6 @@ export function IlbooksLogo({ className }: { className?: string }) {
           y="13.5"
           textAnchor="middle"
           fontSize="3"
-          fontWeight="bold"
           fill="hsl(var(--destructive))"
         >
           Books
