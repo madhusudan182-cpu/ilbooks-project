@@ -18,21 +18,21 @@ export function IlbooksLogo({ className }: { className?: string }) {
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
         <text
           x="7"
-          y="13"
+          y="13.5"
           textAnchor="middle"
-          fontSize="3.5"
+          fontSize="3"
           fontWeight="bold"
-          className="font-headline fill-[hsl(var(--destructive))]"
+          fill="hsl(var(--destructive))"
         >
           I ❤️
         </text>
         <text
           x="17"
-          y="13"
+          y="13.5"
           textAnchor="middle"
-          fontSize="3.5"
+          fontSize="3"
           fontWeight="bold"
-          className="font-headline fill-[hsl(var(--destructive))]"
+          fill="hsl(var(--destructive))"
         >
           Books
         </text>
