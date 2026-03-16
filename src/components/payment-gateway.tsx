@@ -53,7 +53,7 @@ export function PaymentGateway({ amount, productName, show, onClose, onSuccess }
                 <p className="text-sm text-muted-foreground">Please send:</p>
                 <p className="text-3xl font-bold font-mono text-primary">TK {amount.toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground mt-2">to our bKash/Rocket merchant number:</p>
-                <p className="text-xl font-bold font-mono text-foreground tracking-widest bg-muted p-2 rounded-md mt-1">01234567890</p>
+                <p className="text-xl font-bold font-mono text-foreground tracking-widest bg-muted p-2 rounded-md mt-1">01758937021</p>
                 <p className="text-xs text-muted-foreground mt-2">(Use your user ID as the reference if possible)</p>
             </div>
           <p className="text-xs text-center text-muted-foreground">
