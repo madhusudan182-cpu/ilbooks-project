@@ -16,7 +16,7 @@ export function AnimatedLogo() {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="hsl(var(--destructive))"
+        fill="hsl(var(--card))"
         stroke="hsl(var(--destructive))"
         strokeWidth="1.5"
         strokeLinecap="round"
@@ -35,7 +35,7 @@ export function AnimatedLogo() {
           textAnchor="middle"
           fontSize="3.5"
           fontWeight="bold"
-          className="font-headline fill-white"
+          className="font-headline fill-[hsl(var(--destructive))]"
         >
           I ❤️
         </text>
@@ -45,7 +45,7 @@ export function AnimatedLogo() {
           textAnchor="middle"
           fontSize="3.5"
           fontWeight="bold"
-          className="font-headline fill-white"
+          className="font-headline fill-[hsl(var(--destructive))]"
         >
           Books
         </text>
