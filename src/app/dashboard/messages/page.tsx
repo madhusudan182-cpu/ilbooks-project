@@ -119,8 +119,7 @@ export default function MessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const isAdmin = currentUser.isAdmin || false;
-  const isFeatureLocked = currentUser.level <= 0.5 && !isAdmin;
+  const isFeatureLocked = currentUser.level <= 0.5;
   const [showFeatureLockDialog, setShowFeatureLockDialog] = useState(false);
 
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
@@ -221,7 +220,6 @@ export default function MessagesPage() {
     if (chatWithId) {
       if (isFeatureLocked) {
         setShowFeatureLockDialog(true);
-        router.push('/dashboard/messages', { scroll: false });
         return;
       }
       const conversation = allConversations.find(c => c.user.id === chatWithId);
@@ -480,7 +478,7 @@ export default function MessagesPage() {
                   "flex items-center gap-3 p-2 border-b cursor-pointer",
                   "transition-colors",
                   selectedConversation?.user.id === conv.user.id ? "bg-muted" : "hover:bg-muted/50",
-                  isIlbooks && isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
+                  isIlbooks && currentUser.isAdmin && "sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b-2 border-primary"
                 )}
               >
                 <Avatar className="h-12 w-12 border flex-shrink-0">
