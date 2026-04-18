@@ -218,32 +218,28 @@ export default function MessagesPage() {
     setIsClient(true);
     const chatWithId = searchParams.get('chatWith');
     
-    if (chatWithId && isFeatureLocked) {
-        setShowFeatureLockDialog(true);
-        // Don't proceed to select conversation if locked
-        return;
-    }
-
     if (chatWithId) {
-      const conversation = allConversations.find(c => c.user.id === chatWithId);
-      if (conversation) {
-        // The conversation exists, so they are a friend. Select it.
-        setSelectedConversation(conversation);
-      } else {
-        // The conversation doesn't exist in our list of friends.
-        // This means they are not a mutual, or don't exist.
-        const targetUserExists = mockUsers.some(u => u.id === chatWithId);
-        if (targetUserExists) {
-            toast({
-                title: "Cannot Chat",
-                description: "You can only chat with mutual friends.",
-                variant: "destructive"
-            });
+        const conversation = allConversations.find(c => c.user.id === chatWithId);
+        const isChattingWithAdmin = conversation?.user.isAdmin === true;
+
+        if (isFeatureLocked && !isChattingWithAdmin) {
+            setShowFeatureLockDialog(true);
+            return;
         }
-        // Whether they exist or not, if they are not in the conversation list, we can't chat.
-        // Redirect back to the main messages page.
-        router.push('/dashboard/messages', { scroll: false });
-      }
+
+        if (conversation) {
+            setSelectedConversation(conversation);
+        } else {
+            const targetUserExists = mockUsers.some(u => u.id === chatWithId);
+            if (targetUserExists) {
+                toast({
+                    title: "Cannot Chat",
+                    description: "You can only chat with mutual friends.",
+                    variant: "destructive"
+                });
+            }
+            router.push('/dashboard/messages', { scroll: false });
+        }
     } else {
         setSelectedConversation(null);
     }
@@ -264,11 +260,17 @@ export default function MessagesPage() {
   }, [selectedConversation?.messages]);
 
   const handleSelectConversation = (conv: Conversation) => {
+    if (conv.user.isAdmin) {
+        setSelectedConversation(conv);
+        router.push(`/dashboard/messages?chatWith=${conv.user.id}`, { scroll: false });
+        return;
+    }
+
     if (isFeatureLocked) {
       setShowFeatureLockDialog(true);
       return;
     }
-      if (conv.user.isMutual || conv.user.isAdmin) {
+      if (conv.user.isMutual) {
         setSelectedConversation(conv);
         router.push(`/dashboard/messages?chatWith=${conv.user.id}`, { scroll: false });
       } else {
