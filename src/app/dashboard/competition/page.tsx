@@ -50,7 +50,7 @@ export default function CompetitionPage() {
     }, []);
 
     const levelNumber = useMemo(() => parseFloat(competitionLevel), [competitionLevel]);
-    const isFeeExempt = useMemo(() => levelNumber >= 0.0 && levelNumber <= 0.5, [levelNumber]);
+    const isFeeExempt = useMemo(() => levelNumber >= 0.0 && levelNumber <= 0.2, [levelNumber]);
     
     const [syllabusQuery, setSyllabusQuery] = useState<any>(null);
     useEffect(() => {
