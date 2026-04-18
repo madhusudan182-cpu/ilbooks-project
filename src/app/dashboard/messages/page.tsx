@@ -119,7 +119,7 @@ export default function MessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const isFeatureLocked = currentUser.level <= 0.5;
+  const isFeatureLocked = currentUser.level <= 0.2;
   const [showFeatureLockDialog, setShowFeatureLockDialog] = useState(false);
 
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
@@ -217,11 +217,14 @@ export default function MessagesPage() {
   useEffect(() => {
     setIsClient(true);
     const chatWithId = searchParams.get('chatWith');
-    if (chatWithId) {
-      if (isFeatureLocked) {
+    
+    if (chatWithId && isFeatureLocked) {
         setShowFeatureLockDialog(true);
+        // Don't proceed to select conversation if locked
         return;
-      }
+    }
+
+    if (chatWithId) {
       const conversation = allConversations.find(c => c.user.id === chatWithId);
       if (conversation) {
         // The conversation exists, so they are a friend. Select it.
@@ -348,11 +351,14 @@ export default function MessagesPage() {
               <Lock className="w-6 h-6" /> Chat Feature Locked
             </AlertDialogTitle>
             <AlertDialogDescription>
-              In order to chat you have to pass the level 0.5. Keep participating in competitions to level up!
+              In order to chat you have to pass the level 0.2. Keep participating in competitions to level up!
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setShowFeatureLockDialog(false)}>OK</AlertDialogAction>
+                <AlertDialogAction onClick={() => {
+                  setShowFeatureLockDialog(false);
+                  router.push('/dashboard/messages', { scroll: false });
+                }}>OK</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
