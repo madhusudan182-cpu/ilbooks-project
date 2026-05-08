@@ -49,9 +49,6 @@ export default function CompetitionPage() {
         setIsClient(true);
     }, []);
 
-    const levelNumber = useMemo(() => parseFloat(competitionLevel), [competitionLevel]);
-    const isFeeExempt = useMemo(() => levelNumber >= 0.0 && levelNumber <= 0.2, [levelNumber]);
-    
     const [syllabusQuery, setSyllabusQuery] = useState<any>(null);
     useEffect(() => {
         if(firestore && competitionLevel) {
@@ -153,7 +150,7 @@ export default function CompetitionPage() {
     const handlePaymentSuccess = () => {
         if (!competitionLevel) return;
         const [majorLevel] = competitionLevel.split('.').map(Number);
-        if (majorLevel < 1 && !isFeeExempt) {
+        if (majorLevel < 1) {
              console.log("Payment successful, starting exam for level 0.x...");
              router.push(`/dashboard/competition/exam?level=${competitionLevel}`);
         } else {
@@ -193,23 +190,8 @@ export default function CompetitionPage() {
             return;
         }
     
-        // For fee-exempt levels, check for questions and go directly to exam
-        if (isFeeExempt) {
-            // Level 0.0 has local fallback questions. Other exempt levels (0.1-0.5) need DB questions.
-            if (competitionLevel === '0.0' || (questionsForLevel && questionsForLevel.length > 0)) {
-                router.push(`/dashboard/competition/exam?level=${competitionLevel}`);
-            } else {
-                 toast({
-                    title: "Exam Not Ready",
-                    description: `Questions for Level ${competitionLevel} are not available yet. Please check back later.`,
-                    variant: "destructive",
-                });
-            }
-            return; // Bypass payment
-        }
-        
-        // For levels that require payment
-        const hasQuestionsForLevel = questionsForLevel && questionsForLevel.length > 0;
+        // Check for questions and show payment for all levels
+        const hasQuestionsForLevel = competitionLevel === '0.0' || (questionsForLevel && questionsForLevel.length > 0);
         if (hasQuestionsForLevel) {
             setShowPayment(true);
         } else {
@@ -222,9 +204,7 @@ export default function CompetitionPage() {
     }
 
     const [majorLevel] = (competitionLevel).split('.').map(Number);
-    const buttonText = isFeeExempt
-      ? "Start Exam"
-      : majorLevel < 1
+    const buttonText = majorLevel < 1
       ? "Proceed to Payment & Start Exam"
       : "Register for the Exam";
     const scheduleMessage = examScheduleMessages[majorLevel];
@@ -295,24 +275,22 @@ export default function CompetitionPage() {
                         </CardContent>
                     </Card>
 
-                    {!isFeeExempt && (
-                      <Card>
-                          <CardHeader>
-                              <CardTitle className="flex items-center gap-3"><DollarSign className="text-accent"/> Exam Fee</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                              <p className="text-muted-foreground">To participate in the exam, a fee of <span className="font-bold text-foreground">BDT {examFee.toFixed(2)}</span> is required for each attempt.</p>
-                              <p className="font-semibold">Accepted Payment Methods:</p>
-                              <div className="flex gap-4 items-center text-sm text-muted-foreground">
-                                  <span>Bkash</span>
-                                  <Separator orientation="vertical" className="h-4"/>
-                                  <span>Rocket</span>
-                                   <Separator orientation="vertical" className="h-4"/>
-                                  <span>Nexus Pay</span>
-                              </div>
-                          </CardContent>
-                      </Card>
-                    )}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3"><DollarSign className="text-accent"/> Exam Fee</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <p className="text-muted-foreground">To participate in the exam, a fee of <span className="font-bold text-foreground">BDT {examFee.toFixed(2)}</span> is required for each attempt.</p>
+                            <p className="font-semibold">Accepted Payment Methods:</p>
+                            <div className="flex gap-4 items-center text-sm text-muted-foreground">
+                                <span>Bkash</span>
+                                <Separator orientation="vertical" className="h-4"/>
+                                <span>Rocket</span>
+                                 <Separator orientation="vertical" className="h-4"/>
+                                <span>Nexus Pay</span>
+                            </div>
+                        </CardContent>
+                    </Card>
                     
                     <Card className="lg:col-span-1 md:col-span-2">
                         <CardHeader>
@@ -345,13 +323,13 @@ export default function CompetitionPage() {
                      {scheduleMessage && (
                         <p className="text-red-600 font-bold text-lg mb-4">{scheduleMessage}</p>
                     )}
-                     {(!isRegistered || majorLevel < 1 || isFeeExempt) && (
+                     {(!isRegistered || majorLevel < 1) && (
                         <Button size="lg" className="font-headline px-4 md:px-8" onClick={handleStartExamClick}>
                            {buttonText} <ArrowRight className="ml-2 w-5 h-5"/>
                         </Button>
                      )}
                      <p className="text-xs text-muted-foreground mt-2">
-                        {isRegistered && majorLevel >= 1 && !isFeeExempt
+                        {isRegistered && majorLevel >= 1
                             ? "You are registered. The 'Take the Exam' button will appear at your scheduled time."
                             : "Exam duration: 15 seconds per question."
                          }
