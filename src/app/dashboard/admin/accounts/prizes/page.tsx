@@ -125,26 +125,9 @@ export default function AdminPrizesPage() {
             </div>
 
             <Card className="mb-6">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="flex items-center gap-3 text-3xl font-headline"><Gift className="w-8 h-8 text-primary" /> Prizes & Gifts</CardTitle>
-                        <CardDescription>Track expenditures and distribution.</CardDescription>
-                    </div>
-                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                        <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Add Winner</Button></DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader><DialogTitle>Add Prize Winner</DialogTitle></DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid gap-2"><Label>User</Label>
-                                    <Select onValueChange={setNewWinnerUserId}><SelectTrigger><SelectValue placeholder="Select user" /></SelectTrigger>
-                                        <SelectContent>{mockUsers.map(u => <SelectItem key={u.id} value={u.id}>{u.name} (Level: {u.level.toFixed(1)})</SelectItem>)}</SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-2"><Label>Prize Amount (Tk.)</Label><Input type="number" value={newWinnerPrize} onChange={(e) => setNewWinnerPrize(e.target.value)} /></div>
-                            </div>
-                            <DialogFooter><Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button><Button onClick={handleAddWinner}>Add</Button></DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-3 text-3xl font-headline"><Gift className="w-8 h-8 text-primary" /> Prizes & Gifts</CardTitle>
+                    <CardDescription>Track expenditures and distribution.</CardDescription>
                 </CardHeader>
             </Card>
 
@@ -208,13 +191,28 @@ export default function AdminPrizesPage() {
             )}
 
             <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-xl font-headline text-primary">
                         {viewMode === 'day' && `Prizes for: ${format(selectedDate, 'do MMMM, yyyy')}`}
                         {viewMode === 'month' && `Prizes for: ${format(selectedDate, 'MMMM yyyy')}`}
                         {viewMode === 'year' && `Prizes for the Year: ${getYear(selectedDate)}`}
                         {viewMode === 'total' && `Lifetime Prize Summary`}
                     </CardTitle>
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Add Winner</Button></DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader><DialogTitle>Add Prize Winner</DialogTitle></DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid gap-2"><Label>User</Label>
+                                    <Select onValueChange={setNewWinnerUserId}><SelectTrigger><SelectValue placeholder="Select user" /></SelectTrigger>
+                                        <SelectContent>{mockUsers.map(u => <SelectItem key={u.id} value={u.id}>{u.name} (Level: {u.level.toFixed(1)})</SelectItem>)}</SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2"><Label>Prize Amount (Tk.)</Label><Input type="number" value={newWinnerPrize} onChange={(e) => setNewWinnerPrize(e.target.value)} /></div>
+                            </div>
+                            <DialogFooter><Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button><Button onClick={handleAddWinner}>Add</Button></DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </CardHeader>
                 <CardContent>
                     {filteredWinners.length === 0 ? <p className="text-muted-foreground text-center py-20 italic">No records found.</p> : (
