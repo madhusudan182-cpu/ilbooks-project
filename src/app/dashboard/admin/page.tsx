@@ -5,15 +5,43 @@ import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, B
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { currentUser } from "@/lib/auth";
+import { useFirestore, useCollection } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { Order } from '@/lib/types';
+import { cn } from "@/lib/utils";
+
+const NotificationBadge = ({ count }: { count: number }) => {
+  if (count <= 0) return null;
+  return (
+    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-background animate-in zoom-in duration-300">
+      {count > 99 ? '99+' : count}
+    </span>
+  );
+};
 
 export default function AdminPage() {
     const router = useRouter();
-    // In a real app, this user would come from an authentication session.
-    // To test non-admin protection, you can now change the user in src/lib/auth.ts
+    const firestore = useFirestore();
     const [isClient, setIsClient] = useState(false);
     
+    // Fetch live orders to count new ones
+    const ordersQuery = useMemo(() => (firestore ? collection(firestore, 'orders') : null), [firestore]);
+    const { data: orders } = useCollection<Order>(ordersQuery);
+
+    const newOrdersCount = useMemo(() => {
+        return orders?.filter(o => o.status === 'Paid').length || 0;
+    }, [orders]);
+
+    // Mock counts for Support categories (since support DB isn't implemented yet)
+    const supportCounts = {
+        competition: 3,
+        bookShop: 5,
+        user: 2,
+        others: 1
+    };
+
     useEffect(() => {
       setIsClient(true);
         if (!currentUser.isAdmin) {
@@ -22,7 +50,7 @@ export default function AdminPage() {
     }, [router]);
     
     if (!currentUser.isAdmin || !isClient) {
-        return null; // Or a loading spinner while redirecting
+        return null; 
     }
 
   return (
@@ -53,19 +81,34 @@ export default function AdminPage() {
               </CardTitle>
               <CardDescription>View and respond to user feedback and complaints.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link href="/dashboard/admin/support/competition">Competition</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/dashboard/admin/support/book-shop">Book Shop</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/dashboard/admin/support/user">User</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/dashboard/admin/support/others">Others</Link>
-              </Button>
+          <CardContent className="flex flex-wrap gap-3">
+              <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/support/competition">Competition</Link>
+                </Button>
+                <NotificationBadge count={supportCounts.competition} />
+              </div>
+
+              <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/support/book-shop">Book Shop</Link>
+                </Button>
+                <NotificationBadge count={supportCounts.bookShop} />
+              </div>
+
+              <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/support/user">User</Link>
+                </Button>
+                <NotificationBadge count={supportCounts.user} />
+              </div>
+
+              <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/support/others">Others</Link>
+                </Button>
+                <NotificationBadge count={supportCounts.others} />
+              </div>
           </CardContent>
         </Card>
         
@@ -140,16 +183,19 @@ export default function AdminPage() {
             </CardTitle>
             <CardDescription>Manage financial transactions, user rewards, and orders.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
+          <CardContent className="flex flex-wrap gap-3">
             <Button asChild>
               <Link href="/dashboard/admin/accounts/transactions">Transactions</Link>
             </Button>
             <Button asChild>
               <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
             </Button>
-            <Button asChild>
-              <Link href="/dashboard/admin/orders">View All Orders</Link>
-            </Button>
+            <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/orders">View All Orders</Link>
+                </Button>
+                <NotificationBadge count={newOrdersCount} />
+            </div>
           </CardContent>
         </Card>
 
