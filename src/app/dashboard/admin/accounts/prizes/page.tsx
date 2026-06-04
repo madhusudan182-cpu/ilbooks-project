@@ -406,15 +406,17 @@ export default function AdminPrizesPage() {
                         </Table>
                     )}
 
-                    <div className="mt-8 flex justify-center border-t pt-6">
-                        <Button 
-                            variant="outline" 
-                            className="w-40 border-[#331362] text-[#331362] hover:bg-[#331362] hover:text-white transition-all font-bold"
-                            onClick={handleBackAction}
-                        >
-                            Back
-                        </Button>
-                    </div>
+                    {viewMode === 'month' && (
+                        <div className="mt-8 flex justify-center border-t pt-6">
+                            <Button 
+                                variant="outline" 
+                                className="w-40 border-[#331362] text-[#331362] hover:bg-[#331362] hover:text-white transition-all font-bold"
+                                onClick={handleBackAction}
+                            >
+                                Back
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
