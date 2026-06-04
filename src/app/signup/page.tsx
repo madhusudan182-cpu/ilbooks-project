@@ -20,7 +20,7 @@ export default function SignupPage() {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-md mx-auto">
+      <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign Up</CardTitle>
           <CardDescription className="text-base font-bold text-pink-500">Join the network of book lovers.</CardDescription>

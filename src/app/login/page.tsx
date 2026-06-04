@@ -196,7 +196,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-sm mx-auto">
+      <Card className="w-full max-w-sm mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign In</CardTitle>
           <CardDescription>
