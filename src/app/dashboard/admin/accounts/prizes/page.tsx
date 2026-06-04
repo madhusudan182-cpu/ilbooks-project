@@ -225,14 +225,17 @@ export default function AdminPrizesPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {w.status === 'Pending' && (
-                                                <button 
-                                                    onClick={() => handleMarkAsAwarded(w.id)} 
-                                                    className="text-[10px] font-bold text-[#331362] border border-[#331362] rounded px-2 py-0.5 hover:bg-[#331362] hover:text-white transition-all uppercase"
-                                                >
-                                                    MARK
-                                                </button>
-                                            )}
+                                            <button 
+                                                onClick={() => w.status === 'Pending' && handleMarkAsAwarded(w.id)} 
+                                                className={cn(
+                                                    "text-[10px] font-bold border rounded px-2 py-0.5 transition-all uppercase",
+                                                    w.status === 'Awarded' 
+                                                        ? 'text-green-600 border-green-600 cursor-default' 
+                                                        : 'text-[#331362] border-[#331362] hover:bg-[#331362] hover:text-white'
+                                                )}
+                                            >
+                                                {w.status === 'Awarded' ? 'MARKED' : 'MARK'}
+                                            </button>
                                         </TableCell>
                                         <TableCell className="text-right font-headline font-bold text-lg text-[#331362]">Tk. {w.cumulative.toLocaleString()}</TableCell>
                                     </TableRow>
