@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, Server, CalendarClock } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, Trophy, CalendarClock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -70,6 +70,12 @@ export default function AdminPage() {
                 <Link href="/dashboard/admin/schedule">
                   <CalendarClock className="mr-2 h-4 w-4" />
                   Exam Schedule
+                </Link>
+              </Button>
+              <Button asChild className="bg-pink-500 hover:bg-pink-600">
+                <Link href="/dashboard/admin/accounts/prizes">
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Prize Winners
                 </Link>
               </Button>
           </CardContent>
