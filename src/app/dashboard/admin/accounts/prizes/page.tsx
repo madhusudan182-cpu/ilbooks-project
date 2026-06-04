@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -15,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth } from 'date-fns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,11 +46,20 @@ export default function AdminPrizesPage() {
             })
             .filter(r => r.totalPercentage >= 80 && r.attemptNumber === 1)
             .map(r => ({
-                id: `auto-${r.id}`, userId: r.userId, userName: r.userName, userAvatarUrl: r.userAvatarUrl, level: r.level, prize: 'Tk. 200', status: 'Pending', date: r.examDate
+                id: `auto-${r.id}`, 
+                userId: r.userId, 
+                userName: r.userName, 
+                userAvatarUrl: r.userAvatarUrl, 
+                level: r.level, 
+                prize: 'Tk. 200', 
+                status: 'Pending', 
+                date: r.examDate
             }));
 
         const manualWinners: (PrizeWinner & { date: string })[] = mockPrizeWinners.map(w => ({
-            ...w, prize: w.prize.replace('BDT', 'Tk.').replace('Book Coupon', '').trim(), date: w.dateAwarded || todayStr
+            ...w, 
+            prize: w.prize.replace('BDT', 'Tk.').replace('Book Coupon', '').trim(), 
+            date: w.dateAwarded || todayStr
         }));
 
         return [...manualWinners, ...automaticWinners].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -71,8 +79,14 @@ export default function AdminPrizesPage() {
         const user = mockUsers.find(u => u.id === newWinnerUserId);
         if (!user) return;
         const newWinner: PrizeWinner & { date: string } = {
-            id: `prize-${Date.now()}`, userId: user.id, userName: user.name, userAvatarUrl: user.avatarUrl, level: user.level.toFixed(1),
-            prize: `Tk. ${newWinnerPrize}`, status: 'Pending', date: format(selectedDate, 'yyyy-MM-dd')
+            id: `prize-${Date.now()}`, 
+            userId: user.id, 
+            userName: user.name, 
+            userAvatarUrl: user.avatarUrl, 
+            level: user.level.toFixed(1),
+            prize: `Tk. ${newWinnerPrize}`, 
+            status: 'Pending', 
+            date: format(selectedDate, 'yyyy-MM-dd')
         };
         setWinners(prev => [...prev, newWinner].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
         toast({ title: "Winner added." }); setIsAddDialogOpen(false);
@@ -131,7 +145,7 @@ export default function AdminPrizesPage() {
             <div className="flex flex-wrap items-center gap-2 mb-4">
                 <div className="flex items-center border rounded-sm bg-card shadow-sm overflow-hidden">
                     <div className="px-3 py-2 border-r bg-muted/30 text-xs font-bold font-headline text-[#331362]">Year:</div>
-                    <Select value={getYear(selectedDate).toString()} onValueChange={handleYearChange => setSelectedDate(prev => setYear(prev, parseInt(handleYearChange)))}>
+                    <Select value={getYear(selectedDate).toString()} onValueChange={val => setSelectedDate(prev => setYear(prev, parseInt(val)))}>
                         <SelectTrigger className="h-10 border-0 rounded-none shadow-none focus:ring-0 px-4 min-w-[80px] font-bold text-[#331362]"><SelectValue /></SelectTrigger>
                         <SelectContent>{years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
                     </Select>
@@ -170,16 +184,55 @@ export default function AdminPrizesPage() {
                 <CardContent>
                     {filteredWinners.length === 0 ? <p className="text-muted-foreground text-center py-20 italic">No records found.</p> : (
                         <Table>
-                            <TableHeader><TableRow><TableHead className="text-[#331362]">User</TableHead><TableHead className="text-[#331362]">Prize</TableHead><TableHead className="text-[#331362]">Status</TableHead><TableHead className="text-right text-[#331362]">Cumulative Amount</TableHead></TableRow></TableHeader>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="text-[#331362]">User</TableHead>
+                                    <TableHead className="text-[#331362]">Prize</TableHead>
+                                    <TableHead className="text-[#331362]">Status</TableHead>
+                                    <TableHead className="text-[#331362]">Mark</TableHead>
+                                    <TableHead className="text-right text-[#331362]">Cumulative Amount</TableHead>
+                                </TableRow>
+                            </TableHeader>
                             <TableBody>
                                 {filteredWinners.map(w => (
                                     <TableRow key={w.id}>
-                                        <TableCell><div className="flex items-center gap-3"><Avatar className="h-10 w-10"><AvatarImage src={w.userAvatarUrl} /><AvatarFallback>{w.userName.charAt(0)}</AvatarFallback></Avatar>
-                                            <div><Link href={`/dashboard/user/${w.userId}`} className="font-bold text-[#331362] hover:underline">{w.userName}</Link><p className="text-xs text-muted-foreground">Level: {w.level}</p></div></div>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <Avatar className="h-10 w-10">
+                                                    <AvatarImage src={w.userAvatarUrl} />
+                                                    <AvatarFallback>{w.userName.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <Link href={`/dashboard/user/${w.userId}`} className="font-bold text-[#331362] hover:underline">{w.userName}</Link>
+                                                    <p className="text-xs text-muted-foreground">Level: {w.level}</p>
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell><div className="flex items-center gap-1 font-bold text-[#331362]"><span>Tk.</span><input type="number" value={getAmount(w.prize)} onChange={(e) => handleUpdatePrize(w.id, e.target.value)} className="w-16 bg-transparent border-none focus:ring-0 focus:bg-muted/50 rounded px-1" /></div></TableCell>
-                                        <TableCell><div className="flex flex-col gap-1 items-start"><Badge className={cn("text-[10px] h-5", w.status === 'Awarded' ? 'bg-green-100 text-green-800' : 'bg-[#FEF9C3] text-[#854D0E]')}>{w.status}</Badge>
-                                            {w.status === 'Pending' && <button onClick={() => handleMarkAsAwarded(w.id)} className="text-[10px] font-bold text-[#331362] border border-[#331362] rounded px-2 py-0.5 mt-1 hover:bg-[#331362] hover:text-white transition-all uppercase">MARK</button>}</div>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1 font-bold text-[#331362]">
+                                                <span>Tk.</span>
+                                                <input 
+                                                    type="number" 
+                                                    value={getAmount(w.prize)} 
+                                                    onChange={(e) => handleUpdatePrize(w.id, e.target.value)} 
+                                                    className="w-16 bg-transparent border-none focus:ring-0 focus:bg-muted/50 rounded px-1" 
+                                                />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={cn("text-[10px] h-5", w.status === 'Awarded' ? 'bg-green-100 text-green-800' : 'bg-[#FEF9C3] text-[#854D0E]')}>
+                                                {w.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            {w.status === 'Pending' && (
+                                                <button 
+                                                    onClick={() => handleMarkAsAwarded(w.id)} 
+                                                    className="text-[10px] font-bold text-[#331362] border border-[#331362] rounded px-2 py-0.5 hover:bg-[#331362] hover:text-white transition-all uppercase"
+                                                >
+                                                    MARK
+                                                </button>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-right font-headline font-bold text-lg text-[#331362]">Tk. {w.cumulative.toLocaleString()}</TableCell>
                                     </TableRow>
@@ -187,7 +240,13 @@ export default function AdminPrizesPage() {
                             </TableBody>
                         </Table>
                     )}
-                    {viewMode === 'month' && <div className="mt-8 flex justify-center border-t pt-6"><Button variant="outline" className="w-40 border-[#331362] text-[#331362] font-bold" onClick={() => setViewMode('day')}>Back</Button></div>}
+                    {viewMode === 'month' && (
+                        <div className="mt-8 flex justify-center border-t pt-6">
+                            <Button variant="outline" className="w-40 border-[#331362] text-[#331362] font-bold" onClick={() => setViewMode('day')}>
+                                Back
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
