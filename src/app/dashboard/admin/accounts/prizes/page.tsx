@@ -42,7 +42,7 @@ export default function AdminPrizesPage() {
         const userLevelAttempts: { [key: string]: number } = {};
         const chronoSortedResults = [...mockExamResults].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
 
-        const automatic winners: (PrizeWinner & { date: string })[] = chronoSortedResults
+        const automaticWinners: (PrizeWinner & { date: string })[] = chronoSortedResults
             .map(result => {
                 const key = `${result.userId}-${result.level}`;
                 userLevelAttempts[key] = (userLevelAttempts[key] || 0) + 1;
