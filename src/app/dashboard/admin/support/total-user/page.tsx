@@ -37,7 +37,6 @@ export default function TotalUserPage() {
     const [filterLevel, setFilterLevel] = useState<string>('all');
     const [filterDistrict, setFilterDistrict] = useState<string>('all');
     const [filterThana, setFilterThana] = useState<string>('all');
-    const [filterInstitution, setFilterInstitution] = useState<string>('');
     
     // Moderation state
     const [users, setUsers] = useState<User[]>(mockUsers);
@@ -60,13 +59,12 @@ export default function TotalUserPage() {
 
             // Property Filters
             if (filterLevel !== 'all' && u.level.toFixed(1) !== filterLevel) return false;
-            if (filterInstitution && !u.institution.toLowerCase().includes(filterInstitution.toLowerCase())) return false;
             if (filterDistrict !== 'all' && !u.location.toLowerCase().includes(filterDistrict.toLowerCase())) return false;
             if (filterThana !== 'all' && !u.location.toLowerCase().includes(filterThana.toLowerCase())) return false;
 
             return true;
         }).sort((a, b) => new Date(b.signUpDate).getTime() - new Date(a.signUpDate).getTime());
-    }, [users, selectedDate, summaryYear, viewMode, filterLevel, filterDistrict, filterThana, filterInstitution]);
+    }, [users, selectedDate, summaryYear, viewMode, filterLevel, filterDistrict, filterThana]);
 
     const stats = useMemo(() => {
         const today = startOfToday();
@@ -164,7 +162,6 @@ export default function TotalUserPage() {
         setFilterLevel('all');
         setFilterDistrict('all');
         setFilterThana('all');
-        setFilterInstitution('');
     };
 
     if (!isClient) return null;
@@ -268,9 +265,9 @@ export default function TotalUserPage() {
                             {viewMode === 'total' && `Lifetime User Directory`}
                         </CardTitle>
 
-                        {/* ADVANCED FILTER BAR */}
-                        <div className="flex flex-wrap items-center gap-2 bg-muted/20 p-2 rounded-md border border-dashed border-primary/20">
-                            <div className="flex items-center gap-2">
+                        {/* HORIZONTAL FILTER BAR */}
+                        <div className="flex flex-row items-center gap-2 bg-muted/20 p-2 rounded-md border border-dashed border-primary/20">
+                            <div className="flex items-center gap-2 mr-2">
                                 <Filter className="h-4 w-4 text-primary" />
                                 <span className="text-[10px] font-bold uppercase text-primary/70">Filters:</span>
                             </div>
@@ -305,17 +302,7 @@ export default function TotalUserPage() {
                                 </SelectContent>
                             </Select>
 
-                            <div className="relative">
-                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                                <Input 
-                                    placeholder="Institution..." 
-                                    className="h-8 pl-7 w-[150px] text-xs bg-background"
-                                    value={filterInstitution}
-                                    onChange={(e) => setFilterInstitution(e.target.value)}
-                                />
-                            </div>
-
-                            {(filterLevel !== 'all' || filterDistrict !== 'all' || filterThana !== 'all' || filterInstitution) && (
+                            {(filterLevel !== 'all' || filterDistrict !== 'all' || filterThana !== 'all') && (
                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 text-red-600" onClick={resetFilters}>
                                     <X className="h-4 w-4" />
                                 </Button>
