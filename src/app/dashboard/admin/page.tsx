@@ -87,6 +87,7 @@ export default function AdminPage() {
                 <Link href="/dashboard/admin/syllabi">View Syllabus for All Levels</Link>
               </Button>
           </CardContent>
+        </Card>
 
         <Card>
             <CardHeader>
