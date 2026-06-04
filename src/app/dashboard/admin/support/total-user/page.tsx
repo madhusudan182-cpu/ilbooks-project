@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, ArrowLeft, ShieldAlert, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown, UserMinus, UserCheck, ShieldOff } from 'lucide-react';
+import { Users, ArrowLeft, ShieldAlert, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown, UserMinus, ShieldOff, Filter, X, Search } from 'lucide-react';
 import { mockUsers } from '@/lib/data';
 import type { User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,13 @@ import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { thanasByDistrict } from '@/lib/location-data';
 
 const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 type ViewMode = 'day' | 'month' | 'year' | 'total';
+
+const districts = Object.keys(thanasByDistrict);
 
 export default function TotalUserPage() {
     const { toast } = useToast();
@@ -28,6 +32,12 @@ export default function TotalUserPage() {
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
     const [summaryYear, setSummaryYear] = useState<number>(getYear(new Date()));
     const [viewMode, setViewMode] = useState<ViewMode>('day');
+    
+    // Filtering state
+    const [filterLevel, setFilterLevel] = useState<string>('all');
+    const [filterDistrict, setFilterDistrict] = useState<string>('all');
+    const [filterThana, setFilterThana] = useState<string>('all');
+    const [filterInstitution, setFilterInstitution] = useState<string>('');
     
     // Moderation state
     const [users, setUsers] = useState<User[]>(mockUsers);
@@ -38,13 +48,25 @@ export default function TotalUserPage() {
 
     const filteredUsers = useMemo(() => {
         return users.filter(u => {
+            // Date Filter
             const uDate = new Date(u.signUpDate);
-            if (viewMode === 'total') return true;
-            if (viewMode === 'year') return getYear(uDate) === summaryYear;
-            if (viewMode === 'month') return isSameMonth(uDate, selectedDate) && getYear(uDate) === getYear(selectedDate);
-            return isSameDay(uDate, selectedDate);
+            let dateMatch = false;
+            if (viewMode === 'total') dateMatch = true;
+            else if (viewMode === 'year') dateMatch = getYear(uDate) === summaryYear;
+            else if (viewMode === 'month') dateMatch = isSameMonth(uDate, selectedDate) && getYear(uDate) === getYear(selectedDate);
+            else dateMatch = isSameDay(uDate, selectedDate);
+
+            if (!dateMatch) return false;
+
+            // Property Filters
+            if (filterLevel !== 'all' && u.level.toFixed(1) !== filterLevel) return false;
+            if (filterInstitution && !u.institution.toLowerCase().includes(filterInstitution.toLowerCase())) return false;
+            if (filterDistrict !== 'all' && !u.location.toLowerCase().includes(filterDistrict.toLowerCase())) return false;
+            if (filterThana !== 'all' && !u.location.toLowerCase().includes(filterThana.toLowerCase())) return false;
+
+            return true;
         }).sort((a, b) => new Date(b.signUpDate).getTime() - new Date(a.signUpDate).getTime());
-    }, [users, selectedDate, summaryYear, viewMode]);
+    }, [users, selectedDate, summaryYear, viewMode, filterLevel, filterDistrict, filterThana, filterInstitution]);
 
     const stats = useMemo(() => {
         const today = startOfToday();
@@ -99,7 +121,6 @@ export default function TotalUserPage() {
             isPermanentlyBanned 
         } : u));
 
-        // Professional notification message
         const professionalNotice = isPermanentlyBanned 
             ? `${moderatingUser.name}, your account has been permanently deactivated due to severe or repeated violations of our community standards.`
             : `${moderatingUser.name}, your account access has been restricted for ${durationText} following community reports regarding your recent interactions. Your privileges will be automatically restored on ${expiryDateText}.`;
@@ -127,7 +148,24 @@ export default function TotalUserPage() {
         return Array.from({ length: currentYear - 2020 + 1 }, (_, i) => (currentYear - i).toString());
     }, []);
 
+    const levels = useMemo(() => {
+        const list = [];
+        for(let i = 0; i <= 19; i++) {
+            for(let j = 0; j <= 9; j++) {
+                list.push(`${i}.${j}`);
+            }
+        }
+        return list;
+    }, []);
+
     const dateRange = useMemo(() => eachDayOfInterval({ start: subDays(selectedDate, 2), end: addDays(selectedDate, 2) }), [selectedDate]);
+
+    const resetFilters = () => {
+        setFilterLevel('all');
+        setFilterDistrict('all');
+        setFilterThana('all');
+        setFilterInstitution('');
+    };
 
     if (!isClient) return null;
 
@@ -167,7 +205,6 @@ export default function TotalUserPage() {
             </Card>
 
             <div className="space-y-4">
-                {/* Navigation Bar 1 */}
                 <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center border rounded-sm bg-card shadow-sm overflow-hidden">
                         <div className="px-3 py-2 border-r bg-muted/30 text-xs font-bold font-headline text-[#331362]">Year:</div>
@@ -203,7 +240,6 @@ export default function TotalUserPage() {
                     </div>
                 </div>
 
-                {/* Navigation Bar 2 */}
                 {viewMode === 'day' && (
                     <div className="flex items-center border rounded-sm w-full bg-card shadow-sm overflow-hidden">
                         <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0" onClick={() => setSelectedDate(startOfYear(selectedDate))}><ChevronsLeft className="h-5 w-5" /></Button>
@@ -223,22 +259,79 @@ export default function TotalUserPage() {
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl font-headline text-primary">
-                        {viewMode === 'day' && `Users joined on: ${format(selectedDate, 'do MMMM, yyyy')}`}
-                        {viewMode === 'month' && `Users joined in: ${format(selectedDate, 'MMMM yyyy')}`}
-                        {viewMode === 'year' && `Users joined in the Year: ${summaryYear}`}
-                        {viewMode === 'total' && `Lifetime User Directory`}
-                    </CardTitle>
+                <CardHeader className="border-b pb-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <CardTitle className="text-xl font-headline text-primary whitespace-nowrap">
+                            {viewMode === 'day' && `Users joined on: ${format(selectedDate, 'do MMMM, yyyy')}`}
+                            {viewMode === 'month' && `Users joined in: ${format(selectedDate, 'MMMM yyyy')}`}
+                            {viewMode === 'year' && `Users joined in the Year: ${summaryYear}`}
+                            {viewMode === 'total' && `Lifetime User Directory`}
+                        </CardTitle>
+
+                        {/* ADVANCED FILTER BAR */}
+                        <div className="flex flex-wrap items-center gap-2 bg-muted/20 p-2 rounded-md border border-dashed border-primary/20">
+                            <div className="flex items-center gap-2">
+                                <Filter className="h-4 w-4 text-primary" />
+                                <span className="text-[10px] font-bold uppercase text-primary/70">Filters:</span>
+                            </div>
+
+                            <Select value={filterLevel} onValueChange={setFilterLevel}>
+                                <SelectTrigger className="h-8 min-w-[100px] text-xs bg-background">
+                                    <SelectValue placeholder="Level" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Levels</SelectItem>
+                                    {levels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={filterDistrict} onValueChange={(val) => { setFilterDistrict(val); setFilterThana('all'); }}>
+                                <SelectTrigger className="h-8 min-w-[120px] text-xs bg-background capitalize">
+                                    <SelectValue placeholder="District" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Districts</SelectItem>
+                                    {districts.map(d => <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={filterThana} onValueChange={setFilterThana} disabled={filterDistrict === 'all'}>
+                                <SelectTrigger className="h-8 min-w-[120px] text-xs bg-background capitalize">
+                                    <SelectValue placeholder="Thana" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Thanas</SelectItem>
+                                    {(thanasByDistrict[filterDistrict] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+
+                            <div className="relative">
+                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                <Input 
+                                    placeholder="Institution..." 
+                                    className="h-8 pl-7 w-[150px] text-xs bg-background"
+                                    value={filterInstitution}
+                                    onChange={(e) => setFilterInstitution(e.target.value)}
+                                />
+                            </div>
+
+                            {(filterLevel !== 'all' || filterDistrict !== 'all' || filterThana !== 'all' || filterInstitution) && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 text-red-600" onClick={resetFilters}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {filteredUsers.length === 0 ? (
                         <div className="text-center py-20 bg-muted/10 rounded-lg border-2 border-dashed">
                             <Users className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                            <p className="text-muted-foreground italic text-lg">No sign-ups found for this period.</p>
+                            <p className="text-muted-foreground italic text-lg">No matches found for the selected criteria.</p>
+                            <Button variant="link" onClick={resetFilters}>Reset all filters</Button>
                         </div>
                     ) : (
-                        <div className="border rounded-md overflow-hidden">
+                        <div className="border rounded-md overflow-hidden mt-4">
                             <Table>
                                 <TableHeader className="bg-muted/50">
                                     <TableRow>
