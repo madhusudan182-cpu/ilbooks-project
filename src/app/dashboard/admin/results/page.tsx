@@ -7,17 +7,60 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ClipboardList, ArrowLeft, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ClipboardList, ArrowLeft, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
 import type { ExamResult } from '@/lib/types';
 import { mockExamResults } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear } from 'date-fns';
+import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ExamResultWithAttempt = ExamResult & { attemptNumber: number };
+
+const DetailedResultTable = ({ result }: { result: ExamResult }) => (
+    <div className="border rounded-lg overflow-hidden my-4 animate-fade-in-up">
+        <h3 className="p-3 font-bold text-center text-md bg-muted">
+            Result for Level {result.level} (Date: {format(new Date(result.examDate), 'dd/MM/yyyy')})
+        </h3>
+        <div className="overflow-x-auto">
+            <Table>
+                <TableHeader>
+                    <TableRow className="bg-yellow-300 hover:bg-yellow-300">
+                        <TableHead className="font-bold text-black text-xs px-1 sm:px-2 py-1 text-center">Subject</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Total</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Obtained</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Percentage</TableHead>
+                        <TableHead className="font-bold text-black text-xs text-center px-1 sm:px-2 py-1">Status</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {result.subjects.map((subjectResult) => (
+                        <TableRow key={subjectResult.subject}>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.subject}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.totalMarks}</TableCell>
+                            <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{subjectResult.obtainedMarks}</TableCell>
+                            <TableCell className={cn("text-center font-medium px-1 sm:px-2 py-1 text-xs", subjectResult.percentage >= 80 && "text-pink-600 font-bold text-base")}>{subjectResult.percentage.toFixed(0)}%</TableCell>
+                            <TableCell className={cn("text-center font-bold px-1 sm:px-2 py-1 text-xs", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                                {subjectResult.status}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    <TableRow className="font-bold bg-muted/80">
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">Total</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalMarks}</TableCell>
+                        <TableCell className="text-center px-1 sm:px-2 py-1 text-xs">{result.totalObtainedMarks}</TableCell>
+                        <TableCell className={cn("text-center font-medium px-1 sm:px-2 py-1 text-xs", result.totalPercentage >= 80 && "text-pink-600 font-bold text-base")}>{result.totalPercentage.toFixed(0)}%</TableCell>
+                        <TableCell className={cn("text-center font-bold px-1 sm:px-2 py-1 text-xs", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
+                            {result.overallStatus}
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
+    </div>
+);
 
 export default function AdminResultsPage() {
     const [results] = useState<ExamResult[]>(mockExamResults);
@@ -29,9 +72,7 @@ export default function AdminResultsPage() {
     }, []);
 
     const toOrdinal = (n: number) => {
-        if (n % 100 >= 11 && n % 100 <= 13) {
-            return `${n}th`;
-        }
+        if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
         switch (n % 10) {
             case 1: return `${n}st`;
             case 2: return `${n}nd`;
@@ -40,11 +81,8 @@ export default function AdminResultsPage() {
         }
     };
 
-    // First, process all attempts to count them correctly
     const processedResults: ExamResultWithAttempt[] = useMemo(() => {
         const userLevelAttempts: { [key: string]: number } = {};
-
-        // Sort oldest to newest to count attempts correctly
         const chronoSortedResults = [...results].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
 
         return chronoSortedResults.map(result => {
@@ -54,59 +92,37 @@ export default function AdminResultsPage() {
         });
     }, [results]);
 
-    // Then filter by the selected date and sort newest first
     const filteredAndSortedResults = useMemo(() => {
         return processedResults
             .filter(result => isSameDay(new Date(result.examDate), selectedDate))
             .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
     }, [processedResults, selectedDate]);
 
-    const handleFirstDayOfYear = () => {
-        setSelectedDate(startOfYear(selectedDate));
-    };
-
-    const handlePrevDay = () => {
-        setSelectedDate(prev => subDays(prev, 1));
-    };
-
+    const handleFirstDayOfYear = () => setSelectedDate(startOfYear(selectedDate));
+    const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
     const handleNextDay = () => {
         if (isAfter(addDays(selectedDate, 1), startOfToday())) return;
         setSelectedDate(prev => addDays(prev, 1));
     };
-
-    const handleCurrentDay = () => {
-        setSelectedDate(startOfToday());
-    };
-
-    const handleYearChange = (year: string) => {
-        setSelectedDate(prev => setYear(prev, parseInt(year)));
-    };
+    const handleCurrentDay = () => setSelectedDate(startOfToday());
+    const handleYearChange = (year: string) => setSelectedDate(prev => setYear(prev, parseInt(year)));
 
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
         const startYear = 2020;
-        return Array.from({ length: currentYear - startYear + 1 }, (_, i) => (startYear + i).toString()).reverse();
+        return Array.from({ length: currentYear - startYear + 6 }, (_, i) => (startYear + i).toString()).reverse();
     }, []);
+
+    const dateRange = useMemo(() => {
+        const start = subDays(selectedDate, 2);
+        const end = addDays(selectedDate, 2);
+        return eachDayOfInterval({ start, end });
+    }, [selectedDate]);
 
     if (!isClient) {
         return (
              <div className="p-4 md:p-6 lg:p-8">
-                <div className="mb-4">
-                    <Skeleton className="h-9 w-44" />
-                </div>
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-8 w-48" />
-                        <Skeleton className="h-4 w-72" />
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                        <div className="space-y-2">
-                           <Skeleton className="h-16 w-full" />
-                           <Skeleton className="h-16 w-full" />
-                           <Skeleton className="h-16 w-full" />
-                        </div>
-                    </CardContent>
-                </Card>
+                <Card><CardContent><Skeleton className="h-32 w-full" /></CardContent></Card>
             </div>
         )
     }
@@ -129,73 +145,79 @@ export default function AdminResultsPage() {
                         Exam Results
                     </CardTitle>
                     <CardDescription>
-                        View and manage all user exam results for analysis.
+                        View and manage all user exam results. Today's results are shown by default.
                     </CardDescription>
                 </CardHeader>
             </Card>
 
-            {/* Date Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-card border rounded-lg mb-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleFirstDayOfYear}
-                        title="First day of year"
-                    >
-                        <ChevronsLeft className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handlePrevDay}
-                        title="Previous day"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
+            {/* Year Bar */}
+            <div className="flex items-center border rounded-sm w-fit mb-4 bg-card shadow-sm overflow-hidden">
+                <div className="px-4 py-2 border-r bg-muted/30 text-sm font-bold font-headline">Year:</div>
+                <Select value={getYear(selectedDate).toString()} onValueChange={handleYearChange}>
+                    <SelectTrigger className="h-10 border-0 rounded-none shadow-none focus:ring-0 px-4 min-w-[100px] font-bold">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {years.map(year => (
+                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Date Navigation Bar */}
+            <div className="flex items-center border rounded-sm w-full bg-card mb-6 shadow-sm overflow-hidden">
+                <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0" onClick={handleFirstDayOfYear} title="First day of year">
+                    <ChevronsLeft className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0" onClick={handlePrevDay} title="Previous day">
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+                
+                {/* Empty section placeholder */}
+                <div className="hidden sm:block border-r h-12 w-12" />
+
+                <div className="flex-1 flex items-center h-12 overflow-x-auto no-scrollbar">
+                    {dateRange.map(date => (
+                        <div 
+                            key={date.toISOString()}
+                            onClick={() => setSelectedDate(date)}
+                            className={cn(
+                                "flex-1 h-full flex items-center justify-center border-r px-4 cursor-pointer text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted",
+                                isSameDay(date, selectedDate) ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                            )}
+                        >
+                            {format(date, 'MMM d')}
+                        </div>
+                    ))}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="text-lg font-bold font-headline bg-primary/10 px-6 py-2 rounded-full text-primary">
-                        {format(selectedDate, 'dd / MM / yyyy')}
-                    </div>
-                    <Select value={getYear(selectedDate).toString()} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-[100px]">
-                            <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {years.map(year => (
-                                <SelectItem key={year} value={year}>{year}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                {/* Empty section placeholder */}
+                <div className="hidden sm:block border-l h-12 w-12" />
 
-                <div className="flex items-center gap-2">
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleNextDay}
-                        disabled={isSameDay(selectedDate, startOfToday())}
-                        title="Next day"
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleCurrentDay}
-                        title="Today"
-                    >
-                        <ChevronsRight className="h-4 w-4" />
-                    </Button>
-                </div>
+                <Button 
+                    variant="ghost" 
+                    className="rounded-none border-l h-12 w-12 px-0" 
+                    onClick={handleNextDay} 
+                    disabled={isSameDay(selectedDate, startOfToday())}
+                    title="Next day"
+                >
+                    <ChevronRight className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" className="rounded-none h-12 w-12 px-0" onClick={handleCurrentDay} title="Today">
+                    <ChevronsRight className="h-5 w-5" />
+                </Button>
             </div>
 
             <Card>
                 <CardContent className="pt-6">
+                    <h2 className="text-xl font-bold font-headline mb-4 border-b pb-2 flex items-center gap-2">
+                        Results for: {format(selectedDate, 'do MMMM, yyyy')}
+                        {isSameDay(selectedDate, startOfToday()) && <Badge variant="outline" className="ml-2">Today</Badge>}
+                    </h2>
+                    
                     {filteredAndSortedResults.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-10">No exam results found for this date.</p>
+                        <p className="text-muted-foreground text-center py-20 italic">No exam results found for this date.</p>
                     ) : (
                         <Accordion type="multiple" className="w-full">
                             {filteredAndSortedResults.map(result => (
@@ -222,57 +244,15 @@ export default function AdminResultsPage() {
                                                     <Badge className={cn(result.overallStatus === 'Passed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
                                                         {result.overallStatus}
                                                     </Badge>
-                                                    <span className={cn("text-sm font-semibold", result.totalPercentage >= 80 ? "text-pink-600 font-bold text-lg" : "text-muted-foreground")}>({result.totalPercentage.toFixed(0)}%)</span>
+                                                    <span className={cn("text-sm font-semibold", result.totalPercentage >= 80 ? "text-pink-600 font-bold" : "text-muted-foreground")}>
+                                                        ({result.totalPercentage.toFixed(0)}%)
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <h4 className="font-semibold">Result Details</h4>
-                                                <p className="text-sm text-muted-foreground">
-                                                    User: <Link href={`/dashboard/user/${result.userId}`} className="text-primary underline">{result.userName}</Link> <br />
-                                                    Exam Date: {format(new Date(result.examDate), 'dd/MM/yyyy')}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold">Subject Breakdown</h4>
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow>
-                                                            <TableHead>Subject</TableHead>
-                                                            <TableHead className="text-center">Marks</TableHead>
-                                                            <TableHead className="text-center">Obtained</TableHead>
-                                                            <TableHead className="text-center">Percentage</TableHead>
-                                                            <TableHead className="text-right">Status</TableHead>
-                                                        </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody>
-                                                        {result.subjects.map(subjectResult => (
-                                                            <TableRow key={subjectResult.subject}>
-                                                                <TableCell>{subjectResult.subject}</TableCell>
-                                                                <TableCell className="text-center">{subjectResult.totalMarks}</TableCell>
-                                                                <TableCell className="text-center">{subjectResult.obtainedMarks}</TableCell>
-                                                                <TableCell className={cn("text-center", subjectResult.percentage >= 80 ? "text-pink-600 font-bold text-lg" : "")}>{subjectResult.percentage.toFixed(0)}%</TableCell>
-                                                                <TableCell className={cn("text-right font-bold", subjectResult.status === 'Passed' ? 'text-green-600' : 'text-red-600')}>
-                                                                    {subjectResult.status}
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ))}
-                                                        <TableRow className="font-bold bg-muted/50">
-                                                            <TableCell>Total</TableCell>
-                                                            <TableCell className="text-center">{result.totalMarks}</TableCell>
-                                                            <TableCell className="text-center">{result.totalObtainedMarks}</TableCell>
-                                                            <TableCell className={cn("text-center", result.totalPercentage >= 80 ? "text-pink-600 font-bold text-lg" : "")}>{result.totalPercentage.toFixed(0)}%</TableCell>
-                                                            <TableCell className={cn("text-right", result.overallStatus === 'Passed' ? 'text-green-600' : 'text-red-600')}>
-                                                                {result.overallStatus}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    </TableBody>
-                                                </Table>
-                                            </div>
-                                        </div>
+                                        <DetailedResultTable result={result} />
                                     </AccordionContent>
                                 </AccordionItem>
                             ))}
@@ -283,3 +263,4 @@ export default function AdminResultsPage() {
         </div>
     );
 }
+
