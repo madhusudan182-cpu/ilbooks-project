@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ClipboardList, ArrowLeft, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
+import { ClipboardList, ArrowLeft, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import type { ExamResult } from '@/lib/types';
 import { mockExamResults } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -98,6 +98,15 @@ export default function AdminResultsPage() {
             .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
     }, [processedResults, selectedDate]);
 
+    const stats = useMemo(() => {
+        const total = filteredAndSortedResults.length;
+        const prizeWinners = filteredAndSortedResults.filter(r => r.totalPercentage >= 80 && r.attemptNumber === 1).length;
+        const passed = filteredAndSortedResults.filter(r => r.overallStatus === 'Passed').length;
+        const failed = filteredAndSortedResults.filter(r => r.overallStatus === 'Failed').length;
+
+        return { total, prizeWinners, passed, failed };
+    }, [filteredAndSortedResults]);
+
     const handleFirstDayOfYear = () => setSelectedDate(startOfYear(selectedDate));
     const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
     const handleNextDay = () => {
@@ -174,9 +183,6 @@ export default function AdminResultsPage() {
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
                 
-                {/* Empty section placeholder */}
-                <div className="hidden sm:block border-r h-12 w-12" />
-
                 <div className="flex-1 flex items-center h-12 overflow-x-auto no-scrollbar">
                     {dateRange.map(date => (
                         <div 
@@ -191,9 +197,6 @@ export default function AdminResultsPage() {
                         </div>
                     ))}
                 </div>
-
-                {/* Empty section placeholder */}
-                <div className="hidden sm:block border-l h-12 w-12" />
 
                 <Button 
                     variant="ghost" 
@@ -211,10 +214,32 @@ export default function AdminResultsPage() {
 
             <Card>
                 <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold font-headline mb-4 border-b pb-2 flex items-center gap-2">
-                        Results for: {format(selectedDate, 'do MMMM, yyyy')}
-                        {isSameDay(selectedDate, startOfToday()) && <Badge variant="outline" className="ml-2">Today</Badge>}
-                    </h2>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b pb-4">
+                        <h2 className="text-xl font-bold font-headline flex items-center gap-2">
+                            Results for: {format(selectedDate, 'do MMMM, yyyy')}
+                            {isSameDay(selectedDate, startOfToday()) && <Badge variant="outline" className="ml-2">Today</Badge>}
+                        </h2>
+                        
+                        {/* Summary Data Bar */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center overflow-hidden rounded-md border text-sm font-medium">
+                                <div className="bg-muted px-3 py-1 border-r">Total:</div>
+                                <div className="bg-card px-3 py-1">{stats.total}</div>
+                            </div>
+                            <div className="flex items-center overflow-hidden rounded-md border border-yellow-500 text-sm font-medium">
+                                <div className="bg-yellow-500 text-white px-3 py-1 border-r">Prize Winner:</div>
+                                <div className="bg-yellow-50 px-3 py-1 text-yellow-700">{stats.prizeWinners}</div>
+                            </div>
+                            <div className="flex items-center overflow-hidden rounded-md border border-green-500 text-sm font-medium">
+                                <div className="bg-green-500 text-white px-3 py-1 border-r">Passed:</div>
+                                <div className="bg-green-50 px-3 py-1 text-green-700">{stats.passed}</div>
+                            </div>
+                            <div className="flex items-center overflow-hidden rounded-md border border-red-500 text-sm font-medium">
+                                <div className="bg-red-500 text-white px-3 py-1 border-r">Failed:</div>
+                                <div className="bg-red-50 px-3 py-1 text-red-700">{stats.failed}</div>
+                            </div>
+                        </div>
+                    </div>
                     
                     {filteredAndSortedResults.length === 0 ? (
                         <p className="text-muted-foreground text-center py-20 italic">No exam results found for this date.</p>
@@ -263,4 +288,3 @@ export default function AdminResultsPage() {
         </div>
     );
 }
-
