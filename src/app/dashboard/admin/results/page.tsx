@@ -100,7 +100,8 @@ export default function AdminResultsPage() {
 
     const stats = useMemo(() => {
         const total = filteredAndSortedResults.length;
-        const prizeWinners = filteredAndSortedResults.filter(r => r.totalPercentage >= 80 && r.attemptNumber === 1).length;
+        // Prize Winner threshold is 80% or above
+        const prizeWinners = filteredAndSortedResults.filter(r => r.totalPercentage >= 80).length;
         const passed = filteredAndSortedResults.filter(r => r.overallStatus === 'Passed').length;
         const failed = filteredAndSortedResults.filter(r => r.overallStatus === 'Failed').length;
 
