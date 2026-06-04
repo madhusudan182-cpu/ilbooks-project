@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Package, User as UserIcon, ArrowLeft, CheckCircle2, Truck, Clock } from 'lucide-react';
+import { Package, User as UserIcon, ArrowLeft, CheckCircle2, Truck, Clock, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import type { Order, User } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { mockUsers } from '@/lib/data';
@@ -19,23 +19,43 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from '@/lib/utils';
+import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+type ViewMode = 'day' | 'month' | 'year' | 'total';
 
 export default function AdminOrdersPage() {
     const firestore = useFirestore();
     const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
+    const [summaryYear, setSummaryYear] = useState<number>(getYear(new Date()));
+    const [viewMode, setViewMode] = useState<ViewMode>('day');
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     const ordersQuery = useMemo(() => (firestore ? query(collection(firestore, 'orders'), orderBy('orderDate', 'desc')) : null), [firestore]);
-    const { data: orders, loading } = useCollection<Order>(ordersQuery);
+    const { data: allOrders, loading } = useCollection<Order>(ordersQuery);
 
     const usersById = useMemo(() => mockUsers.reduce((acc, user) => {
         acc[user.id] = user;
         return acc;
     }, {} as Record<string, User>), []);
+
+    const dateFilteredOrders = useMemo(() => {
+        if (!allOrders) return [];
+        return allOrders.filter(order => {
+            const oDate = order.orderDate ? new Date(order.orderDate.seconds * 1000) : new Date();
+            if (viewMode === 'total') return true;
+            if (viewMode === 'year') return getYear(oDate) === summaryYear;
+            if (viewMode === 'month') return isSameMonth(oDate, selectedDate) && getYear(oDate) === getYear(selectedDate);
+            return isSameDay(oDate, selectedDate);
+        });
+    }, [allOrders, selectedDate, summaryYear, viewMode]);
 
     const handleStatusChange = (orderId: string, newStatus: 'Shipped' | 'Delivered') => {
         if (!firestore) return;
@@ -65,13 +85,28 @@ export default function AdminOrdersPage() {
         }
     };
 
-    const filteredOrders = (status?: Order['status']) => {
-        if (!orders) return [];
-        if (!status) return orders;
-        return orders.filter(o => o.status === status);
+    const getFilteredByStatus = (status?: Order['status']) => {
+        if (!status) return dateFilteredOrders;
+        return dateFilteredOrders.filter(o => o.status === status);
     };
 
-    if (loading || !isClient) {
+    const counts = useMemo(() => ({
+        all: dateFilteredOrders.length,
+        paid: dateFilteredOrders.filter(o => o.status === 'Paid').length,
+        shipped: dateFilteredOrders.filter(o => o.status === 'Shipped').length,
+        delivered: dateFilteredOrders.filter(o => o.status === 'Delivered').length,
+    }), [dateFilteredOrders]);
+
+    const years = useMemo(() => {
+        const currentYear = getYear(new Date());
+        return Array.from({ length: currentYear - 2020 + 1 }, (_, i) => (currentYear - i).toString());
+    }, []);
+
+    const dateRange = useMemo(() => eachDayOfInterval({ start: subDays(selectedDate, 2), end: addDays(selectedDate, 2) }), [selectedDate]);
+
+    if (!isClient) return null;
+
+    if (loading) {
         return (
             <div className="p-4 md:p-6 lg:p-8">
                 <Card>
@@ -90,13 +125,6 @@ export default function AdminOrdersPage() {
             </div>
         )
     }
-
-    const counts = {
-        all: orders?.length || 0,
-        paid: orders?.filter(o => o.status === 'Paid').length || 0,
-        shipped: orders?.filter(o => o.status === 'Shipped').length || 0,
-        delivered: orders?.filter(o => o.status === 'Delivered').length || 0,
-    };
 
     return (
         <div className="p-4 md:p-6 lg:p-8 space-y-6">
@@ -119,6 +147,80 @@ export default function AdminOrdersPage() {
                         Manage incoming orders and track delivery status.
                     </CardDescription>
                 </CardHeader>
+            </Card>
+
+            <div className="space-y-4">
+                {/* Navigation Bar 1: Year, Months, Yearly, Total */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center border rounded-sm bg-card shadow-sm overflow-hidden">
+                        <div className="px-3 py-2 border-r bg-muted/30 text-xs font-bold font-headline text-[#331362]">Year:</div>
+                        <Select value={getYear(selectedDate).toString()} onValueChange={val => setSelectedDate(prev => setYear(prev, parseInt(val)))}>
+                            <SelectTrigger className="h-10 border-0 rounded-none shadow-none focus:ring-0 px-4 min-w-[80px] font-bold text-[#331362]"><SelectValue /></SelectTrigger>
+                            <SelectContent>{years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center border rounded-sm bg-card shadow-sm p-1 gap-1 overflow-x-auto no-scrollbar">
+                        {monthsShort.map((m, i) => (
+                            <Button key={m} variant="ghost" size="sm" className={cn("h-8 px-3 text-xs font-bold transition-all", (getMonth(selectedDate) === i && viewMode === 'month') ? "bg-primary text-white hover:bg-primary" : "text-muted-foreground")}
+                                onClick={() => { setSelectedDate(prev => setMonth(prev, i)); setViewMode('month'); }}>{m}</Button>
+                        ))}
+                    </div>
+                    
+                    <div className="flex items-center gap-1 border rounded-sm bg-card shadow-sm p-1">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant={viewMode === 'year' ? "default" : "ghost"} size="sm" className="h-8 px-3 text-xs font-bold transition-all">
+                                    Yearly <ChevronDown className="ml-1 h-3 w-3" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                {years.map(y => (
+                                    <DropdownMenuItem key={y} onClick={() => { setSummaryYear(parseInt(y)); setViewMode('year'); }}>
+                                        {y}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button 
+                            variant={viewMode === 'total' ? "default" : "ghost"} 
+                            size="sm" 
+                            className="h-8 px-3 text-xs font-bold transition-all"
+                            onClick={() => setViewMode('total')}
+                        >
+                            Total
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Navigation Bar 2: Day precision (Only in day view) */}
+                {viewMode === 'day' && (
+                    <div className="flex items-center border rounded-sm w-full bg-card shadow-sm overflow-hidden">
+                        <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0" onClick={() => setSelectedDate(startOfYear(selectedDate))}><ChevronsLeft className="h-5 w-5" /></Button>
+                        <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0" onClick={() => setSelectedDate(prev => subDays(prev, 1))}><ChevronLeft className="h-5 w-5" /></Button>
+                        <div className="flex-1 flex items-center h-12 overflow-x-auto no-scrollbar">
+                            {dateRange.map(date => (
+                                <div key={date.toISOString()} onClick={() => { setSelectedDate(date); setViewMode('day'); }}
+                                    className={cn("flex-1 h-full flex items-center justify-center border-r px-4 cursor-pointer text-sm font-bold whitespace-nowrap transition-all", isSameDay(date, selectedDate) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")}>
+                                    {format(date, 'MMM d')}
+                                </div>
+                            ))}
+                        </div>
+                        <Button variant="ghost" className="rounded-none border-l h-12 w-12 px-0" onClick={() => !isAfter(addDays(selectedDate, 1), startOfToday()) && setSelectedDate(prev => addDays(prev, 1))} disabled={isSameDay(selectedDate, startOfToday())}><ChevronRight className="h-5 w-5" /></Button>
+                        <Button variant="ghost" className="rounded-none h-12 w-12 px-0" onClick={() => setSelectedDate(startOfToday())}><ChevronsRight className="h-5 w-5" /></Button>
+                    </div>
+                )}
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline text-primary">
+                        {viewMode === 'day' && `Orders for: ${format(selectedDate, 'do MMMM, yyyy')}`}
+                        {viewMode === 'month' && `Orders for: ${format(selectedDate, 'MMMM yyyy')}`}
+                        {viewMode === 'year' && `Orders for the Year: ${summaryYear}`}
+                        {viewMode === 'total' && `Lifetime Order Summary`}
+                    </CardTitle>
+                </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="paid" className="w-full">
                         <TabsList className="grid w-full grid-cols-4 mb-8">
@@ -135,14 +237,14 @@ export default function AdminOrdersPage() {
 
                         {['all', 'Paid', 'Shipped', 'Delivered'].map((status) => (
                             <TabsContent key={status} value={status.toLowerCase()} className="space-y-4">
-                                {filteredOrders(status === 'all' ? undefined : status as Order['status']).length === 0 ? (
+                                {getFilteredByStatus(status === 'all' ? undefined : status as Order['status']).length === 0 ? (
                                     <div className="text-center py-20 bg-muted/20 rounded-lg border-2 border-dashed">
                                         <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                                        <p className="text-muted-foreground italic text-lg">No {status === 'all' ? '' : status.toLowerCase()} orders found.</p>
+                                        <p className="text-muted-foreground italic text-lg">No {status === 'all' ? '' : status.toLowerCase()} orders found for this period.</p>
                                     </div>
                                 ) : (
                                     <Accordion type="multiple" className="w-full space-y-3">
-                                        {filteredOrders(status === 'all' ? undefined : status as Order['status']).map(order => {
+                                        {getFilteredByStatus(status === 'all' ? undefined : status as Order['status']).map(order => {
                                             const user = usersById[order.userId];
                                             return (
                                                 <AccordionItem value={order.id} key={order.id} className="border rounded-lg bg-card px-4">
@@ -242,6 +344,13 @@ export default function AdminOrdersPage() {
                             </TabsContent>
                         ))}
                     </Tabs>
+                    {viewMode !== 'day' && (
+                        <div className="mt-8 flex justify-center border-t pt-6">
+                            <Button variant="outline" className="w-40 border-[#331362] text-[#331362] font-bold" onClick={() => setViewMode('day')}>
+                                Back
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
