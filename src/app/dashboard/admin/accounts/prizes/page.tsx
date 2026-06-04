@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Gift, ArrowLeft, PlusCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X } from 'lucide-react';
+import { Gift, ArrowLeft, PlusCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X, ChevronDown } from 'lucide-react';
 import { mockPrizeWinners, mockUsers, mockExamResults } from '@/lib/data';
 import type { PrizeWinner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -18,15 +18,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+type ViewMode = 'day' | 'month' | 'year' | 'total';
 
 export default function AdminPrizesPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
-    const [viewMode, setViewMode] = useState<'day' | 'month'>('day');
+    const [viewMode, setViewMode] = useState<ViewMode>('day');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
     const [newWinnerPrize, setNewWinnerPrize] = useState('200');
@@ -97,7 +100,10 @@ export default function AdminPrizesPage() {
     const filteredWinners = useMemo(() => {
         const list = winners.filter(w => {
             const wDate = new Date(w.date);
-            return viewMode === 'month' ? (isSameMonth(wDate, selectedDate) && getYear(wDate) === getYear(selectedDate)) : isSameDay(wDate, selectedDate);
+            if (viewMode === 'total') return true;
+            if (viewMode === 'year') return getYear(wDate) === getYear(selectedDate);
+            if (viewMode === 'month') return isSameMonth(wDate, selectedDate) && getYear(wDate) === getYear(selectedDate);
+            return isSameDay(wDate, selectedDate);
         });
         let runningTotal = 0;
         return list.map(w => { runningTotal += getAmount(w.prize); return { ...w, cumulative: runningTotal }; });
@@ -156,6 +162,32 @@ export default function AdminPrizesPage() {
                             onClick={() => { setSelectedDate(prev => setMonth(prev, i)); setViewMode('month'); }}>{m}</Button>
                     ))}
                 </div>
+                
+                <div className="flex items-center gap-1 border rounded-sm bg-card shadow-sm p-1">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant={viewMode === 'year' ? "default" : "ghost"} size="sm" className="h-8 px-3 text-xs font-bold transition-all">
+                                Yearly <ChevronDown className="ml-1 h-3 w-3" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            {years.map(y => (
+                                <DropdownMenuItem key={y} onClick={() => { setSelectedDate(prev => setYear(prev, parseInt(y))); setViewMode('year'); }}>
+                                    {y}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <Button 
+                        variant={viewMode === 'total' ? "default" : "ghost"} 
+                        size="sm" 
+                        className="h-8 px-3 text-xs font-bold transition-all"
+                        onClick={() => setViewMode('total')}
+                    >
+                        Total
+                    </Button>
+                </div>
             </div>
 
             {viewMode === 'day' && (
@@ -178,7 +210,10 @@ export default function AdminPrizesPage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-xl font-headline text-primary">
-                        {viewMode === 'day' ? `Prizes for: ${format(selectedDate, 'do MMMM, yyyy')}` : `Prizes for: ${format(selectedDate, 'MMMM yyyy')}`}
+                        {viewMode === 'day' && `Prizes for: ${format(selectedDate, 'do MMMM, yyyy')}`}
+                        {viewMode === 'month' && `Prizes for: ${format(selectedDate, 'MMMM yyyy')}`}
+                        {viewMode === 'year' && `Prizes for the Year: ${getYear(selectedDate)}`}
+                        {viewMode === 'total' && `Lifetime Prize Summary`}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -243,7 +278,7 @@ export default function AdminPrizesPage() {
                             </TableBody>
                         </Table>
                     )}
-                    {viewMode === 'month' && (
+                    {viewMode !== 'day' && (
                         <div className="mt-8 flex justify-center border-t pt-6">
                             <Button variant="outline" className="w-40 border-[#331362] text-[#331362] font-bold" onClick={() => setViewMode('day')}>
                                 Back
