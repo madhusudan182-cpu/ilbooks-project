@@ -148,7 +148,8 @@ export default function AdminResultsPage() {
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
         const startYear = 2020;
-        return Array.from({ length: currentYear - startYear + 6 }, (_, i) => (startYear + i).toString()).reverse();
+        // Generate years from currentYear down to 2020 so current year is topmost
+        return Array.from({ length: currentYear - startYear + 1 }, (_, i) => (currentYear - i).toString());
     }, []);
 
     const dateRange = useMemo(() => {
@@ -274,19 +275,19 @@ export default function AdminResultsPage() {
                             {stats && (
                                 <div className="flex flex-wrap items-center gap-2">
                                     <div className="flex items-center overflow-hidden rounded-md border text-sm font-medium">
-                                        <div className="bg-muted px-3 py-1 border-r">Total:</div>
+                                        <div className="bg-muted px-3 py-1 border-r text-xs uppercase tracking-wider">Total:</div>
                                         <div className="bg-card px-3 py-1">{stats.total}</div>
                                     </div>
                                     <div className="flex items-center overflow-hidden rounded-md border border-yellow-500 text-sm font-medium">
-                                        <div className="bg-yellow-500 text-white px-3 py-1 border-r">Prize Winner:</div>
+                                        <div className="bg-yellow-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Prize Winner:</div>
                                         <div className="bg-yellow-50 px-3 py-1 text-yellow-700">{stats.prizeWinners}</div>
                                     </div>
                                     <div className="flex items-center overflow-hidden rounded-md border border-green-500 text-sm font-medium">
-                                        <div className="bg-green-500 text-white px-3 py-1 border-r">Passed:</div>
+                                        <div className="bg-green-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Passed:</div>
                                         <div className="bg-green-50 px-3 py-1 text-green-700">{stats.passed}</div>
                                     </div>
                                     <div className="flex items-center overflow-hidden rounded-md border border-red-500 text-sm font-medium">
-                                        <div className="bg-red-500 text-white px-3 py-1 border-r">Failed:</div>
+                                        <div className="bg-red-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Failed:</div>
                                         <div className="bg-red-50 px-3 py-1 text-red-700">{stats.failed}</div>
                                     </div>
                                 </div>
