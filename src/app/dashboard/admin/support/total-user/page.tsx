@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth, addHours } from 'date-fns';
+import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -56,21 +56,41 @@ export default function TotalUserPage() {
         };
     }, [users]);
 
-    const handleApplyPunishment = (type: 'unblock' | '1day' | '3days' | '7days' | '30days' | 'forever') => {
+    const handleApplyPunishment = (type: '1day' | '3days' | '7days' | '30days' | 'forever') => {
         if (!moderatingUser) return;
 
         let banExpires: string | null = null;
         let isPermanentlyBanned = false;
+        let durationText = "";
+        let expiryDateText = "";
 
         const now = new Date();
 
         switch (type) {
-            case '1day': banExpires = addDays(now, 1).toISOString(); break;
-            case '3days': banExpires = addDays(now, 3).toISOString(); break;
-            case '7days': banExpires = addDays(now, 7).toISOString(); break;
-            case '30days': banExpires = addDays(now, 30).toISOString(); break;
-            case 'forever': isPermanentlyBanned = true; break;
-            case 'unblock': banExpires = null; isPermanentlyBanned = false; break;
+            case '1day': 
+                banExpires = addDays(now, 1).toISOString(); 
+                durationText = "1 day";
+                expiryDateText = format(addDays(now, 1), 'do MMMM, yyyy');
+                break;
+            case '3days': 
+                banExpires = addDays(now, 3).toISOString(); 
+                durationText = "3 days";
+                expiryDateText = format(addDays(now, 3), 'do MMMM, yyyy');
+                break;
+            case '7days': 
+                banExpires = addDays(now, 7).toISOString(); 
+                durationText = "7 days";
+                expiryDateText = format(addDays(now, 7), 'do MMMM, yyyy');
+                break;
+            case '30days': 
+                banExpires = addDays(now, 30).toISOString(); 
+                durationText = "30 days";
+                expiryDateText = format(addDays(now, 30), 'do MMMM, yyyy');
+                break;
+            case 'forever': 
+                isPermanentlyBanned = true; 
+                durationText = "permanently";
+                break;
         }
 
         setUsers(prev => prev.map(u => u.id === moderatingUser.id ? { 
@@ -79,9 +99,15 @@ export default function TotalUserPage() {
             isPermanentlyBanned 
         } : u));
 
+        // Professional notification message
+        const professionalNotice = isPermanentlyBanned 
+            ? `${moderatingUser.name}, your account has been permanently deactivated due to severe or repeated violations of our community standards.`
+            : `${moderatingUser.name}, your account access has been restricted for ${durationText} following community reports regarding your recent interactions. Your privileges will be automatically restored on ${expiryDateText}.`;
+
         toast({
-            title: type === 'unblock' ? "User Unblocked" : "Punishment Applied",
-            description: `Status updated for ${moderatingUser.name}.`,
+            title: "Restriction Applied & Notification Sent",
+            description: professionalNotice,
+            duration: 6000,
         });
 
         setIsModDialogOpen(false);
@@ -289,15 +315,12 @@ export default function TotalUserPage() {
                             <ShieldAlert className="h-5 w-5" /> Moderation Control
                         </DialogTitle>
                         <DialogDescription>
-                            Applying restrictions for <strong>{moderatingUser?.name}</strong>. Banned users cannot participate in competitions or order books.
+                            Applying restrictions for <strong>{moderatingUser?.name}</strong>. Banned users cannot participate in competitions or order books. Users will be unblocked automatically after the selected duration.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-3 py-4">
                         <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" className="justify-start border-green-200 hover:bg-green-50 text-green-700" onClick={() => handleApplyPunishment('unblock')}>
-                                <UserCheck className="mr-2 h-4 w-4" /> Lift Ban / Unblock
-                            </Button>
                             <Button variant="outline" className="justify-start border-orange-200 hover:bg-orange-50" onClick={() => handleApplyPunishment('1day')}>
                                 <ShieldOff className="mr-2 h-4 w-4" /> Block for 1 Day
                             </Button>
@@ -310,7 +333,7 @@ export default function TotalUserPage() {
                             <Button variant="outline" className="justify-start border-orange-500 hover:bg-orange-50" onClick={() => handleApplyPunishment('30days')}>
                                 <ShieldOff className="mr-2 h-4 w-4" /> Block for 30 Days
                             </Button>
-                            <Button variant="destructive" className="justify-start bg-red-600 hover:bg-red-700" onClick={() => handleApplyPunishment('forever')}>
+                            <Button variant="destructive" className="justify-start bg-red-600 hover:bg-red-700 col-span-2" onClick={() => handleApplyPunishment('forever')}>
                                 <UserMinus className="mr-2 h-4 w-4" /> Ban Permanently
                             </Button>
                         </div>
