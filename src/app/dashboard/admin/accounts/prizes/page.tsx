@@ -6,14 +6,14 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Gift, ArrowLeft, PlusCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X, Calendar } from 'lucide-react';
+import { Gift, ArrowLeft, PlusCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X } from 'lucide-react';
 import { mockPrizeWinners, mockUsers, mockExamResults } from '@/lib/data';
 import type { PrizeWinner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth } from 'date-fns';
+import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +33,7 @@ export default function AdminPrizesPage() {
     const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
+    const [viewMode, setViewMode] = useState<'day' | 'month'>('day');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
     const [newWinnerPrize, setNewWinnerPrize] = useState('200');
@@ -42,7 +43,7 @@ export default function AdminPrizesPage() {
     }, []);
 
     // Combine manual and automated winners
-    const allWinners = useMemo(() => {
+    const allWinnersInitial = useMemo(() => {
         const todayStr = format(new Date(), 'yyyy-MM-dd');
         const userLevelAttempts: { [key: string]: number } = {};
         const chronoSortedResults = [...mockExamResults].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
@@ -62,19 +63,19 @@ export default function AdminPrizesPage() {
                 level: r.level,
                 prize: 'Tk. 200', 
                 status: 'Pending',
-                date: r.examDate // Use exam date as winning date
+                date: r.examDate
             }));
 
         const manualWinners: (PrizeWinner & { date: string })[] = mockPrizeWinners.map(w => ({
             ...w,
             prize: w.prize.replace('BDT', 'Tk.').replace('Book Coupon', '').trim(),
-            date: w.dateAwarded || todayStr // Default to today if not set
+            date: w.dateAwarded || todayStr
         }));
 
         return [...manualWinners, ...automaticWinners].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, []);
 
-    const [winners, setWinners] = useState<(PrizeWinner & { date: string })[]>(allWinners);
+    const [winners, setWinners] = useState<(PrizeWinner & { date: string })[]>(allWinnersInitial);
 
     const handleMarkAsAwarded = (winnerId: string) => {
         setWinners(prevWinners => 
@@ -83,6 +84,10 @@ export default function AdminPrizesPage() {
             )
         );
         toast({ title: "Prize status updated to 'Awarded'" });
+    };
+
+    const handleUpdatePrize = (winnerId: string, amount: string) => {
+        setWinners(prev => prev.map(w => w.id === winnerId ? { ...w, prize: `Tk. ${amount}` } : w));
     };
 
     const handleAddWinner = () => {
@@ -111,29 +116,50 @@ export default function AdminPrizesPage() {
 
     const getAmount = (p: string) => parseInt(p.replace(/[^\d]/g, ''), 10) || 0;
 
-    // Calculate running total up to each entry in the full list
-    const winnersWithCumulative = useMemo(() => {
+    // Filter and then calculate cumulative so it's contextual to the current view (month or day)
+    const filteredWinners = useMemo(() => {
+        const list = winners.filter(w => {
+            const wDate = new Date(w.date);
+            if (viewMode === 'month') {
+                return isSameMonth(wDate, selectedDate) && getYear(wDate) === getYear(selectedDate);
+            }
+            return isSameDay(wDate, selectedDate);
+        });
+
         let runningTotal = 0;
-        return winners.map(w => {
+        return list.map(w => {
             runningTotal += getAmount(w.prize);
             return { ...w, cumulative: runningTotal };
         });
-    }, [winners]);
-
-    const filteredDisplay = useMemo(() => {
-        return winnersWithCumulative.filter(w => isSameDay(new Date(w.date), selectedDate));
-    }, [winnersWithCumulative, selectedDate]);
+    }, [winners, selectedDate, viewMode]);
 
     // Navigation Helpers
-    const handleFirstDayOfYear = () => setSelectedDate(startOfYear(selectedDate));
-    const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
+    const handleFirstDayOfYear = () => {
+        setSelectedDate(startOfYear(selectedDate));
+        setViewMode('day');
+    };
+    const handlePrevDay = () => {
+        setSelectedDate(prev => subDays(prev, 1));
+        setViewMode('day');
+    };
     const handleNextDay = () => {
         if (isAfter(addDays(selectedDate, 1), startOfToday())) return;
         setSelectedDate(prev => addDays(prev, 1));
+        setViewMode('day');
     };
-    const handleCurrentDay = () => setSelectedDate(startOfToday());
+    const handleCurrentDay = () => {
+        setSelectedDate(startOfToday());
+        setViewMode('day');
+    };
     const handleYearChange = (year: string) => setSelectedDate(prev => setYear(prev, parseInt(year)));
-    const handleMonthClick = (monthIndex: number) => setSelectedDate(prev => setMonth(prev, monthIndex));
+    const handleMonthClick = (monthIndex: number) => {
+        setSelectedDate(prev => setMonth(prev, monthIndex));
+        setViewMode('month');
+    };
+    const handleDaySelectFromBar = (date: Date) => {
+        setSelectedDate(date);
+        setViewMode('day');
+    };
 
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
@@ -222,9 +248,9 @@ export default function AdminPrizesPage() {
             {/* Year & Month Bar */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
                 <div className="flex items-center border rounded-sm bg-card shadow-sm overflow-hidden">
-                    <div className="px-3 py-2 border-r bg-muted/30 text-xs font-bold font-headline">Year:</div>
+                    <div className="px-3 py-2 border-r bg-muted/30 text-xs font-bold font-headline text-[#331362]">Year:</div>
                     <Select value={getYear(selectedDate).toString()} onValueChange={handleYearChange}>
-                        <SelectTrigger className="h-10 border-0 rounded-none shadow-none focus:ring-0 px-4 min-w-[80px] font-bold">
+                        <SelectTrigger className="h-10 border-0 rounded-none shadow-none focus:ring-0 px-4 min-w-[80px] font-bold text-[#331362]">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -242,7 +268,7 @@ export default function AdminPrizesPage() {
                             size="sm" 
                             className={cn(
                                 "h-8 px-3 text-xs font-bold transition-all",
-                                getMonth(selectedDate) === i ? "bg-primary text-white hover:bg-primary hover:text-white" : "text-muted-foreground hover:bg-muted"
+                                (getMonth(selectedDate) === i && viewMode === 'month') ? "bg-primary text-white hover:bg-primary hover:text-white" : "text-muted-foreground hover:bg-muted"
                             )}
                             onClick={() => handleMonthClick(i)}
                         >
@@ -252,65 +278,70 @@ export default function AdminPrizesPage() {
                 </div>
             </div>
 
-            {/* Date Navigation Bar */}
-            <div className="flex items-center border rounded-sm w-full bg-card mb-6 shadow-sm overflow-hidden">
-                <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0 hover:bg-muted" onClick={handleFirstDayOfYear} title="First day of year">
-                    <ChevronsLeft className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0 hover:bg-muted" onClick={handlePrevDay} title="Previous day">
-                    <ChevronLeft className="h-5 w-5" />
-                </Button>
-                
-                <div className="flex-1 flex items-center h-12 overflow-x-auto no-scrollbar">
-                    {dateRange.map(date => (
-                        <div 
-                            key={date.toISOString()}
-                            onClick={() => setSelectedDate(date)}
-                            className={cn(
-                                "flex-1 h-full flex items-center justify-center border-r px-4 cursor-pointer text-sm font-bold whitespace-nowrap transition-all",
-                                isSameDay(date, selectedDate) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-                            )}
-                        >
-                            {format(date, 'MMM d')}
-                        </div>
-                    ))}
-                </div>
+            {/* Date Navigation Bar - Hidden in Month View */}
+            {viewMode === 'day' && (
+                <div className="flex items-center border rounded-sm w-full bg-card mb-6 shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0 hover:bg-muted" onClick={handleFirstDayOfYear} title="First day of year">
+                        <ChevronsLeft className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" className="rounded-none border-r h-12 w-12 px-0 hover:bg-muted" onClick={handlePrevDay} title="Previous day">
+                        <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    
+                    <div className="flex-1 flex items-center h-12 overflow-x-auto no-scrollbar">
+                        {dateRange.map(date => (
+                            <div 
+                                key={date.toISOString()}
+                                onClick={() => handleDaySelectFromBar(date)}
+                                className={cn(
+                                    "flex-1 h-full flex items-center justify-center border-r px-4 cursor-pointer text-sm font-bold whitespace-nowrap transition-all",
+                                    isSameDay(date, selectedDate) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                                )}
+                            >
+                                {format(date, 'MMM d')}
+                            </div>
+                        ))}
+                    </div>
 
-                <Button 
-                    variant="ghost" 
-                    className="rounded-none border-l h-12 w-12 px-0 hover:bg-muted" 
-                    onClick={handleNextDay} 
-                    disabled={isSameDay(selectedDate, startOfToday())}
-                    title="Next day"
-                >
-                    <ChevronRight className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" className="rounded-none h-12 w-12 px-0 hover:bg-muted" onClick={handleCurrentDay} title="Today">
-                    <ChevronsRight className="h-5 w-5" />
-                </Button>
-            </div>
+                    <Button 
+                        variant="ghost" 
+                        className="rounded-none border-l h-12 w-12 px-0 hover:bg-muted" 
+                        onClick={handleNextDay} 
+                        disabled={isSameDay(selectedDate, startOfToday())}
+                        title="Next day"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" className="rounded-none h-12 w-12 px-0 hover:bg-muted" onClick={handleCurrentDay} title="Today">
+                        <ChevronsRight className="h-5 w-5" />
+                    </Button>
+                </div>
+            )}
 
             <Card>
                 <CardHeader>
                     <CardTitle className="text-xl font-headline text-primary">
-                        Prizes for: {format(selectedDate, 'do MMMM, yyyy')}
+                        {viewMode === 'day' 
+                            ? `Prizes for: ${format(selectedDate, 'do MMMM, yyyy')}`
+                            : `Prizes for: ${format(selectedDate, 'MMMM yyyy')}`
+                        }
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {filteredDisplay.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-20 italic">No prizes found for this date.</p>
+                    {filteredWinners.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-20 italic">No prizes found for this selection.</p>
                     ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Prize</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Cumulative Amount</TableHead>
+                                    <TableHead className="text-[#331362]">User</TableHead>
+                                    <TableHead className="text-[#331362]">Prize</TableHead>
+                                    <TableHead className="text-[#331362]">Status</TableHead>
+                                    <TableHead className="text-right text-[#331362]">Cumulative Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredDisplay.map(winner => (
+                                {filteredWinners.map(winner => (
                                     <TableRow key={winner.id}>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -319,34 +350,47 @@ export default function AdminPrizesPage() {
                                                     <AvatarFallback>{winner.userName.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <Link href={`/dashboard/user/${winner.userId}`} className="font-semibold hover:underline">
+                                                    <Link href={`/dashboard/user/${winner.userId}`} className="font-bold text-[#331362] hover:underline">
                                                         {winner.userName}
                                                     </Link>
-                                                    <p className="text-sm text-muted-foreground">Level: {winner.level}</p>
+                                                    <p className="text-xs text-muted-foreground">Level: {winner.level}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-bold">{winner.prize}</TableCell>
                                         <TableCell>
-                                            <div className="flex flex-col gap-2 items-start">
+                                            <div className="flex items-center gap-1 font-bold text-[#331362]">
+                                                <span>Tk.</span>
+                                                <input 
+                                                    type="number"
+                                                    value={getAmount(winner.prize)}
+                                                    onChange={(e) => handleUpdatePrize(winner.id, e.target.value)}
+                                                    className="w-16 bg-transparent border-none focus:ring-0 focus:outline-none focus:bg-muted/50 rounded px-1 transition-colors"
+                                                />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col gap-1 items-start">
                                                 <Badge
-                                                    className={cn(winner.status === 'Awarded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}
+                                                    className={cn(
+                                                        "text-[10px] h-5",
+                                                        winner.status === 'Awarded' 
+                                                            ? 'bg-green-100 text-green-800' 
+                                                            : 'bg-[#FEF9C3] text-[#854D0E]'
+                                                    )}
                                                 >
                                                     {winner.status}
                                                 </Badge>
                                                 {winner.status === 'Pending' && (
-                                                    <Button 
-                                                        size="sm" 
-                                                        variant="outline" 
-                                                        className="h-6 px-2 text-[10px] uppercase font-bold"
+                                                    <button 
                                                         onClick={() => handleMarkAsAwarded(winner.id)}
+                                                        className="text-[10px] font-bold text-[#331362] border border-[#331362] rounded px-2 py-0.5 mt-1 hover:bg-[#331362] hover:text-white transition-all uppercase"
                                                     >
-                                                        Mark
-                                                    </Button>
+                                                        MARK
+                                                    </button>
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right font-mono font-bold text-lg">
+                                        <TableCell className="text-right font-headline font-bold text-lg text-[#331362]">
                                             Tk. {winner.cumulative.toLocaleString()}
                                         </TableCell>
                                     </TableRow>
