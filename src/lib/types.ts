@@ -4,6 +4,8 @@ import type { Timestamp } from 'firebase/firestore';
 export type User = {
   id: string;
   name: string;
+  email: string;
+  mobile?: string;
   avatarUrl: string;
   level: number;
   institution: string;
@@ -12,6 +14,9 @@ export type User = {
   isFollowing: boolean;
   isMutual: boolean;
   isAdmin?: boolean;
+  signUpDate: string;
+  banExpires?: string | null;
+  isPermanentlyBanned?: boolean;
 };
 
 export type Post = {

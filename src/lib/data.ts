@@ -4,6 +4,8 @@ export const mockUsers: User[] = [
   {
     id: 'user-1',
     name: 'Alia Rahman',
+    email: 'alia@example.com',
+    mobile: '01711000001',
     avatarUrl: 'https://picsum.photos/seed/av1/100/100',
     level: 5.5,
     institution: 'University of Dhaka',
@@ -12,10 +14,13 @@ export const mockUsers: User[] = [
     isFollowing: true,
     isMutual: true,
     isAdmin: true,
+    signUpDate: '2024-01-01',
   },
   {
     id: 'user-2',
     name: 'Ben Carter',
+    email: 'ben@example.com',
+    mobile: '01711000002',
     avatarUrl: 'https://picsum.photos/seed/av2/100/100',
     level: 1.5,
     institution: 'BRAC University',
@@ -23,10 +28,13 @@ export const mockUsers: User[] = [
     hobbies: ['Science Fiction', 'Fantasy', 'Gaming'],
     isFollowing: true,
     isMutual: false,
+    signUpDate: '2026-05-15',
   },
   {
     id: 'user-3',
     name: 'Cathy Liu',
+    email: 'cathy@example.com',
+    mobile: '01711000003',
     avatarUrl: 'https://picsum.photos/seed/av3/100/100',
     level: 3.0,
     institution: 'Independent Scholar',
@@ -34,10 +42,13 @@ export const mockUsers: User[] = [
     hobbies: ['Philosophy', 'Art', 'Travel'],
     isFollowing: false,
     isMutual: false,
+    signUpDate: '2026-06-01',
   },
     {
     id: 'user-4',
     name: 'David Hasan',
+    email: 'david@example.com',
+    mobile: '01711000004',
     avatarUrl: 'https://picsum.photos/seed/av4/100/100',
     level: 0.5,
     institution: 'Notre Dame College',
@@ -45,10 +56,13 @@ export const mockUsers: User[] = [
     hobbies: ['Comics', 'Manga', 'Movies'],
     isFollowing: true,
     isMutual: true,
+    signUpDate: '2026-06-05',
   },
   {
     id: 'user-5',
     name: 'Paban Alam',
+    email: 'paban@example.com',
+    mobile: '01711000005',
     avatarUrl: 'https://picsum.photos/seed/av5/100/100',
     level: 0.0,
     institution: 'New Learner',
@@ -57,6 +71,7 @@ export const mockUsers: User[] = [
     isFollowing: false,
     isMutual: false,
     isAdmin: false,
+    signUpDate: '2026-06-05',
   },
 ];
 
@@ -91,10 +106,6 @@ export const mockPosts: Post[] = [
     createdAt: '3 days ago',
   },
 ];
-
-// This mock data is no longer used for the main application logic.
-// Book data is now fetched from and managed in Firestore.
-export const mockBooks: Book[] = [];
 
 // Helper to get formatted dates for mock data
 const today = new Date().toISOString().split('T')[0];
