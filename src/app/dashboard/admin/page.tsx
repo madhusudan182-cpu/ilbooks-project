@@ -110,7 +110,7 @@ export default function AdminPage() {
 
               <div className="relative">
                 <Button asChild>
-                    <Link href="/dashboard/admin/support/user">User</Link>
+                    <Link href="/dashboard/admin/support/user">User Problem</Link>
                 </Button>
                 <NotificationBadge count={supportCounts.user} />
               </div>
