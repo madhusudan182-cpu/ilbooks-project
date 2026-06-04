@@ -72,12 +72,6 @@ export default function AdminPage() {
                   Exam Schedule
                 </Link>
               </Button>
-              <Button asChild className="bg-pink-500 hover:bg-pink-600">
-                <Link href="/dashboard/admin/accounts/prizes">
-                  <Trophy className="mr-2 h-4 w-4" />
-                  Prize Winners
-                </Link>
-              </Button>
           </CardContent>
         </Card>
 
@@ -93,7 +87,6 @@ export default function AdminPage() {
                 <Link href="/dashboard/admin/syllabi">View Syllabus for All Levels</Link>
               </Button>
           </CardContent>
-        </Card>
 
         <Card>
             <CardHeader>
