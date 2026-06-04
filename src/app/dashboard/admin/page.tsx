@@ -10,6 +10,7 @@ import { currentUser } from "@/lib/auth";
 import { useFirestore, useCollection } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { Order } from '@/lib/types';
+import { mockOrders } from '@/lib/data';
 import { cn } from "@/lib/utils";
 
 const NotificationBadge = ({ count }: { count: number }) => {
@@ -28,13 +29,24 @@ export default function AdminPage() {
     
     // Fetch live orders to count new ones
     const ordersQuery = useMemo(() => (firestore ? collection(firestore, 'orders') : null), [firestore]);
-    const { data: orders } = useCollection<Order>(ordersQuery);
+    const { data: firestoreOrders } = useCollection<Order>(ordersQuery);
+
+    const allOrders = useMemo(() => {
+        const firestoreList = firestoreOrders || [];
+        const combined = [...firestoreList];
+        mockOrders.forEach(mo => {
+            if (!combined.some(fo => fo.id === mo.id)) {
+                combined.push(mo as any);
+            }
+        });
+        return combined;
+    }, [firestoreOrders]);
 
     const newOrdersCount = useMemo(() => {
-        return orders?.filter(o => o.status === 'Paid').length || 0;
-    }, [orders]);
+        return allOrders?.filter(o => o.status === 'Paid').length || 0;
+    }, [allOrders]);
 
-    // Mock counts for Support categories (since support DB isn't implemented yet)
+    // Mock counts for Support categories
     const supportCounts = {
         competition: 3,
         bookShop: 5,

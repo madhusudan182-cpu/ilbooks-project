@@ -268,6 +268,88 @@ export const mockTransactions: Transaction[] = [
   }
 ];
 
+export const mockOrders: any[] = [
+    {
+        id: 'order-1',
+        userId: 'user-2',
+        customerName: 'Ben Carter',
+        deliveryAddress: 'House 12, Road 5, Dhanmondi, Dhaka',
+        mobileNumber: '01711223344',
+        books: [
+            { id: 'b1', title: 'One Hundred Years of Solitude', author: 'Gabriel García Márquez', price: 450, quantity: 1 },
+            { id: 'b2', title: 'Dune', author: 'Frank Herbert', price: 600, quantity: 1 }
+        ],
+        totalAmount: 1110,
+        orderDate: { seconds: new Date('2026-01-15T10:30:00').getTime() / 1000 },
+        status: 'Delivered'
+    },
+    {
+        id: 'order-2',
+        userId: 'user-3',
+        customerName: 'Cathy Liu',
+        deliveryAddress: 'Flat 4B, Sylhet Tower, Zindabazar, Sylhet',
+        mobileNumber: '01822334455',
+        books: [
+            { id: 'b3', title: 'The Silent Patient', author: 'Alex Michaelides', price: 350, quantity: 2 }
+        ],
+        totalAmount: 760,
+        orderDate: { seconds: new Date('2026-02-20T14:15:00').getTime() / 1000 },
+        status: 'Shipped'
+    },
+    {
+        id: 'order-3',
+        userId: 'user-4',
+        customerName: 'David Hasan',
+        deliveryAddress: 'Student Hostel, Notre Dame College, Dhaka',
+        mobileNumber: '01933445566',
+        books: [
+            { id: 'b4', title: 'The Alchemist', author: 'Paulo Coelho', price: 300, quantity: 1 }
+        ],
+        totalAmount: 360,
+        orderDate: { seconds: new Date('2026-05-05T09:00:00').getTime() / 1000 },
+        status: 'Paid'
+    },
+    {
+        id: 'order-4',
+        userId: 'user-1',
+        customerName: 'Alia Rahman',
+        deliveryAddress: 'University Quarters, DU, Dhaka',
+        mobileNumber: '01544556677',
+        books: [
+            { id: 'b5', title: 'Sapiens', author: 'Yuval Noah Harari', price: 800, quantity: 1 }
+        ],
+        totalAmount: 860,
+        orderDate: { seconds: new Date('2026-06-05T11:45:00').getTime() / 1000 },
+        status: 'Paid'
+    },
+    {
+        id: 'order-6',
+        userId: 'user-2',
+        customerName: 'Ben Carter',
+        deliveryAddress: 'Chittagong Residence',
+        mobileNumber: '01711223344',
+        books: [
+            { id: 'b7', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 250, quantity: 1 }
+        ],
+        totalAmount: 310,
+        orderDate: { seconds: new Date('2026-06-05T15:30:00').getTime() / 1000 },
+        status: 'Shipped'
+    },
+    {
+        id: 'order-5',
+        userId: 'user-5',
+        customerName: 'Paban Alam',
+        deliveryAddress: 'Uttara Sector 4, Dhaka',
+        mobileNumber: '01655667788',
+        books: [
+            { id: 'b6', title: 'Atomic Habits', author: 'James Clear', price: 400, quantity: 2 }
+        ],
+        totalAmount: 860,
+        orderDate: { seconds: new Date('2025-12-25T16:20:00').getTime() / 1000 },
+        status: 'Delivered'
+    }
+];
+
 export const mockPrizeWinners: PrizeWinner[] = [
   {
     id: 'prize-1',

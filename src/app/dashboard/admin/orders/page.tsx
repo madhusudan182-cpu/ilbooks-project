@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Package, User as UserIcon, ArrowLeft, CheckCircle2, Truck, Clock, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import type { Order, User } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockUsers } from '@/lib/data';
+import { mockUsers, mockOrders } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -39,7 +39,22 @@ export default function AdminOrdersPage() {
     }, []);
 
     const ordersQuery = useMemo(() => (firestore ? query(collection(firestore, 'orders'), orderBy('orderDate', 'desc')) : null), [firestore]);
-    const { data: allOrders, loading } = useCollection<Order>(ordersQuery);
+    const { data: firestoreOrders, loading } = useCollection<Order>(ordersQuery);
+
+    const allOrders = useMemo(() => {
+        const firestoreList = firestoreOrders || [];
+        const combined = [...firestoreList];
+        mockOrders.forEach(mo => {
+            if (!combined.some(fo => fo.id === mo.id)) {
+                combined.push(mo as any);
+            }
+        });
+        return combined.sort((a, b) => {
+            const dateA = a.orderDate?.seconds || 0;
+            const dateB = b.orderDate?.seconds || 0;
+            return dateB - dateA;
+        });
+    }, [firestoreOrders]);
 
     const usersById = useMemo(() => mockUsers.reduce((acc, user) => {
         acc[user.id] = user;
@@ -106,7 +121,7 @@ export default function AdminOrdersPage() {
 
     if (!isClient) return null;
 
-    if (loading) {
+    if (loading && allOrders.length === 0) {
         return (
             <div className="p-4 md:p-6 lg:p-8">
                 <Card>
@@ -222,7 +237,7 @@ export default function AdminOrdersPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="paid" className="w-full">
+                    <Tabs defaultValue="all" className="w-full">
                         <TabsList className="grid w-full grid-cols-4 mb-8">
                             <TabsTrigger value="all" className="relative">
                                 All ({counts.all})
