@@ -1,13 +1,14 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Gift, ArrowLeft, CheckCircle2, PlusCircle, Trash2 } from 'lucide-react';
-import { mockPrizeWinners, mockUsers } from '@/lib/data';
-import type { PrizeWinner, User } from '@/lib/types';
+import { Gift, ArrowLeft, PlusCircle } from 'lucide-react';
+import { mockPrizeWinners, mockUsers, mockExamResults } from '@/lib/data';
+import type { PrizeWinner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
@@ -22,28 +23,48 @@ import {
   DialogFooter,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function AdminPrizesPage() {
-    const [winners, setWinners] = useState<PrizeWinner[]>(mockPrizeWinners);
     const { toast } = useToast();
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
-    const [newWinnerPrize, setNewWinnerPrize] = useState('');
-    const [winnerToRemove, setWinnerToRemove] = useState<string | null>(null);
+    const [newWinnerPrize, setNewWinnerPrize] = useState('Tk. 300');
+
+    // Automatically derive winners from mockExamResults
+    const initialWinners = useMemo(() => {
+        const userLevelAttempts: { [key: string]: number } = {};
+        const chronoSortedResults = [...mockExamResults].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
+
+        const automaticWinners: PrizeWinner[] = chronoSortedResults
+            .map(result => {
+                const key = `${result.userId}-${result.level}`;
+                userLevelAttempts[key] = (userLevelAttempts[key] || 0) + 1;
+                return { ...result, attemptNumber: userLevelAttempts[key] };
+            })
+            .filter(r => r.totalPercentage >= 80 && r.attemptNumber === 1)
+            .map(r => ({
+                id: `auto-${r.id}`,
+                userId: r.userId,
+                userName: r.userName,
+                userAvatarUrl: r.userAvatarUrl,
+                level: r.level,
+                prize: 'Tk. 300', 
+                status: 'Pending',
+            }));
+
+        const manualWinners: PrizeWinner[] = mockPrizeWinners.map(w => ({
+            ...w,
+            prize: w.prize.replace('BDT', 'Tk.').replace('Book Coupon', '').trim()
+        }));
+
+        // Deduplicate or just combine for this demo
+        return [...manualWinners, ...automaticWinners];
+    }, []);
+
+    const [winners, setWinners] = useState<PrizeWinner[]>(initialWinners);
 
     const handleMarkAsAwarded = (winnerId: string) => {
         setWinners(prevWinners => 
@@ -71,24 +92,20 @@ export default function AdminPrizesPage() {
             userName: user.name,
             userAvatarUrl: user.avatarUrl,
             level: user.level.toFixed(1),
-            prize: newWinnerPrize,
+            prize: newWinnerPrize.startsWith('Tk.') ? newWinnerPrize : `Tk. ${newWinnerPrize}`,
             status: 'Pending',
         };
 
         setWinners(prev => [newWinner, ...prev]);
         toast({ title: "New prize winner added." });
         
-        // Reset form and close dialog
         setNewWinnerUserId(null);
-        setNewWinnerPrize('');
+        setNewWinnerPrize('Tk. 300');
         setIsAddDialogOpen(false);
     };
 
-    const handleRemoveWinner = (winnerId: string) => {
-        setWinners(prev => prev.filter(winner => winner.id !== winnerId));
-        toast({ title: "Winner removed.", variant: "destructive" });
-        setWinnerToRemove(null);
-    };
+    const getAmount = (p: string) => parseInt(p.replace(/[^\d]/g, ''), 10) || 0;
+    let runningTotal = 0;
 
     return (
         <div className="p-4 md:p-6 lg:p-8">
@@ -145,7 +162,7 @@ export default function AdminPrizesPage() {
                                     <Label htmlFor="prize-input">Prize</Label>
                                     <Input 
                                         id="prize-input" 
-                                        placeholder="e.g., BDT 500 Book Coupon"
+                                        placeholder="e.g., Tk. 500"
                                         value={newWinnerPrize}
                                         onChange={(e) => setNewWinnerPrize(e.target.value)}
                                     />
@@ -168,70 +185,57 @@ export default function AdminPrizesPage() {
                                     <TableHead>User</TableHead>
                                     <TableHead>Prize</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">Cumulative Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {winners.map(winner => (
-                                    <TableRow key={winner.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-10 w-10">
-                                                    <AvatarImage src={winner.userAvatarUrl} alt={winner.userName} />
-                                                    <AvatarFallback>{winner.userName.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <Link href={`/dashboard/user/${winner.userId}`} className="font-semibold hover:underline">
-                                                        {winner.userName}
-                                                    </Link>
-                                                    <p className="text-sm text-muted-foreground">Level: {winner.level}</p>
+                                {winners.map(winner => {
+                                    runningTotal += getAmount(winner.prize);
+                                    return (
+                                        <TableRow key={winner.id}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-10 w-10">
+                                                        <AvatarImage src={winner.userAvatarUrl} alt={winner.userName} />
+                                                        <AvatarFallback>{winner.userName.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <Link href={`/dashboard/user/${winner.userId}`} className="font-semibold hover:underline">
+                                                            {winner.userName}
+                                                        </Link>
+                                                        <p className="text-sm text-muted-foreground">Level: {winner.level}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{winner.prize}</TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                className={cn(winner.status === 'Awarded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}
-                                            >
-                                                {winner.status}
-                                            </Badge>
-                                            {winner.dateAwarded && (
-                                                <p className="text-xs text-muted-foreground mt-1">{format(new Date(winner.dateAwarded), 'dd/MM/yyyy')}</p>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end items-center gap-2">
-                                            {winner.status === 'Pending' && (
-                                                <Button size="sm" onClick={() => handleMarkAsAwarded(winner.id)}>
-                                                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                                                    Mark as Awarded
-                                                </Button>
-                                            )}
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button size="icon" variant="destructive" onClick={() => setWinnerToRemove(winner.id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently remove the prize entry.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel onClick={() => setWinnerToRemove(null)}>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => winnerToRemove && handleRemoveWinner(winnerToRemove)}>
-                                                            Remove
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell>{winner.prize}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col gap-2 items-start">
+                                                    <Badge
+                                                        className={cn(winner.status === 'Awarded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}
+                                                    >
+                                                        {winner.status}
+                                                    </Badge>
+                                                    {winner.dateAwarded && (
+                                                        <p className="text-[10px] text-muted-foreground">{format(new Date(winner.dateAwarded), 'dd/MM/yyyy')}</p>
+                                                    )}
+                                                    {winner.status === 'Pending' && (
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="outline" 
+                                                            className="h-6 px-2 text-[10px] uppercase font-bold"
+                                                            onClick={() => handleMarkAsAwarded(winner.id)}
+                                                        >
+                                                            Mark
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono font-bold">
+                                                Tk. {runningTotal.toLocaleString()}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                     )}
@@ -240,3 +244,4 @@ export default function AdminPrizesPage() {
         </div>
     );
 }
+
