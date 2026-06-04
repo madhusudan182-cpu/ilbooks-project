@@ -30,6 +30,7 @@ export default function AdminPrizesPage() {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
+    const [summaryYear, setSummaryYear] = useState<number>(getYear(new Date()));
     const [viewMode, setViewMode] = useState<ViewMode>('day');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
@@ -109,7 +110,7 @@ export default function AdminPrizesPage() {
         const list = winners.filter(w => {
             const wDate = new Date(w.date);
             if (viewMode === 'total') return true;
-            if (viewMode === 'year') return getYear(wDate) === getYear(selectedDate);
+            if (viewMode === 'year') return getYear(wDate) === summaryYear;
             if (viewMode === 'month') return isSameMonth(wDate, selectedDate) && getYear(wDate) === getYear(selectedDate);
             return isSameDay(wDate, selectedDate);
         });
@@ -135,7 +136,7 @@ export default function AdminPrizesPage() {
                 cumulativeDue: runningDue
             }; 
         });
-    }, [winners, selectedDate, viewMode]);
+    }, [winners, selectedDate, summaryYear, viewMode]);
 
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
@@ -183,7 +184,7 @@ export default function AdminPrizesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {years.map(y => (
-                                <DropdownMenuItem key={y} onClick={() => { setSelectedDate(prev => setYear(prev, parseInt(y))); setViewMode('year'); }}>
+                                <DropdownMenuItem key={y} onClick={() => { setSummaryYear(parseInt(y)); setViewMode('year'); }}>
                                     {y}
                                 </DropdownMenuItem>
                             ))}
@@ -223,7 +224,7 @@ export default function AdminPrizesPage() {
                     <CardTitle className="text-xl font-headline text-primary">
                         {viewMode === 'day' && `Prizes for: ${format(selectedDate, 'do MMMM, yyyy')}`}
                         {viewMode === 'month' && `Prizes for: ${format(selectedDate, 'MMMM yyyy')}`}
-                        {viewMode === 'year' && `Prizes for the Year: ${getYear(selectedDate)}`}
+                        {viewMode === 'year' && `Prizes for the Year: ${summaryYear}`}
                         {viewMode === 'total' && `Lifetime Prize Summary`}
                     </CardTitle>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
