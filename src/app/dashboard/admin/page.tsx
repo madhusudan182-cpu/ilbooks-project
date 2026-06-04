@@ -51,7 +51,8 @@ export default function AdminPage() {
         competition: 3,
         bookShop: 5,
         user: 2,
-        others: 1
+        others: 1,
+        totalUser: 4
     };
 
     useEffect(() => {
@@ -120,6 +121,13 @@ export default function AdminPage() {
                     <Link href="/dashboard/admin/support/others">Others</Link>
                 </Button>
                 <NotificationBadge count={supportCounts.others} />
+              </div>
+
+              <div className="relative">
+                <Button asChild>
+                    <Link href="/dashboard/admin/support/total-user">Total User</Link>
+                </Button>
+                <NotificationBadge count={supportCounts.totalUser} />
               </div>
           </CardContent>
         </Card>
