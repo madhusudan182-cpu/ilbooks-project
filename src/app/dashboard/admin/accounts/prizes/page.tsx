@@ -105,8 +105,28 @@ export default function AdminPrizesPage() {
             if (viewMode === 'month') return isSameMonth(wDate, selectedDate) && getYear(wDate) === getYear(selectedDate);
             return isSameDay(wDate, selectedDate);
         });
+
         let runningTotal = 0;
-        return list.map(w => { runningTotal += getAmount(w.prize); return { ...w, cumulative: runningTotal }; });
+        let runningPaid = 0;
+        let runningDue = 0;
+
+        return list.map(w => { 
+            const amount = getAmount(w.prize);
+            runningTotal += amount;
+            
+            if (w.status === 'Awarded') {
+                runningPaid += amount;
+            } else {
+                runningDue += amount;
+            }
+
+            return { 
+                ...w, 
+                cumulative: runningTotal,
+                cumulativePaid: runningPaid,
+                cumulativeDue: runningDue
+            }; 
+        });
     }, [winners, selectedDate, viewMode]);
 
     const years = useMemo(() => {
@@ -199,7 +219,7 @@ export default function AdminPrizesPage() {
                         {viewMode === 'total' && `Lifetime Prize Summary`}
                     </CardTitle>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                        <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Add Winner</Button></DialogTrigger>
+                        <DialogTrigger asChild><Button size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Winner</Button></DialogTrigger>
                         <DialogContent>
                             <DialogHeader><DialogTitle>Add Prize Winner</DialogTitle></DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -223,7 +243,9 @@ export default function AdminPrizesPage() {
                                     <TableHead className="text-[#331362]">Prize</TableHead>
                                     <TableHead className="text-[#331362]">Status</TableHead>
                                     <TableHead className="text-[#331362]">Mark</TableHead>
-                                    <TableHead className="text-right text-[#331362]">Cumulative Amount</TableHead>
+                                    <TableHead className="text-right text-[#331362]">Paid (Tk.)</TableHead>
+                                    <TableHead className="text-right text-[#331362]">Due (Tk.)</TableHead>
+                                    <TableHead className="text-right text-[#331362]">Grand Total</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -270,6 +292,8 @@ export default function AdminPrizesPage() {
                                                 {w.status === 'Awarded' ? 'MARKED' : 'MARK'}
                                             </button>
                                         </TableCell>
+                                        <TableCell className="text-right font-headline font-bold text-[#166534]">Tk. {w.cumulativePaid.toLocaleString()}</TableCell>
+                                        <TableCell className="text-right font-headline font-bold text-[#991B1B]">Tk. {w.cumulativeDue.toLocaleString()}</TableCell>
                                         <TableCell className="text-right font-headline font-bold text-lg text-[#331362]">Tk. {w.cumulative.toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))}
