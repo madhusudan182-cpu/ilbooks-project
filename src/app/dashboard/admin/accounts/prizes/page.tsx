@@ -43,6 +43,7 @@ export default function AdminPrizesPage() {
 
     // Combine manual and automated winners
     const allWinners = useMemo(() => {
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
         const userLevelAttempts: { [key: string]: number } = {};
         const chronoSortedResults = [...mockExamResults].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
 
@@ -67,7 +68,7 @@ export default function AdminPrizesPage() {
         const manualWinners: (PrizeWinner & { date: string })[] = mockPrizeWinners.map(w => ({
             ...w,
             prize: w.prize.replace('BDT', 'Tk.').replace('Book Coupon', '').trim(),
-            date: w.dateAwarded || today // Default to today if not set
+            date: w.dateAwarded || todayStr // Default to today if not set
         }));
 
         return [...manualWinners, ...automaticWinners].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -109,11 +110,6 @@ export default function AdminPrizesPage() {
     };
 
     const getAmount = (p: string) => parseInt(p.replace(/[^\d]/g, ''), 10) || 0;
-
-    // Filtered results for the selected date
-    const displayWinners = useMemo(() => {
-        return winners.filter(w => isSameDay(new Date(w.date), selectedDate));
-    }, [winners, selectedDate]);
 
     // Calculate running total up to each entry in the full list
     const winnersWithCumulative = useMemo(() => {
