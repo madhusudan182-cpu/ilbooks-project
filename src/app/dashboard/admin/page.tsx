@@ -78,7 +78,7 @@ export default function AdminPage() {
               <Button asChild>
                 <Link href="/dashboard/admin/results">View User Results</Link>
               </Button>
-              <Button asChild className="bg-blue-500 hover:bg-blue-600">
+              <Button asChild>
                 <Link href="/dashboard/admin/schedule">
                   <CalendarClock className="mr-2 h-4 w-4" />
                   Exam Schedule
@@ -147,7 +147,7 @@ export default function AdminPage() {
             <Button asChild>
               <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
             </Button>
-            <Button asChild variant="secondary">
+            <Button asChild>
               <Link href="/dashboard/admin/orders">View All Orders</Link>
             </Button>
           </CardContent>
