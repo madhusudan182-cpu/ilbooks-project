@@ -15,6 +15,7 @@ export type User = {
   isMutual: boolean;
   isAdmin?: boolean;
   signUpDate: string;
+  lastSeen?: string;
   banExpires?: string | null;
   isPermanentlyBanned?: boolean;
 };

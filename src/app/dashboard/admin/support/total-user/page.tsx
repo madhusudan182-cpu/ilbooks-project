@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth } from 'date-fns';
+import { format, subDays, addDays, startOfYear, isSameDay, isAfter, startOfToday, setYear, getYear, eachDayOfInterval, getMonth, setMonth, isSameMonth, differenceInHours } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -134,11 +134,25 @@ export default function TotalUserPage() {
     };
 
     const getStatusBadge = (user: User) => {
+        // Punishment status takes priority
         if (user.isPermanentlyBanned) return <Badge variant="destructive" className="bg-red-600">Banned Forever</Badge>;
         if (user.banExpires && isAfter(new Date(user.banExpires), new Date())) {
             return <Badge variant="outline" className="border-orange-500 text-orange-600 bg-orange-50">Blocked until {format(new Date(user.banExpires), 'MMM d')}</Badge>;
         }
-        return <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50">Active</Badge>;
+
+        // Activity status
+        if (!user.lastSeen) return <Badge variant="outline" className="border-gray-300 text-gray-500">Unknown</Badge>;
+        
+        const lastSeenDate = new Date(user.lastSeen);
+        const now = new Date();
+        const diffInHours = differenceInHours(now, lastSeenDate);
+        
+        if (diffInHours < 24) {
+            return <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50 font-bold">Active</Badge>;
+        } else {
+            const diffInDays = Math.floor(diffInHours / 24);
+            return <Badge variant="outline" className="border-gray-400 text-gray-600 bg-gray-50">Inactive for {diffInDays} days</Badge>;
+        }
     };
 
     const years = useMemo(() => {

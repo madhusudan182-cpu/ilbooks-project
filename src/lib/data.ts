@@ -1,4 +1,5 @@
 import type { User, Post, Book, ExamResult, Transaction, PrizeWinner, SignUpData, TopUser, TopPatron } from './types';
+import { subHours, subDays } from 'date-fns';
 
 export const mockUsers: User[] = [
   {
@@ -15,6 +16,7 @@ export const mockUsers: User[] = [
     isMutual: true,
     isAdmin: true,
     signUpDate: '2024-01-01',
+    lastSeen: subHours(new Date(), 1).toISOString(),
   },
   {
     id: 'user-2',
@@ -29,6 +31,7 @@ export const mockUsers: User[] = [
     isFollowing: true,
     isMutual: false,
     signUpDate: '2026-05-15',
+    lastSeen: subDays(new Date(), 2).toISOString(),
   },
   {
     id: 'user-3',
@@ -43,6 +46,7 @@ export const mockUsers: User[] = [
     isFollowing: false,
     isMutual: false,
     signUpDate: '2026-06-01',
+    lastSeen: subDays(new Date(), 10).toISOString(),
   },
     {
     id: 'user-4',
@@ -57,6 +61,7 @@ export const mockUsers: User[] = [
     isFollowing: true,
     isMutual: true,
     signUpDate: '2026-06-05',
+    lastSeen: subDays(new Date(), 3).toISOString(),
   },
   {
     id: 'user-5',
@@ -72,6 +77,7 @@ export const mockUsers: User[] = [
     isMutual: false,
     isAdmin: false,
     signUpDate: '2026-06-05',
+    lastSeen: subHours(new Date(), 5).toISOString(),
   },
 ];
 
