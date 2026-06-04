@@ -53,9 +53,18 @@ export default function AdminPage() {
               </CardTitle>
               <CardDescription>View and respond to user feedback and complaints.</CardDescription>
           </CardHeader>
-          <CardContent>
-              <Button variant="outline" disabled>
-                No New Inquiries
+          <CardContent className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link href="/dashboard/admin/support/competition">Competition</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/admin/support/book-shop">Book Shop</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/admin/support/user">User</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/admin/support/others">Others</Link>
               </Button>
           </CardContent>
         </Card>
