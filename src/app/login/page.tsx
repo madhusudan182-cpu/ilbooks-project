@@ -155,7 +155,8 @@ export default function LoginPage() {
                       id="new-password" 
                       type={showNewPassword ? 'text' : 'password'} 
                       required 
-                      className="pl-10 pr-10" 
+                      className="pl-10 pr-10 placeholder:text-black placeholder:opacity-100" 
+                      placeholder="o o o o o o"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
@@ -176,6 +177,8 @@ export default function LoginPage() {
                     id="confirm-password" 
                     type={showNewPassword ? 'text' : 'password'} 
                     required 
+                    className="placeholder:text-black placeholder:opacity-100"
+                    placeholder="o o o o o o"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
@@ -223,7 +226,13 @@ export default function LoginPage() {
                 </button>
               </div>
               <div className="relative">
-                <Input id="password" type={showPassword ? 'text' : 'password'} required className="pr-10" />
+                <Input 
+                    id="password" 
+                    type={showPassword ? 'text' : 'password'} 
+                    required 
+                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
+                    placeholder="o o o o o o"
+                />
                 <Button
                   type="button"
                   variant="ghost"

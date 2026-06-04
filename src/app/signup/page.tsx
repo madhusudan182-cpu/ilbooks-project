@@ -20,7 +20,7 @@ export default function SignupPage() {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-md mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign Up</CardTitle>
           <CardDescription className="text-base font-bold text-pink-500">Join the network of book lovers.</CardDescription>
@@ -47,7 +47,12 @@ export default function SignupPage() {
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input id="password" type={showPassword ? 'text' : 'password'} className="pr-10" />
+                <Input 
+                    id="password" 
+                    type={showPassword ? 'text' : 'password'} 
+                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
+                    placeholder="o o o o o o"
+                />
                 <Button
                   type="button"
                   variant="ghost"
@@ -62,7 +67,12 @@ export default function SignupPage() {
             <div className="grid gap-2">
               <Label htmlFor="confirm-password">Confirm Password</Label>
               <div className="relative">
-                <Input id="confirm-password" type={showConfirmPassword ? 'text' : 'password'} className="pr-10" />
+                <Input 
+                    id="confirm-password" 
+                    type={showConfirmPassword ? 'text' : 'password'} 
+                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
+                    placeholder="o o o o o o"
+                />
                  <Button
                   type="button"
                   variant="ghost"
