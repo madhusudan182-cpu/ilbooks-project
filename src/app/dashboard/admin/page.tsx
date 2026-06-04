@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, Trophy, CalendarClock } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, Trophy, CalendarClock, MessageSquareQuote } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -47,12 +47,15 @@ export default function AdminPage() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-2xl font-headline"><Package className="text-primary w-6 h-6"/> Customer Orders</CardTitle>
-              <CardDescription>View all completed transactions and order details.</CardDescription>
+              <CardTitle className="flex items-center gap-3 text-2xl font-headline">
+                <MessageSquareQuote className="text-primary w-6 h-6"/> 
+                Users Complain
+              </CardTitle>
+              <CardDescription>View and respond to user feedback and complaints.</CardDescription>
           </CardHeader>
           <CardContent>
-              <Button asChild>
-                <Link href="/dashboard/admin/orders">View All Orders</Link>
+              <Button variant="outline" disabled>
+                No New Complains
               </Button>
           </CardContent>
         </Card>
@@ -126,7 +129,7 @@ export default function AdminPage() {
             <CardTitle className="flex items-center gap-3 text-2xl font-headline">
               <Landmark className="text-primary w-6 h-6" /> Accounts
             </CardTitle>
-            <CardDescription>Manage financial transactions and user rewards.</CardDescription>
+            <CardDescription>Manage financial transactions, user rewards, and orders.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button asChild>
@@ -134,6 +137,9 @@ export default function AdminPage() {
             </Button>
             <Button asChild>
               <Link href="/dashboard/admin/accounts/prizes">Prizes & Gifts</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/dashboard/admin/orders">View All Orders</Link>
             </Button>
           </CardContent>
         </Card>
