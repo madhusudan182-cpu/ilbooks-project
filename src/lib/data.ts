@@ -94,7 +94,6 @@ export const mockPosts: Post[] = [
 
 // This mock data is no longer used for the main application logic.
 // Book data is now fetched from and managed in Firestore.
-// You can use the admin panel to add/edit books.
 export const mockBooks: Book[] = [];
 
 // Helper to get formatted dates for mock data
@@ -183,78 +182,30 @@ export const mockExamResults: ExamResult[] = [
     ],
     examDate: '2024-07-22',
   },
-  {
-    id: 'result-old-2',
-    userId: 'user-4',
-    userName: 'David Hasan',
-    userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
-    level: '0.5',
-    totalMarks: 30,
-    totalObtainedMarks: 17,
-    totalPercentage: 56.67,
-    overallStatus: 'Failed',
-    subjects: [
-        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 10, percentage: 66.67, status: 'Passed' },
-        { subject: 'English', totalMarks: 15, obtainedMarks: 7, percentage: 46.67, status: 'Failed' },
-    ],
-    examDate: '2024-07-21',
-  },
-  {
-    id: 'result-old-3',
-    userId: 'user-1',
-    userName: 'Alia Rahman',
-    userAvatarUrl: 'https://picsum.photos/seed/av1/100/100',
-    level: '1.9',
-    totalMarks: 20,
-    totalObtainedMarks: 11,
-    totalPercentage: 55,
-    overallStatus: 'Failed',
-    subjects: [
-      { subject: 'Bengali', totalMarks: 10, obtainedMarks: 6, percentage: 60, status: 'Passed' },
-      { subject: 'English', totalMarks: 10, obtainedMarks: 5, percentage: 50, status: 'Failed' },
-    ],
-    examDate: '2024-07-20',
-  },
-  {
-    id: 'result-old-4',
-    userId: 'user-5',
-    userName: 'Paban Alam',
-    userAvatarUrl: 'https://picsum.photos/seed/av5/100/100',
-    level: '0.0',
-    totalMarks: 60,
-    totalObtainedMarks: 45,
-    totalPercentage: 75,
-    overallStatus: 'Passed',
-    subjects: [
-      { subject: 'Bengali', totalMarks: 30, obtainedMarks: 20, percentage: 66.67, status: 'Passed' },
-      { subject: 'English', totalMarks: 30, obtainedMarks: 25, percentage: 83.33, status: 'Passed' },
-    ],
-    examDate: '2024-07-28',
-  },
 ];
 
 export const mockTransactions: Transaction[] = [
   {
     id: 'txn-1',
-    date: '2024-07-22',
+    date: today,
     type: 'Exam Fee',
-    amount: 20,
+    amount: 25,
     userId: 'user-2',
     userName: 'Ben Carter',
     status: 'Completed'
   },
   {
     id: 'txn-2',
-    date: '2024-07-22',
+    date: today,
     type: 'Book Shop',
-    amount: 800,
+    amount: 860,
     userId: 'user-3',
     userName: 'Cathy Liu',
     status: 'Completed'
   },
   {
     id: 'txn-3',
-    date: '2024-07-21',
+    date: yesterday,
     type: 'Patronage',
     amount: 1000,
     userId: 'user-1',
@@ -263,13 +214,58 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: 'txn-4',
-    date: '2024-07-19',
+    date: yesterday,
     type: 'Exam Fee',
     amount: 20,
     userId: 'user-4',
     userName: 'David Hasan',
     status: 'Completed'
   },
+  {
+    id: 'txn-5',
+    date: '2026-06-05',
+    type: 'Book Shop',
+    amount: 1200,
+    userId: 'user-2',
+    userName: 'Ben Carter',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-6',
+    date: '2026-06-05',
+    type: 'Exam Fee',
+    amount: 50,
+    userId: 'user-1',
+    userName: 'Alia Rahman',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-7',
+    date: '2026-05-15',
+    type: 'Patronage',
+    amount: 500,
+    userId: 'user-3',
+    userName: 'Cathy Liu',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-8',
+    date: '2025-12-25',
+    type: 'Book Shop',
+    amount: 3500,
+    userId: 'user-1',
+    userName: 'Alia Rahman',
+    status: 'Completed'
+  },
+  {
+    id: 'txn-9',
+    date: '2024-01-10',
+    type: 'Patronage',
+    amount: 2000,
+    userId: 'user-2',
+    userName: 'Ben Carter',
+    status: 'Completed'
+  }
 ];
 
 export const mockPrizeWinners: PrizeWinner[] = [
