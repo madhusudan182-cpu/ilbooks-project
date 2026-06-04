@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -41,7 +42,7 @@ export default function AdminPrizesPage() {
         const userLevelAttempts: { [key: string]: number } = {};
         const chronoSortedResults = [...mockExamResults].sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
 
-        const automaticWinners: (PrizeWinner & { date: string })[] = chronoSortedResults
+        const automatic winners: (PrizeWinner & { date: string })[] = chronoSortedResults
             .map(result => {
                 const key = `${result.userId}-${result.level}`;
                 userLevelAttempts[key] = (userLevelAttempts[key] || 0) + 1;
@@ -72,13 +73,18 @@ export default function AdminPrizesPage() {
 
     const handleMarkAsAwarded = (id: string) => {
         setWinners(prev => prev.map(w => w.id === id ? { ...w, status: 'Awarded', dateAwarded: new Date().toISOString() } : w));
-        toast({ title: "Prize status updated to 'Awarded'" });
+        const { dismiss } = toast({ title: "Prize status updated to 'Awarded'" });
+        setTimeout(dismiss, 3000);
     };
 
     const handleUpdatePrize = (id: string, amount: string) => setWinners(prev => prev.map(w => w.id === id ? { ...w, prize: `Tk. ${amount}` } : w));
 
     const handleAddWinner = () => {
-        if (!newWinnerUserId || !newWinnerPrize) { toast({ title: "Required fields missing", variant: "destructive" }); return; }
+        if (!newWinnerUserId || !newWinnerPrize) { 
+            const { dismiss } = toast({ title: "Required fields missing", variant: "destructive" }); 
+            setTimeout(dismiss, 3000);
+            return; 
+        }
         const user = mockUsers.find(u => u.id === newWinnerUserId);
         if (!user) return;
         const newWinner: PrizeWinner & { date: string } = {
@@ -92,7 +98,9 @@ export default function AdminPrizesPage() {
             date: format(selectedDate, 'yyyy-MM-dd')
         };
         setWinners(prev => [...prev, newWinner].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
-        toast({ title: "Winner added." }); setIsAddDialogOpen(false);
+        const { dismiss } = toast({ title: "Winner added." }); 
+        setTimeout(dismiss, 3000);
+        setIsAddDialogOpen(false);
     };
 
     const getAmount = (p: string) => parseInt(p.replace(/[^\d]/g, ''), 10) || 0;
