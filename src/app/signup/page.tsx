@@ -50,8 +50,8 @@ export default function SignupPage() {
                 <Input 
                     id="password" 
                     type={showPassword ? 'text' : 'password'} 
-                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
-                    placeholder="o o o o o o"
+                    className="pr-10 placeholder:text-muted-foreground/50" 
+                    placeholder="* * * * * *"
                 />
                 <Button
                   type="button"
@@ -70,8 +70,8 @@ export default function SignupPage() {
                 <Input 
                     id="confirm-password" 
                     type={showConfirmPassword ? 'text' : 'password'} 
-                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
-                    placeholder="o o o o o o"
+                    className="pr-10 placeholder:text-muted-foreground/50" 
+                    placeholder="* * * * * *"
                 />
                  <Button
                   type="button"

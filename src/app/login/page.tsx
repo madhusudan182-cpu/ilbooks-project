@@ -155,8 +155,8 @@ export default function LoginPage() {
                       id="new-password" 
                       type={showNewPassword ? 'text' : 'password'} 
                       required 
-                      className="pl-10 pr-10 placeholder:text-black placeholder:opacity-100" 
-                      placeholder="o o o o o o"
+                      className="pl-10 pr-10 placeholder:text-muted-foreground/50" 
+                      placeholder="* * * * * *"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
@@ -177,8 +177,8 @@ export default function LoginPage() {
                     id="confirm-password" 
                     type={showNewPassword ? 'text' : 'password'} 
                     required 
-                    className="placeholder:text-black placeholder:opacity-100"
-                    placeholder="o o o o o o"
+                    className="placeholder:text-muted-foreground/50"
+                    placeholder="* * * * * *"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
@@ -196,7 +196,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-sm mx-auto">
+      <Card className="w-full max-sm mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign In</CardTitle>
           <CardDescription>
@@ -230,8 +230,8 @@ export default function LoginPage() {
                     id="password" 
                     type={showPassword ? 'text' : 'password'} 
                     required 
-                    className="pr-10 placeholder:text-black placeholder:opacity-100" 
-                    placeholder="o o o o o o"
+                    className="pr-10 placeholder:text-muted-foreground/50" 
+                    placeholder="* * * * * *"
                 />
                 <Button
                   type="button"
