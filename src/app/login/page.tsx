@@ -104,7 +104,7 @@ export default function LoginPage() {
                     <Input
                       id="reset-email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder="youremail@email.com"
                       required
                       className="pl-10"
                       value={email}
@@ -207,7 +207,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="youremail@email.com"
                 required
               />
             </div>

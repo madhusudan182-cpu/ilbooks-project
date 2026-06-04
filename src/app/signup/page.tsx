@@ -40,7 +40,7 @@ export default function SignupPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="youremail@email.com"
                 required
               />
             </div>
