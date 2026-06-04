@@ -33,7 +33,7 @@ export default function AdminPrizesPage() {
     const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
-    const [viewMode, setViewMode] = useState<'day' | 'month'>('day');
+    const [viewMode, setViewMode] = useState<'day' | 'month'>('month');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
     const [newWinnerPrize, setNewWinnerPrize] = useState('200');
@@ -116,7 +116,6 @@ export default function AdminPrizesPage() {
 
     const getAmount = (p: string) => parseInt(p.replace(/[^\d]/g, ''), 10) || 0;
 
-    // Filter and then calculate cumulative so it's contextual to the current view (month or day)
     const filteredWinners = useMemo(() => {
         const list = winners.filter(w => {
             const wDate = new Date(w.date);
@@ -398,6 +397,14 @@ export default function AdminPrizesPage() {
                             </TableBody>
                         </Table>
                     )}
+
+                    <div className="mt-8 flex justify-center border-t pt-6">
+                        <Button asChild variant="outline" className="w-40 border-[#331362] text-[#331362] hover:bg-[#331362] hover:text-white transition-all font-bold">
+                            <Link href="/dashboard/admin">
+                                Back
+                            </Link>
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>
