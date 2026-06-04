@@ -48,11 +48,11 @@ const SummaryBox = ({ label, value, variant }: { label: string, value: number | 
     }[variant];
 
     return (
-        <div className={cn("flex items-center border rounded-sm overflow-hidden h-7 shadow-sm", config.border)}>
-            <div className={cn(config.labelBg, config.labelText, "px-2 h-full flex items-center text-[9px] font-black tracking-tighter border-r", config.labelColor)}>
-                {label.toUpperCase()}:
+        <div className={cn("flex items-center border rounded-sm overflow-hidden h-8 shadow-sm", config.border)}>
+            <div className={cn(config.labelBg, config.labelText, "px-3 h-full flex items-center text-[11px] font-bold tracking-tight border-r", config.labelColor)}>
+                {label}:
             </div>
-            <div className="bg-white px-3 h-full flex items-center text-xs font-bold min-w-[30px] justify-center text-black">
+            <div className="bg-white px-3 h-full flex items-center text-sm font-bold min-w-[35px] justify-center text-black">
                 {value}
             </div>
         </div>
