@@ -49,13 +49,13 @@ export default function AdminPage() {
           <CardHeader>
               <CardTitle className="flex items-center gap-3 text-2xl font-headline">
                 <MessageSquareQuote className="text-primary w-6 h-6"/> 
-                Users Complain
+                User Support
               </CardTitle>
               <CardDescription>View and respond to user feedback and complaints.</CardDescription>
           </CardHeader>
           <CardContent>
               <Button variant="outline" disabled>
-                No New Complains
+                No New Inquiries
               </Button>
           </CardContent>
         </Card>
