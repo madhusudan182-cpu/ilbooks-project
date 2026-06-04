@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -31,9 +32,10 @@ const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 
 export default function AdminPrizesPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
-    const [viewMode, setViewMode] = useState<'day' | 'month'>('month');
+    const [viewMode, setViewMode] = useState<'day' | 'month'>('day');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newWinnerUserId, setNewWinnerUserId] = useState<string | null>(null);
     const [newWinnerPrize, setNewWinnerPrize] = useState('200');
@@ -160,6 +162,14 @@ export default function AdminPrizesPage() {
         setViewMode('day');
     };
 
+    const handleBackAction = () => {
+        if (viewMode === 'month') {
+            setViewMode('day');
+        } else {
+            router.push('/dashboard/admin');
+        }
+    };
+
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
         return Array.from({ length: currentYear - 2020 + 1 }, (_, i) => (currentYear - i).toString());
@@ -176,11 +186,9 @@ export default function AdminPrizesPage() {
     return (
         <div className="p-4 md:p-6 lg:p-8">
             <div className="mb-4">
-                <Button asChild variant="ghost">
-                  <Link href="/dashboard/admin">
+                <Button variant="ghost" onClick={handleBackAction}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Admin Panel
-                  </Link>
+                    Back
                 </Button>
             </div>
 
@@ -399,10 +407,12 @@ export default function AdminPrizesPage() {
                     )}
 
                     <div className="mt-8 flex justify-center border-t pt-6">
-                        <Button asChild variant="outline" className="w-40 border-[#331362] text-[#331362] hover:bg-[#331362] hover:text-white transition-all font-bold">
-                            <Link href="/dashboard/admin">
-                                Back
-                            </Link>
+                        <Button 
+                            variant="outline" 
+                            className="w-40 border-[#331362] text-[#331362] hover:bg-[#331362] hover:text-white transition-all font-bold"
+                            onClick={handleBackAction}
+                        >
+                            Back
                         </Button>
                     </div>
                 </CardContent>
@@ -410,3 +420,4 @@ export default function AdminPrizesPage() {
         </div>
     );
 }
+
