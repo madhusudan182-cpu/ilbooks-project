@@ -97,9 +97,78 @@ export const mockPosts: Post[] = [
 // You can use the admin panel to add/edit books.
 export const mockBooks: Book[] = [];
 
+// Helper to get formatted dates for mock data
+const today = new Date().toISOString().split('T')[0];
+const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+const firstDayOfYear = `${new Date().getFullYear()}-01-01`;
+
 export const mockExamResults: ExamResult[] = [
   {
-    id: 'result-1',
+    id: 'result-today-1',
+    userId: 'user-2',
+    userName: 'Ben Carter',
+    userAvatarUrl: 'https://picsum.photos/seed/av2/100/100',
+    level: '1.5',
+    totalMarks: 20,
+    totalObtainedMarks: 18,
+    totalPercentage: 90,
+    overallStatus: 'Passed',
+    subjects: [
+      { subject: 'Bengali', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
+      { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
+    ],
+    examDate: today,
+  },
+  {
+    id: 'result-today-2',
+    userId: 'user-4',
+    userName: 'David Hasan',
+    userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
+    level: '0.5',
+    totalMarks: 30,
+    totalObtainedMarks: 25,
+    totalPercentage: 83.33,
+    overallStatus: 'Passed',
+    subjects: [
+        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 13, percentage: 86.67, status: 'Passed' },
+        { subject: 'English', totalMarks: 15, obtainedMarks: 12, percentage: 80, status: 'Passed' },
+    ],
+    examDate: today,
+  },
+  {
+    id: 'result-yesterday-1',
+    userId: 'user-3',
+    userName: 'Cathy Liu',
+    userAvatarUrl: 'https://picsum.photos/seed/av3/100/100',
+    level: '3.0',
+    totalMarks: 25,
+    totalObtainedMarks: 22,
+    totalPercentage: 88,
+    overallStatus: 'Passed',
+    subjects: [
+        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 13, percentage: 86.67, status: 'Passed' },
+        { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
+    ],
+    examDate: yesterday,
+  },
+  {
+    id: 'result-jan-1',
+    userId: 'user-1',
+    userName: 'Alia Rahman',
+    userAvatarUrl: 'https://picsum.photos/seed/av1/100/100',
+    level: '5.5',
+    totalMarks: 40,
+    totalObtainedMarks: 38,
+    totalPercentage: 95,
+    overallStatus: 'Passed',
+    subjects: [
+      { subject: 'Bengali', totalMarks: 20, obtainedMarks: 19, percentage: 95, status: 'Passed' },
+      { subject: 'English', totalMarks: 20, obtainedMarks: 19, percentage: 95, status: 'Passed' },
+    ],
+    examDate: firstDayOfYear,
+  },
+  {
+    id: 'result-old-1',
     userId: 'user-2',
     userName: 'Ben Carter',
     userAvatarUrl: 'https://picsum.photos/seed/av2/100/100',
@@ -115,7 +184,7 @@ export const mockExamResults: ExamResult[] = [
     examDate: '2024-07-22',
   },
   {
-    id: 'result-2',
+    id: 'result-old-2',
     userId: 'user-4',
     userName: 'David Hasan',
     userAvatarUrl: 'https://picsum.photos/seed/av4/100/100',
@@ -130,40 +199,8 @@ export const mockExamResults: ExamResult[] = [
     ],
     examDate: '2024-07-21',
   },
-    {
-    id: 'result-3',
-    userId: 'user-3',
-    userName: 'Cathy Liu',
-    userAvatarUrl: 'https://picsum.photos/seed/av3/100/100',
-    level: '3.0',
-    totalMarks: 25,
-    totalObtainedMarks: 22,
-    totalPercentage: 88,
-    overallStatus: 'Passed',
-    subjects: [
-        { subject: 'Bengali', totalMarks: 15, obtainedMarks: 13, percentage: 86.67, status: 'Passed' },
-        { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
-    ],
-    examDate: '2024-07-19',
-  },
   {
-    id: 'result-4',
-    userId: 'user-1',
-    userName: 'Alia Rahman',
-    userAvatarUrl: 'https://picsum.photos/seed/av1/100/100',
-    level: '2.0',
-    totalMarks: 20,
-    totalObtainedMarks: 18,
-    totalPercentage: 90,
-    overallStatus: 'Passed',
-    subjects: [
-      { subject: 'Bengali', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
-      { subject: 'English', totalMarks: 10, obtainedMarks: 9, percentage: 90, status: 'Passed' },
-    ],
-    examDate: '2024-07-25',
-  },
-  {
-    id: 'result-5',
+    id: 'result-old-3',
     userId: 'user-1',
     userName: 'Alia Rahman',
     userAvatarUrl: 'https://picsum.photos/seed/av1/100/100',
@@ -179,7 +216,7 @@ export const mockExamResults: ExamResult[] = [
     examDate: '2024-07-20',
   },
   {
-    id: 'result-6',
+    id: 'result-old-4',
     userId: 'user-5',
     userName: 'Paban Alam',
     userAvatarUrl: 'https://picsum.photos/seed/av5/100/100',
