@@ -148,7 +148,6 @@ export default function AdminResultsPage() {
     const years = useMemo(() => {
         const currentYear = getYear(new Date());
         const startYear = 2020;
-        // Generate years from currentYear down to 2020 so current year is topmost
         return Array.from({ length: currentYear - startYear + 1 }, (_, i) => (currentYear - i).toString());
     }, []);
 
@@ -266,29 +265,29 @@ export default function AdminResultsPage() {
                 <CardContent className="pt-6">
                     {!filterUserId ? (
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b pb-4">
-                            <h2 className="text-xl font-bold font-headline flex items-center gap-2">
+                            <h2 className="text-xl font-bold font-headline text-primary flex items-center gap-2">
                                 Results for: {format(selectedDate, 'do MMMM, yyyy')}
                                 {isSameDay(selectedDate, startOfToday()) && <Badge variant="outline" className="ml-2">Today</Badge>}
                             </h2>
                             
-                            {/* Summary Data Bar */}
+                            {/* Summary Data Bar - Styled as requested */}
                             {stats && (
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <div className="flex items-center overflow-hidden rounded-md border text-sm font-medium">
-                                        <div className="bg-muted px-3 py-1 border-r text-xs uppercase tracking-wider">Total:</div>
-                                        <div className="bg-card px-3 py-1">{stats.total}</div>
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center border border-slate-200 rounded-md overflow-hidden h-8 shadow-sm">
+                                        <div className="bg-slate-100 text-slate-700 px-3 h-full flex items-center text-[10px] font-bold tracking-wider border-r">TOTAL:</div>
+                                        <div className="bg-white px-3 h-full flex items-center text-sm font-bold min-w-[30px] justify-center">{stats.total}</div>
                                     </div>
-                                    <div className="flex items-center overflow-hidden rounded-md border border-yellow-500 text-sm font-medium">
-                                        <div className="bg-yellow-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Prize Winner:</div>
-                                        <div className="bg-yellow-50 px-3 py-1 text-yellow-700">{stats.prizeWinners}</div>
+                                    <div className="flex items-center border-orange-500 border rounded-md overflow-hidden h-8 shadow-sm">
+                                        <div className="bg-orange-400 text-white px-3 h-full flex items-center text-[10px] font-bold tracking-wider border-r border-orange-500">PRIZE WINNER:</div>
+                                        <div className="bg-white px-3 h-full flex items-center text-sm font-bold min-w-[30px] justify-center">{stats.prizeWinners}</div>
                                     </div>
-                                    <div className="flex items-center overflow-hidden rounded-md border border-green-500 text-sm font-medium">
-                                        <div className="bg-green-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Passed:</div>
-                                        <div className="bg-green-50 px-3 py-1 text-green-700">{stats.passed}</div>
+                                    <div className="flex items-center border-green-500 border rounded-md overflow-hidden h-8 shadow-sm">
+                                        <div className="bg-green-500 text-white px-3 h-full flex items-center text-[10px] font-bold tracking-wider border-r border-green-500">PASSED:</div>
+                                        <div className="bg-white px-3 h-full flex items-center text-sm font-bold min-w-[30px] justify-center">{stats.passed}</div>
                                     </div>
-                                    <div className="flex items-center overflow-hidden rounded-md border border-red-500 text-sm font-medium">
-                                        <div className="bg-red-500 text-white px-3 py-1 border-r text-xs uppercase tracking-wider">Failed:</div>
-                                        <div className="bg-red-50 px-3 py-1 text-red-700">{stats.failed}</div>
+                                    <div className="flex items-center border-red-500 border rounded-md overflow-hidden h-8 shadow-sm">
+                                        <div className="bg-red-500 text-white px-3 h-full flex items-center text-[10px] font-bold tracking-wider border-r border-red-500">FAILED:</div>
+                                        <div className="bg-white px-3 h-full flex items-center text-sm font-bold min-w-[30px] justify-center">{stats.failed}</div>
                                     </div>
                                 </div>
                             )}
