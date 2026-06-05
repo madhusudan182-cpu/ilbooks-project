@@ -22,7 +22,6 @@ import { currentUser } from '@/lib/auth';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-
 type NavItem = {
   href: string;
   title: string;
@@ -49,7 +48,6 @@ const iconNavItems: NavItem[] = [
     { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
     { href: '/dashboard/social', title: 'Social Circle', icon: Users },
 ];
-
 
 export default function DashboardLayout({
   children,
@@ -89,7 +87,6 @@ export default function DashboardLayout({
         <div className="flex h-12 items-center gap-4 px-4 md:px-6" suppressHydrationWarning>
           {!isClient && (
             <>
-              {/* Static placeholder for SSR to prevent layout shift */}
               <div className="flex items-center gap-2">
                  <Link href="/dashboard" className="flex items-center gap-2 text-pink-500">
                     <BookOpen className="w-6 h-6" />

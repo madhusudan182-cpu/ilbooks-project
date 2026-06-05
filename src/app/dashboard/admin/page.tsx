@@ -1,17 +1,16 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, Trophy, CalendarClock, MessageSquareQuote } from "lucide-react";
+import { Shield, Book, ListChecks, BookOpen, Package, ClipboardList, Landmark, BarChart, CalendarClock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { currentUser } from "@/lib/auth";
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
-import type { Order, SupportTicket } from '@/lib/types';
+import { collection } from 'firebase/firestore';
+import type { Order } from '@/lib/types';
 import { mockOrders } from '@/lib/data';
-import { cn } from "@/lib/utils";
 
 const NotificationBadge = ({ count }: { count: number }) => {
   if (count <= 0) return null;
