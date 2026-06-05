@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -105,7 +104,7 @@ export default function AdminPage() {
           <CardHeader>
               <CardTitle className="flex items-center gap-3 text-2xl font-headline">
                 <MessageSquareQuote className="text-primary w-6 h-6"/> 
-                User Support
+                User Complain
               </CardTitle>
               <CardDescription>View and respond to user feedback and complaints.</CardDescription>
           </CardHeader>
