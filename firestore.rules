@@ -7,7 +7,7 @@ service cloud.firestore {
     // uses a mock authentication system. In a real-world application,
     // these would be secured based on user authentication and roles.
     
-    // FORCE REDEPLOYMENT ID: 1741122334455 (Ensuring fresh sync for all collections)
+    // FORCE REDEPLOYMENT ID: 1741122445566 (System-wide permission refresh)
 
     match /users/{userId} {
       allow read, write: if true;
@@ -17,8 +17,12 @@ service cloud.firestore {
        allow read, write: if true;
     }
 
-    match /support_tickets/{ticketId} {
-      allow read, write: if true;
+    // Explicitly allow both collection-level queries and document-level access
+    match /support_tickets {
+      allow read, write, list: if true;
+      match /{ticketId} {
+        allow read, write: if true;
+      }
     }
 
     match /syllabi/{level} {
