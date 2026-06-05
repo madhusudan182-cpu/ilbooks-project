@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -40,6 +41,20 @@
         "status": { "type": "string", "enum": ["Paid", "Shipped", "Delivered"] }
       },
       "required": ["userId", "customerName", "deliveryAddress", "mobileNumber", "books", "totalAmount", "orderDate", "status"]
+    },
+    "SupportTicket": {
+      "title": "Support Ticket",
+      "description": "A user support request or complaint.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "type": { "type": "string", "enum": ["Competition", "Book Shop", "User Problem", "Others"] },
+        "content": { "type": "string" },
+        "status": { "type": "string", "enum": ["Open", "Resolved"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "type", "content", "status", "createdAt"]
     },
     "SyllabusTopic": {
       "title": "Syllabus Topic",
@@ -123,6 +138,10 @@
     "/orders/{orderId}": {
       "schema": { "$ref": "#/backend/entities/Order" },
       "description": "Stores customer book orders."
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": { "$ref": "#/backend/entities/SupportTicket" },
+      "description": "Stores user support requests and complaints."
     },
     "/syllabi/{level}": {
       "schema": { "$ref": "#/backend/entities/Syllabus" },

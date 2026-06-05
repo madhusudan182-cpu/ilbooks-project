@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,8 +9,8 @@ import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { currentUser } from "@/lib/auth";
 import { useFirestore, useCollection } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import type { Order } from '@/lib/types';
+import { collection, query, where } from 'firebase/firestore';
+import type { Order, SupportTicket } from '@/lib/types';
 import { mockOrders } from '@/lib/data';
 import { cn } from "@/lib/utils";
 
@@ -46,14 +47,28 @@ export default function AdminPage() {
         return allOrders?.filter(o => o.status === 'Paid').length || 0;
     }, [allOrders]);
 
-    // Mock counts for Support categories
-    const supportCounts = {
-        competition: 3,
-        bookShop: 5,
-        user: 2,
-        others: 1,
-        totalUser: 4
-    };
+    // Live Support Ticket Counts
+    const ticketsQuery = useMemo(() => (firestore ? query(collection(firestore, 'support_tickets'), where('status', '==', 'Open')) : null), [firestore]);
+    const { data: openTickets } = useCollection<SupportTicket>(ticketsQuery);
+
+    const supportCounts = useMemo(() => {
+      const counts = {
+          competition: 0,
+          bookShop: 0,
+          user: 0,
+          others: 0,
+          totalUser: 0
+      };
+      if (openTickets) {
+          openTickets.forEach(t => {
+              if (t.type === 'Competition') counts.competition++;
+              else if (t.type === 'Book Shop') counts.bookShop++;
+              else if (t.type === 'User Problem') counts.user++;
+              else if (t.type === 'Others') counts.others++;
+          });
+      }
+      return counts;
+    }, [openTickets]);
 
     useEffect(() => {
       setIsClient(true);
@@ -111,7 +126,7 @@ export default function AdminPage() {
 
               <div className="relative">
                 <Button asChild>
-                    <Link href="/dashboard/admin/support/user">User Problem</Link>
+                    <Link href="/dashboard/admin/support/user-problem">User Problem</Link>
                 </Button>
                 <NotificationBadge count={supportCounts.user} />
               </div>
