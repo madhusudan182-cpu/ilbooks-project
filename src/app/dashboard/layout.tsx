@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Gift, Bell, Shield, Package } from 'lucide-react';
+import { BookOpen, LogOut, Home, Trophy, Crown, MessageCircle, Users, Grid3x3, Bell, Shield, MessageSquareQuote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -37,7 +37,7 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
   { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
   { href: '/dashboard/social', title: 'Social Circle', icon: Users },
-  { href: '/dashboard/new-arrivals', title: 'New Arrivals', icon: Gift },
+  { href: '/dashboard/complain', title: 'Complain & Report', icon: MessageSquareQuote },
   { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell },
   { href: '/dashboard/admin', title: 'Admin', icon: Shield, adminOnly: true },
 ];
