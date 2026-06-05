@@ -7,7 +7,7 @@ service cloud.firestore {
     // uses a mock authentication system. In a real-world application,
     // these would be secured based on user authentication and roles.
     
-    // Deployment trigger comment: Updated support_tickets permissions.
+    // Deployment trigger comment: Re-applying rules to fix support_tickets permission error.
 
     match /users/{userId} {
       allow read, write: if true;
