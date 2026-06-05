@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -31,10 +32,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useFirestore } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 
 
 const allConversations = [
@@ -52,7 +49,7 @@ const allConversations = [
       isAdmin: true,
     } as User,
     messages: [
-      { id: 1, text: "Hello! How can I assist you today? Please fill out the support form to reach our team.", sender: 'ilbooks-admin', timestamp: '10:00 AM' },
+      { id: 1, text: "Hello! How can I assist you today?", sender: 'ilbooks-admin', timestamp: '10:00 AM' },
     ],
     lastMessage: "Hello! How can I assist you today?",
     timestamp: "10:00 AM",
@@ -83,12 +80,6 @@ export default function MessagesPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const firestore = useFirestore();
-
-  // Support Form State
-  const [supportType, setSupportType] = useState<string>('');
-  const [supportContent, setSupportContent] = useState<string>('');
-  const [isSubmittingSupport, setIsSubmittingSupport] = useState(false);
 
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -252,43 +243,6 @@ export default function MessagesPage() {
       }
   };
 
-  const handleSupportSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!firestore || !supportType || !supportContent) return;
-
-    setIsSubmittingSupport(true);
-    const ticketsCollection = collection(firestore, 'support_tickets');
-    const newTicket = {
-      userId: currentUser.id,
-      userName: currentUser.name,
-      type: supportType,
-      content: supportContent,
-      status: 'Open',
-      createdAt: serverTimestamp(),
-    };
-
-    addDoc(ticketsCollection, newTicket)
-      .then(() => {
-        toast({
-          title: "Inquiry Sent",
-          description: "Your message has been sent to our support team.",
-        });
-        setSupportType('');
-        setSupportContent('');
-        setSelectedConversation(null);
-        router.push('/dashboard/messages', { scroll: false });
-      })
-      .catch((serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: ticketsCollection.path,
-          operation: 'create',
-          requestResourceData: newTicket,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      })
-      .finally(() => setIsSubmittingSupport(false));
-  };
-
   const handleDeleteMessage = () => {
     if (!selectedConversation || messageToDelete === null) return;
     const updatedMessages = selectedConversation.messages.filter(m => m.id !== messageToDelete);
@@ -307,8 +261,6 @@ export default function MessagesPage() {
   };
 
   if (!isClient) return null;
-
-  const isAdminSupport = selectedConversation?.user.id === 'ilbooks-admin';
 
   return (
     <>
@@ -461,112 +413,49 @@ export default function MessagesPage() {
             </div>
 
             <ScrollArea className="flex-1 p-2 sm:p-4 lg:p-6 bg-slate-50/50">
-                {isAdminSupport ? (
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <Card className="w-full max-w-md shadow-lg border-2 border-primary/20">
-                            <CardHeader className="text-center bg-primary/5 rounded-t-lg">
-                                <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 border border-primary/10">
-                                    <MessageSquareQuote className="text-primary w-6 h-6" />
-                                </div>
-                                <CardTitle className="text-xl font-headline text-primary">Support Request</CardTitle>
-                                <CardDescription>Tell us how we can help you today.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <form id="support-form" onSubmit={handleSupportSubmit} className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="type" className="text-sm font-bold text-[#331362]">1. Choose Type</Label>
-                                        <Select value={supportType} onValueChange={setSupportType} required>
-                                            <SelectTrigger id="type" className="h-11 border-primary/20 focus:ring-primary">
-                                                <SelectValue placeholder="Select inquiry type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Competition">Competition</SelectItem>
-                                                <SelectItem value="Book Shop">Book Shop</SelectItem>
-                                                <SelectItem value="User Problem">User Problem</SelectItem>
-                                                <SelectItem value="Others">Others</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="content" className="text-sm font-bold text-[#331362]">2. Write your complain/ question</Label>
-                                        <Textarea 
-                                            id="content"
-                                            placeholder="Please describe your issue in detail..." 
-                                            className="min-h-[120px] border-primary/20 focus:ring-primary resize-none"
-                                            value={supportContent}
-                                            onChange={(e) => setSupportContent(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                </form>
-                            </CardContent>
-                            <CardFooter className="flex gap-3 pt-2 bg-muted/30 rounded-b-lg p-4">
-                                <Button 
-                                    variant="outline" 
-                                    className="flex-1 font-bold border-[#331362] text-[#331362]" 
-                                    onClick={() => router.push('/dashboard/messages', { scroll: false })}
-                                    disabled={isSubmittingSupport}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button 
-                                    type="submit" 
-                                    form="support-form" 
-                                    className="flex-1 font-bold bg-primary text-white"
-                                    disabled={isSubmittingSupport}
-                                >
-                                    {isSubmittingSupport ? "Sending..." : "Submit"}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {selectedConversation.messages.map(msg => (
-                        <div key={msg.id} className={cn("group flex w-full max-w-full items-end gap-2", msg.sender === currentUser.id && "justify-end")}>
-                            <div className={cn("flex items-end gap-2", msg.sender === currentUser.id ? "flex-row-reverse" : "flex-row")}>
-                                {msg.sender !== currentUser.id && (
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined} />
-                                    <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                )}
-                                <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary/10" : "bg-card")}>
-                                    <p className="break-words font-sans text-sm">{msg.text}</p>
-                                    <div className="flex justify-end items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
-                                        <span>{msg.timestamp}</span>
-                                    </div>
+                <div className="space-y-4">
+                    {selectedConversation.messages.map(msg => (
+                    <div key={msg.id} className={cn("group flex w-full max-w-full items-end gap-2", msg.sender === currentUser.id && "justify-end")}>
+                        <div className={cn("flex items-end gap-2", msg.sender === currentUser.id ? "flex-row-reverse" : "flex-row")}>
+                            {msg.sender !== currentUser.id && (
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined} />
+                                <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            )}
+                            <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary/10" : "bg-card")}>
+                                <p className="break-words font-sans text-sm">{msg.text}</p>
+                                <div className="flex justify-end items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
+                                    <span>{msg.timestamp}</span>
                                 </div>
                             </div>
                         </div>
-                        ))}
-                        <div ref={messagesEndRef} />
                     </div>
-                )}
+                    ))}
+                    <div ref={messagesEndRef} />
+                </div>
             </ScrollArea>
             
-            {!isAdminSupport && (
-                <div className="px-1 border-t bg-background">
-                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                        <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
-                            <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => fileInputRef.current?.click()}><Paperclip className="w-5 h-5"/></Button>
-                            <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => setIsCameraDialogOpen(true)}><Camera className="w-5 h-5"/></Button>
-                        </div>
-                        <div className="relative flex-1">
-                        <Input 
-                            ref={inputRef}
-                            placeholder="Message" 
-                            className="pr-10 h-9 rounded-full bg-muted" 
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onFocus={() => setIsInputFocused(true)}
-                            onBlur={() => setIsInputFocused(false)}
-                        />
-                        </div>
-                        <Button type="submit" aria-label="Send Message" className="shrink-0 h-9 w-9"><Send className="w-4 h-4"/></Button>
-                    </form>
-                </div>
-            )}
+            <div className="px-1 border-t bg-background">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                    <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => fileInputRef.current?.click()}><Paperclip className="w-5 h-5"/></Button>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => setIsCameraDialogOpen(true)}><Camera className="w-5 h-5"/></Button>
+                    </div>
+                    <div className="relative flex-1">
+                    <Input 
+                        ref={inputRef}
+                        placeholder="Message" 
+                        className="pr-10 h-9 rounded-full bg-muted" 
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onFocus={() => setIsInputFocused(true)}
+                        onBlur={() => setIsInputFocused(false)}
+                    />
+                    </div>
+                    <Button type="submit" aria-label="Send Message" className="shrink-0 h-9 w-9"><Send className="w-4 h-4"/></Button>
+                </form>
+            </div>
           </>
         ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
