@@ -15,6 +15,10 @@ service cloud.firestore {
        allow read, write: if true;
     }
 
+    match /support_tickets/{ticketId} {
+      allow read, write: if true;
+    }
+
     match /syllabi/{level} {
       allow read, write: if true;
     }

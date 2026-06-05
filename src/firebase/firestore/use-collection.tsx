@@ -37,11 +37,14 @@ export function useCollection<T>(query: Query<DocumentData> | null) {
         setState({ data, loading: false, error: null });
       },
       async (err) => {
-        console.error(err);
+        // Create the rich, contextual error asynchronously.
         const permissionError = new FirestorePermissionError({
-            path: (query as any)._query.path.segments.join('/'),
+            path: (query as any)._query?.path?.segments?.join('/') || 'unknown',
             operation: 'list',
         });
+        
+        // Emit the error with the global error emitter
+        // Do not use console.error() as it is handled centrally.
         errorEmitter.emit('permission-error', permissionError);
         setState({ data: null, loading: false, error: permissionError });
       }

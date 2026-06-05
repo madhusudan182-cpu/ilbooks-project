@@ -38,11 +38,14 @@ export function useDoc<T>(ref: DocumentReference<DocumentData> | null) {
         }
       },
       async (err) => {
-        console.error(err);
+        // Create the rich, contextual error asynchronously.
         const permissionError = new FirestorePermissionError({
             path: ref.path,
             operation: 'get',
         });
+
+        // Emit the error with the global error emitter
+        // Do not use console.error() as it is handled centrally.
         errorEmitter.emit('permission-error', permissionError);
         setState({ data: null, loading: false, error: permissionError });
       }
