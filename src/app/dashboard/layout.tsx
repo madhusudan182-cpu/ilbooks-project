@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/sheet";
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -37,7 +37,6 @@ const allNavItems: NavItem[] = [
   { href: '/dashboard/patron', title: 'Become a Patron', icon: Crown },
   { href: '/dashboard/messages', title: 'Chat', icon: MessageCircle },
   { href: '/dashboard/social', title: 'Social Circle', icon: Users },
-  { href: '/dashboard/complain', title: 'Complain & Report', icon: MessageSquareQuote },
   { href: '/dashboard/notice-board', title: 'Notifications', icon: Bell },
   { href: '/dashboard/admin', title: 'Admin', icon: Shield, adminOnly: true },
 ];

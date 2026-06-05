@@ -46,29 +46,6 @@ export default function AdminPage() {
         return allOrders?.filter(o => o.status === 'Paid').length || 0;
     }, [allOrders]);
 
-    // Live Support Ticket Counts
-    const ticketsQuery = useMemo(() => (firestore ? query(collection(firestore, 'support_tickets'), where('status', '==', 'Open')) : null), [firestore]);
-    const { data: openTickets } = useCollection<SupportTicket>(ticketsQuery);
-
-    const supportCounts = useMemo(() => {
-      const counts = {
-          competition: 0,
-          bookShop: 0,
-          user: 0,
-          others: 0,
-          totalUser: 0
-      };
-      if (openTickets) {
-          openTickets.forEach(t => {
-              if (t.type === 'Competition') counts.competition++;
-              else if (t.type === 'Book Shop') counts.bookShop++;
-              else if (t.type === 'User Problem') counts.user++;
-              else if (t.type === 'Others') counts.others++;
-          });
-      }
-      return counts;
-    }, [openTickets]);
-
     useEffect(() => {
       setIsClient(true);
         if (!currentUser.isAdmin) {
@@ -100,52 +77,6 @@ export default function AdminPage() {
       </Card>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-2xl font-headline">
-                <MessageSquareQuote className="text-primary w-6 h-6"/> 
-                User Complain
-              </CardTitle>
-              <CardDescription>View and respond to user feedback and complaints.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-              <div className="relative">
-                <Button asChild>
-                    <Link href="/dashboard/admin/support/competition">Competition</Link>
-                </Button>
-                <NotificationBadge count={supportCounts.competition} />
-              </div>
-
-              <div className="relative">
-                <Button asChild>
-                    <Link href="/dashboard/admin/support/book-shop">Book Shop</Link>
-                </Button>
-                <NotificationBadge count={supportCounts.bookShop} />
-              </div>
-
-              <div className="relative">
-                <Button asChild>
-                    <Link href="/dashboard/admin/support/user-problem">User Problem</Link>
-                </Button>
-                <NotificationBadge count={supportCounts.user} />
-              </div>
-
-              <div className="relative">
-                <Button asChild>
-                    <Link href="/dashboard/admin/support/others">Others</Link>
-                </Button>
-                <NotificationBadge count={supportCounts.others} />
-              </div>
-
-              <div className="relative">
-                <Button asChild>
-                    <Link href="/dashboard/admin/support/total-user">Total User</Link>
-                </Button>
-                <NotificationBadge count={supportCounts.totalUser} />
-              </div>
-          </CardContent>
-        </Card>
-        
         <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-3 text-2xl font-headline"><ClipboardList className="text-primary w-6 h-6"/> Exam Results</CardTitle>
