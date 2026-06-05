@@ -7,8 +7,7 @@ service cloud.firestore {
     // uses a mock authentication system. In a real-world application,
     // these would be secured based on user authentication and roles.
     
-    // Deployment trigger: Explicitly allowing recursive access to collections.
-    // FORCE REDEPLOYMENT ID: 1712345678901 (Resetting permissions for support_tickets)
+    // FORCE REDEPLOYMENT ID: 1741122334455 (Ensuring fresh sync for all collections)
 
     match /users/{userId} {
       allow read, write: if true;
@@ -18,9 +17,7 @@ service cloud.firestore {
        allow read, write: if true;
     }
 
-    // Using a recursive wildcard {allPaths=**} to ensure the collection
-    // and its contents are fully accessible during the 'list' operation.
-    match /support_tickets/{allPaths=**} {
+    match /support_tickets/{ticketId} {
       allow read, write: if true;
     }
 
