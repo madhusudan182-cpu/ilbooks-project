@@ -526,6 +526,7 @@ export default function MessagesPage() {
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => fileInputRef.current?.click()}><Paperclip className="w-5 h-5"/></Button>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => imageInputRef.current?.click()}><FileImage className="w-5 h-5"/></Button>
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => setIsCameraDialogOpen(true)}><Camera className="w-5 h-5"/></Button>
                     </div>
                     <div className="relative flex-1">
