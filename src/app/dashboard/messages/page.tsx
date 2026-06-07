@@ -71,7 +71,9 @@ type Message = Conversation['messages'][0];
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState('');
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [isTypingActive, setIsTypingActive] = useState(false);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -95,16 +97,21 @@ export default function MessagesPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
-  // Logic for the idle timer to show icons
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isInputFocused && newMessage.trim() === '') {
-      timer = setTimeout(() => {
-        setIsInputFocused(false);
-      }, 2000);
+  const startTypingTimer = () => {
+    setIsTypingActive(true);
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
     }
-    return () => clearTimeout(timer);
-  }, [isInputFocused, newMessage]);
+    typingTimerRef.current = setTimeout(() => {
+      setIsTypingActive(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -250,6 +257,8 @@ export default function MessagesPage() {
               allConversations[convIndex] = updatedConversation;
           }
           setNewMessage('');
+          setIsTypingActive(false);
+          if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
       }
   };
 
@@ -524,7 +533,7 @@ export default function MessagesPage() {
             
             <div className="px-1 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                    <div className={cn("flex items-center transition-all duration-300", isInputFocused ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
+                    <div className={cn("flex items-center transition-all duration-300", isTypingActive ? "w-0 -ml-2 overflow-hidden opacity-0" : "w-auto ml-0 opacity-100")}>
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10" onClick={() => fileInputRef.current?.click()}><Paperclip className="w-5 h-5"/></Button>
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => imageInputRef.current?.click()}><FileImage className="w-5 h-5"/></Button>
                         <Button type="button" variant="ghost" size="icon" className="shrink-0 h-10 w-10 -ml-2" onClick={() => setIsCameraDialogOpen(true)}><Camera className="w-5 h-5"/></Button>
@@ -535,9 +544,11 @@ export default function MessagesPage() {
                         placeholder="Message" 
                         className="pr-10 h-9 rounded-full bg-muted" 
                         value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onFocus={() => setIsInputFocused(true)}
-                        onBlur={() => setIsInputFocused(false)}
+                        onChange={(e) => {
+                          setNewMessage(e.target.value);
+                          startTypingTimer();
+                        }}
+                        onFocus={startTypingTimer}
                     />
                     </div>
                     <Button type="submit" aria-label="Send Message" className="shrink-0 h-9 w-9"><Send className="w-4 h-4"/></Button>
