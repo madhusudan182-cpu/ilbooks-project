@@ -95,6 +95,17 @@ export default function MessagesPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
+  // Logic for the idle timer to show icons
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isInputFocused && newMessage.trim() === '') {
+      timer = setTimeout(() => {
+        setIsInputFocused(false);
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [isInputFocused, newMessage]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRecording) {
@@ -474,7 +485,7 @@ export default function MessagesPage() {
                                     </div>
                                 </div>
                                 <div className={cn(
-                                    "absolute top-0 transition-opacity",
+                                    "absolute top-0",
                                     msg.sender === currentUser.id ? "-left-10" : "-right-10"
                                 )}>
                                     <DropdownMenu>
