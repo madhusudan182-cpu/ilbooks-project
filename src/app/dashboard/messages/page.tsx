@@ -399,7 +399,7 @@ export default function MessagesPage() {
                         </AvatarFallback>
                     ) : (
                         <>
-                            <AvatarImage src={selectedConversation.user.avatarUrl} alt={selectedConversation.user.name} />
+                            <AvatarImage src={selectedConversation.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation.user.avatarUrl : undefined} alt={selectedConversation.user.name} />
                             <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
                         </>
                     )}
@@ -409,6 +409,14 @@ export default function MessagesPage() {
                     <p className="text-xs text-muted-foreground leading-tight">
                         {selectedConversation.user.name === 'ILBooks' ? 'Admin Support' : `Level: ${selectedConversation.user.level.toFixed(1)}`}
                     </p>
+                </div>
+                <div className="flex items-center gap-0.5">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Audio'); setIsCallDialogOpen(true); }}>
+                        <Phone className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Video'); setIsCallDialogOpen(true); }}>
+                        <Video className="h-4 w-4" />
+                    </Button>
                 </div>
             </div>
 
@@ -423,10 +431,45 @@ export default function MessagesPage() {
                                 <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             )}
-                            <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary/10" : "bg-card")}>
-                                <p className="break-words font-sans text-sm">{msg.text}</p>
-                                <div className="flex justify-end items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
-                                    <span>{msg.timestamp}</span>
+                            <div className="relative group/msg">
+                                <div className={cn("max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] p-2 md:p-3 rounded-lg shadow-sm", msg.sender === currentUser.id ? "bg-primary/10" : "bg-card")}>
+                                    <p className="break-words font-sans text-sm">{msg.text}</p>
+                                    <div className="flex justify-end items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
+                                        <span>{msg.timestamp}</span>
+                                        {msg.sender === currentUser.id && (
+                                            msg.status === 'delivered' ? <CheckCheck className="w-3 h-3 text-primary" /> : <Check className="w-3 h-3" />
+                                        )}
+                                    </div>
+                                </div>
+                                <div className={cn(
+                                    "absolute top-0 opacity-0 group-hover/msg:opacity-100 transition-opacity",
+                                    msg.sender === currentUser.id ? "-left-10" : "-right-10"
+                                )}>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                                                <MoreVertical className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align={msg.sender === currentUser.id ? "end" : "start"}>
+                                            <DropdownMenuItem onClick={() => toast({ title: "Reply coming soon!" })}>
+                                                <Reply className="mr-2 h-4 w-4" /> Reply
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => {
+                                                navigator.clipboard.writeText(msg.text);
+                                                toast({ title: "Copied to clipboard" });
+                                            }}>
+                                                <Copy className="mr-2 h-4 w-4" /> Copy
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem 
+                                                className="text-destructive focus:text-destructive"
+                                                onClick={() => setMessageToDelete(msg.id)}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </div>
                         </div>
