@@ -8,7 +8,7 @@ export const mockUsers: User[] = [
     email: 'alia@example.com',
     mobile: '01711000001',
     avatarUrl: 'https://picsum.photos/seed/av1/100/100',
-    level: 5.5,
+    level: 0.3,
     institution: 'University of Dhaka',
     location: 'Dhaka, Bangladesh',
     hobbies: ['Classic Literature', 'Poetry', 'History'],
