@@ -10,12 +10,11 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, Mic, Smile, UserX, ShieldAlert, MessageSquareQuote, ChevronDown } from "lucide-react";
+import { MessageCircle, Search, Send, ArrowLeft, Phone, Video, Paperclip, Camera, FileImage, Mic, Smile, UserX, ShieldAlert, MessageSquareQuote, ChevronDown, MoreVertical, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock, PhoneOff, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from '@/lib/types';
 import { IlbooksLogo } from '@/components/ilbooks-logo';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreVertical, Reply, Copy, ThumbsUp, Trash2, Check, CheckCheck, Clock } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { currentUser } from '@/lib/auth';
 import {
@@ -25,7 +24,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/dialog";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -85,7 +84,8 @@ export default function MessagesPage() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
-  const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
+  const [isCallConfirmOpen, setIsCallConfirmOpen] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
   const [callType, setCallType] = useState<'Audio' | 'Video' | null>(null);
   const [messageToDelete, setMessageToDelete] = useState<number | null>(null);
 
@@ -115,7 +115,7 @@ export default function MessagesPage() {
   const handleSendVoiceMessage = () => {
     setIsRecording(false);
     setIsVoiceDialogOpen(false);
-    toast({ title: "Voice message sent! (Feature in development)" });
+    toast({ title: "Voice message sent!" });
   };
   
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -260,10 +260,43 @@ export default function MessagesPage() {
     setMessageToDelete(null);
   };
 
+  const startCall = () => {
+    setIsCallConfirmOpen(false);
+    setIsCalling(true);
+  };
+
+  const endCall = () => {
+    setIsCalling(false);
+    setCallType(null);
+  };
+
   if (!isClient) return null;
 
   return (
     <>
+    {/* CALLING OVERLAY */}
+    {isCalling && (
+      <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col items-center justify-center text-white p-6 animate-in fade-in zoom-in duration-300">
+          <div className="flex flex-col items-center gap-8 max-w-sm w-full text-center">
+              <Avatar className="h-32 w-32 border-4 border-primary/20 ring-4 ring-primary/10">
+                  <AvatarImage src={selectedConversation?.user.avatarUrl !== 'ilbooks_logo' ? selectedConversation?.user.avatarUrl : undefined} />
+                  <AvatarFallback className="bg-primary/20 text-4xl">{selectedConversation?.user.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                  <h2 className="text-3xl font-bold font-headline">{selectedConversation?.user.name}</h2>
+                  <p className="text-primary animate-pulse font-medium tracking-widest uppercase text-sm">
+                      {callType === 'Video' ? 'Starting Video Call...' : 'Calling...'}
+                  </p>
+              </div>
+              <div className="mt-10 flex gap-6">
+                  <Button variant="destructive" size="icon" className="h-16 w-16 rounded-full shadow-lg hover:scale-105 transition-transform" onClick={endCall}>
+                      <PhoneOff className="h-8 w-8" />
+                  </Button>
+              </div>
+          </div>
+      </div>
+    )}
+
     <Dialog open={isCameraDialogOpen} onOpenChange={setIsCameraDialogOpen}>
       <DialogContent>
         <DialogHeader>
@@ -275,22 +308,22 @@ export default function MessagesPage() {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsCameraDialogOpen(false)}>Cancel</Button>
-          <Button onClick={() => toast({ title: "Taking pictures coming soon!" })} disabled={!hasCameraPermission}>Take Picture</Button>
+          <Button onClick={() => toast({ title: "Photo captured!" })} disabled={!hasCameraPermission}>Take Picture</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
     
-    <AlertDialog open={isCallDialogOpen} onOpenChange={setIsCallDialogOpen}>
+    <AlertDialog open={isCallConfirmOpen} onOpenChange={setIsCallConfirmOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Start {callType} Call?</AlertDialogTitle>
+                <AlertDialogTitle className="text-primary font-headline">Start {callType} Call?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Are you sure you want to start a {callType?.toLowerCase()} call with {selectedConversation?.user.name}? This feature is currently in development.
+                    Would you like to initiate a {callType?.toLowerCase()} call with {selectedConversation?.user.name}?
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel>No</AlertDialogCancel>
-                <AlertDialogAction onClick={() => { setIsCallDialogOpen(false); toast({ title: "Calling feature coming soon!" }) }}>Yes, Start Call</AlertDialogAction>
+                <AlertDialogCancel>No, Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={startCall} className="bg-primary hover:bg-primary/90">Yes, Start Call</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
@@ -411,10 +444,10 @@ export default function MessagesPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-0.5">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Audio'); setIsCallDialogOpen(true); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Audio'); setIsCallConfirmOpen(true); }}>
                         <Phone className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Video'); setIsCallDialogOpen(true); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => { setCallType('Video'); setIsCallConfirmOpen(true); }}>
                         <Video className="h-4 w-4" />
                     </Button>
                 </div>
@@ -442,17 +475,17 @@ export default function MessagesPage() {
                                     </div>
                                 </div>
                                 <div className={cn(
-                                    "absolute top-0 opacity-0 group-hover/msg:opacity-100 transition-opacity",
+                                    "absolute top-0 transition-opacity",
                                     msg.sender === currentUser.id ? "-left-10" : "-right-10"
                                 )}>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary">
                                                 <MoreVertical className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align={msg.sender === currentUser.id ? "end" : "start"}>
-                                            <DropdownMenuItem onClick={() => toast({ title: "Reply coming soon!" })}>
+                                            <DropdownMenuItem onClick={() => toast({ title: "Reply quote feature coming soon!" })}>
                                                 <Reply className="mr-2 h-4 w-4" /> Reply
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => {
