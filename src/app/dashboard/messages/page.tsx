@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,8 @@ const allConversations = [
       institution: 'Bookworm Network',
       location: 'Digital Space',
       hobbies: [],
+      email: 'madhusudan.182@gmail.com',
+      signUpDate: new Date().toISOString(),
       isFollowing: true,
       isMutual: true,
       isAdmin: true,
@@ -69,6 +71,14 @@ type Conversation = (typeof allConversations)[0];
 type Message = Conversation['messages'][0];
 
 export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading Messages...</div>}>
+      <ChatContent />
+    </Suspense>
+  );
+}
+
+function ChatContent() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [isTypingActive, setIsTypingActive] = useState(false);
@@ -240,7 +250,7 @@ export default function MessagesPage() {
           text: newMessage,
           sender: currentUser.id,
           timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-          status: 'sent' as const,
+          status: 'delivered' as const,
       };
 
       if (newMessage.trim() !== '') {

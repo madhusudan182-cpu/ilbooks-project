@@ -128,7 +128,7 @@ export default function AllSyllabiPage() {
                 if (field === 'marks') {
                     return { ...s, marks: Number(value) || 0 };
                 }
-                return { ...s, [field]: value };
+                return { ...s, [field]: value } as any;
             }
             return s;
         }));

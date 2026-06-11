@@ -1,6 +1,17 @@
 import type { LucideIcon } from "lucide-react";
 import type { Timestamp } from 'firebase/firestore';
 
+export interface SupportTicket {
+  id: string; // যদি থাকে
+  status?: string; // যদি থাকে
+  userName: string;
+  userId: string;
+  content: string;
+  createdAt: { seconds: number; nanoseconds: number }; // আপনার ডাটাবেজ অনুযায়ী string বা Date দিন
+  // আপনার আগের অন্য কোনো প্রপার্টি থাকলে তাও নিচে রেখে দিন...
+}
+
+
 export type User = {
   id: string;
   name: string;
