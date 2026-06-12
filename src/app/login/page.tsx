@@ -2,18 +2,21 @@
 
 import { useState } from 'react';
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+import { useRouter } from 'next/navigation';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowLeft, Mail, ShieldCheck, KeyRound } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { auth } from '@/firebase/config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 type AuthMode = 'login' | 'forgot-password';
 type ResetStep = 'email' | 'otp' | 'new-password';
@@ -23,12 +26,33 @@ export default function LoginPage() {
   const [resetStep, setResetStep] = useState<ResetStep>('email');
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  
+  // এখানে ইমেইল এবং পাসওয়ার্ডের স্টেট দুটিই সঠিকভাবে ডিফাইন করা হলো
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
   const [otp, setOtp] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { toast } = useToast();
+  const router = useRouter();
+
+  // রিয়েল ফায়ারবেস সাইন-ইন লজিক
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({ title: "সফলভাবে লগইন হয়েছে!" });
+      router.push('/dashboard');
+    } catch (error) {
+      toast({ 
+        title: "লগইন ব্যর্থ হয়েছে", 
+        description: "ইমেইল বা পাসওয়ার্ড ভুল দেওয়া হয়েছে।", 
+        variant: "destructive" 
+      });
+    }
+  };
 
   const handleSendCode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,13 +228,16 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          {/* এখানে পুরো ইনপুট ফিল্ড ও বাটনকে form এর ভেতর নেওয়া হয়েছে এবং স্টেট বাইন্ড করা হয়েছে */}
+          <form onSubmit={handleSignIn} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="youremail@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -229,6 +256,8 @@ export default function LoginPage() {
                 <Input 
                     id="password" 
                     type={showPassword ? 'text' : 'password'} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required 
                     className="pr-10 placeholder:text-muted-foreground/50" 
                     placeholder="* * * * * *"
@@ -247,11 +276,10 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full font-headline bg-accent text-accent-foreground hover:bg-accent/90"
-              asChild
             >
-              <Link href="/dashboard">Sign In</Link>
+              Sign In
             </Button>
-          </div>
+          </form>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="underline">
